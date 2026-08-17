@@ -16,6 +16,7 @@ TES (Tesserania Economy System) is a PaperMC plugin (`de.bydora.tes.TesseraniaEc
 
 ## Working conventions
 
+- **Staged development**: development proceeds in stages, tracked in `docs/ROADMAP.md` — check it before starting new feature work, and update its status checkboxes as stages ship.
 - **Ground truth**: `docs/Tesserania-Economy-System.pdf` is authoritative for feature behavior, commands, values, and layouts. Implement to the spec; if it's ambiguous or silent on something, ask rather than guessing.
 - **Language split**: all code (identifiers, code comments, commit messages, dev-facing docs) is in English. Anything player/user-facing — in-game messages, GUI item names/lore, user documentation/guides — is in German, matching the spec.
 - **Comments**: keep code comments minimal. Favor a proper Javadoc (`/** ... */`) on public/API-facing classes and methods over inline comments; add an inline comment only where the logic itself is genuinely hard to follow. Don't narrate obvious code.
