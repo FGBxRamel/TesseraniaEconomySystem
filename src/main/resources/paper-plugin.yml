@@ -1,0 +1,9 @@
+name: TES
+description: $description
+version: '${version}'
+
+main: de.bydora.tes.TesseraniaEconomySystem
+api-version: '26.2'
+load: STARTUP
+
+authors: [ FGBxRamel ]
