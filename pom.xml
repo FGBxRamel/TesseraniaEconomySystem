@@ -53,6 +53,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+                Local dev/test server (not part of the release build): `mvn run-paper:install verify
+                run-paper:run-server` downloads a real Paper server, drops in the freshly-built shaded
+                jar, and boots it under target/run. Bound to the IntelliJ run configuration in .run/.
+            -->
+            <plugin>
+                <groupId>blue.lhf</groupId>
+                <artifactId>run-paper-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <minecraftVersion>26.2</minecraftVersion>
+                    <acceptEula>true</acceptEula>
+                    <serverDirectory>run</serverDirectory>
+                    <hotswap>true</hotswap>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -68,6 +84,14 @@
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>lhf-releases</id>
+            <name>Ilari's Project Repository</name>
+            <url>https://maven.lhf.blue/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>

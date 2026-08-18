@@ -1,0 +1,40 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Test Server" type="MavenRunConfiguration" factoryName="Maven">
+    <MavenSettings>
+      <MavenSimpleSettings>
+        <option name="workingDirPath" value="$PROJECT_DIR$" />
+        <option name="explicitProfiles">
+          <set />
+        </option>
+        <option name="goals">
+          <list>
+            <option value="run-paper:install" />
+            <option value="verify" />
+            <option value="run-paper:run-server" />
+          </list>
+        </option>
+        <option name="mavenProperties">
+          <map />
+        </option>
+        <option name="pomFileOptions">
+          <map>
+            <entry key="$PROJECT_DIR$/pom.xml">
+              <value>
+                <MavenPomFileOptions />
+              </value>
+            </entry>
+          </map>
+        </option>
+        <option name="profilesMap">
+          <map />
+        </option>
+        <option name="resolveToWorkspace" value="false" />
+        <option name="selectedOptions">
+          <list />
+        </option>
+        <option name="skipTests" value="false" />
+      </MavenSimpleSettings>
+    </MavenSettings>
+    <method v="2" />
+  </configuration>
+</component>
