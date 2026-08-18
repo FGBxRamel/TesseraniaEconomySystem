@@ -3,8 +3,6 @@ package de.bydora.tes.shop;
 import de.bydora.tes.util.Messages;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockExplodeEvent;
@@ -14,7 +12,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 
 /**
  * Enforces that a converted shop container is indestructible in survival/adventure (spec
@@ -79,14 +76,6 @@ public final class ShopProtectionListener implements Listener {
     }
 
     private boolean isShopInventory(Inventory inventory) {
-        InventoryHolder holder = inventory.getHolder();
-        if (holder instanceof DoubleChest doubleChest) {
-            return isShopHolder(doubleChest.getLeftSide()) || isShopHolder(doubleChest.getRightSide());
-        }
-        return isShopHolder(holder);
-    }
-
-    private boolean isShopHolder(InventoryHolder holder) {
-        return holder instanceof BlockState state && isShopBlock(state.getBlock());
+        return ShopBlocks.resolveShop(registry, inventory.getHolder()).isPresent();
     }
 }

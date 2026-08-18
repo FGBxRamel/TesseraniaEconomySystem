@@ -9,6 +9,7 @@ import de.bydora.tes.shop.PendingNotificationRepository;
 import de.bydora.tes.shop.ShopProtectionListener;
 import de.bydora.tes.shop.ShopRegistry;
 import de.bydora.tes.shop.ShopRepository;
+import de.bydora.tes.shop.ShopTradeListener;
 import de.bydora.tes.shop.ShopTransactionRepository;
 import de.bydora.tes.shop.SqlitePendingNotificationRepository;
 import de.bydora.tes.shop.SqliteShopRepository;
@@ -52,6 +53,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
         Bukkit.getPluginManager().registerEvents(new ShopChatListener(this, shopSessionManager, shopRepository, shopRegistry), this);
+        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(shopRegistry, shopTransactionRepository), this);
     }
 
     @Override

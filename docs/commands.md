@@ -108,3 +108,7 @@ stornierbar (an der Diamanten-Schwingungsanimation im Slot erkennbar, wie beim
 Enderperlen-Cooldown) – ein erneuter Klick auf denselben Slot innerhalb dieser Frist macht den
 Kauf rückgängig. Erst nach Ablauf der Frist kann der Shopbesitzer die Diamanten entnehmen; TP/EP
 werden dem Käufer zu diesem Zeitpunkt automatisch gutgeschrieben.
+
+Shopbesitzer füllen einen Shop nach, indem sie das konfigurierte Item einfach in einen freien
+Slot legen – andere Items werden abgelehnt. Shift-Klicks und Drag-Aktionen sind im Shop-Inventar
+deaktiviert, um beim Kauf/Nachfüllen ausschließlich beim beschriebenen Einzelklick zu bleiben.

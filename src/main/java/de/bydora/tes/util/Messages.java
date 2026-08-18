@@ -246,4 +246,16 @@ public final class Messages {
         return Component.text("Du wurdest zu Shop \"" + name + "\" teleportiert.", NamedTextColor.GREEN);
     }
 
+    public static Component notEnoughTaler() {
+        return Component.text("Nicht genügend Taler.", NamedTextColor.RED);
+    }
+
+    public static Component shopWithdrawCooldownActive() {
+        return Component.text("Diese Diamanten sind noch innerhalb der Stornierungsfrist des Käufers und können nicht entnommen werden.", NamedTextColor.RED);
+    }
+
+    public static Component shopWrongItemForShop(String item) {
+        return Component.text("Dieser Shop verkauft nur " + item + ".", NamedTextColor.RED);
+    }
+
 }

@@ -20,6 +20,12 @@ public interface ShopTransactionRepository {
     Optional<ShopTransactionRecord> findPendingBySlot(String shopWorld, String shopId, int slot, UUID buyer);
 
     /**
+     * Whichever still-{@code PENDING} transaction occupies {@code slot}, regardless of buyer —
+     * used by the owner-side withdraw cooldown check.
+     */
+    Optional<ShopTransactionRecord> findPendingBySlot(String shopWorld, String shopId, int slot);
+
+    /**
      * All {@code PENDING} transactions for a shop — force-refunded when the shop is closed or
      * found orphaned.
      */

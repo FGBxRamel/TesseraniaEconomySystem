@@ -68,6 +68,22 @@ public final class SqliteShopTransactionRepository implements ShopTransactionRep
     }
 
     @Override
+    public Optional<ShopTransactionRecord> findPendingBySlot(String shopWorld, String shopId, int slot) {
+        return database.execute(() -> {
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "SELECT * FROM shop_transactions WHERE shop_world = ? AND shop_id = ? AND slot = ? AND state = ?")) {
+                statement.setString(1, shopWorld);
+                statement.setString(2, shopId);
+                statement.setInt(3, slot);
+                statement.setString(4, TransactionState.PENDING.name());
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    return resultSet.next() ? Optional.of(toRecord(resultSet)) : Optional.empty();
+                }
+            }
+        });
+    }
+
+    @Override
     public List<ShopTransactionRecord> findPendingForShop(String shopWorld, String shopId) {
         return database.execute(() -> {
             List<ShopTransactionRecord> transactions = new ArrayList<>();
