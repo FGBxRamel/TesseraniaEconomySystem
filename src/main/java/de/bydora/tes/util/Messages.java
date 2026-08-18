@@ -77,4 +77,11 @@ public final class Messages {
         return Component.text(name + " wurde endgültig aus dem Belohnungssystem entfernt. Alle zugehörigen Daten wurden gelöscht.", NamedTextColor.GREEN);
     }
 
+    /**
+     * Confirms an admin TP/EP adjustment, e.g. {@code punkteUpdated("Treuepunkte", "Foo", 42)}.
+     */
+    public static Component punkteUpdated(String kontoLabel, String name, int newValue) {
+        return Component.text(name + "s " + kontoLabel + " wurden angepasst. Neuer Stand: " + newValue, NamedTextColor.GREEN);
+    }
+
 }

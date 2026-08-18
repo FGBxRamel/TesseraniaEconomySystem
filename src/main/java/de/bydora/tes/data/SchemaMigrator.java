@@ -25,7 +25,67 @@ final class SchemaMigrator {
                 registered_at     INTEGER NOT NULL,
                 updated_at        INTEGER NOT NULL
             )
+            """,
             """
+            CREATE TABLE IF NOT EXISTS shops (
+                id              TEXT NOT NULL,
+                world           TEXT NOT NULL,
+                name            TEXT NOT NULL,
+                item            TEXT NOT NULL,
+                price           INTEGER NOT NULL,
+                container_type  TEXT NOT NULL,
+                pos_x           INTEGER NOT NULL,
+                pos_y           INTEGER NOT NULL,
+                pos_z           INTEGER NOT NULL,
+                pos2_x          INTEGER,
+                pos2_y          INTEGER,
+                pos2_z          INTEGER,
+                teleport_world  TEXT,
+                teleport_x      REAL,
+                teleport_y      REAL,
+                teleport_z      REAL,
+                teleport_yaw    REAL,
+                teleport_pitch  REAL,
+                created_at      INTEGER NOT NULL,
+                updated_at      INTEGER NOT NULL,
+                closed_at       INTEGER,
+                PRIMARY KEY (world, id)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS shop_owners (
+                shop_world TEXT NOT NULL,
+                shop_id    TEXT NOT NULL,
+                uuid       TEXT NOT NULL,
+                PRIMARY KEY (shop_world, shop_id, uuid),
+                FOREIGN KEY (shop_world, shop_id) REFERENCES shops(world, id)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS shop_transactions (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                shop_world   TEXT NOT NULL,
+                shop_id      TEXT NOT NULL,
+                slot         INTEGER NOT NULL,
+                buyer_uuid   TEXT NOT NULL,
+                item         TEXT NOT NULL,
+                amount       INTEGER NOT NULL,
+                price        INTEGER NOT NULL,
+                state        TEXT NOT NULL,
+                purchased_at INTEGER NOT NULL,
+                resolved_at  INTEGER,
+                FOREIGN KEY (shop_world, shop_id) REFERENCES shops(world, id)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS pending_notifications (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                uuid       TEXT NOT NULL,
+                message    TEXT NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_shop_transactions_pending ON shop_transactions(state, purchased_at)"
     );
 
     private SchemaMigrator() {

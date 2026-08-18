@@ -22,6 +22,26 @@ public interface PlayerRepository {
     void setPaused(UUID uuid, boolean paused);
 
     /**
+     * Adds {@code delta} (which may be negative) to the player's Treuepunkte, clamped at 0.
+     */
+    void addTreuepunkte(UUID uuid, int delta);
+
+    /**
+     * Sets the player's Treuepunkte to {@code value}, clamped at 0.
+     */
+    void setTreuepunkte(UUID uuid, int value);
+
+    /**
+     * Adds {@code delta} (which may be negative) to the player's Erfahrungspunkte, clamped at 0.
+     */
+    void addErfahrungspunkte(UUID uuid, int delta);
+
+    /**
+     * Sets the player's Erfahrungspunkte to {@code value}, clamped at 0.
+     */
+    void setErfahrungspunkte(UUID uuid, int value);
+
+    /**
      * Permanently and irrecoverably deletes the player's record and all associated TES data.
      */
     void delete(UUID uuid);
