@@ -30,7 +30,7 @@ Da das Entfernen eines Spielers **unwiderruflich alle** mit ihm verbundenen Date
 Admin die Aktion erneut bestätigen:
 
 1. `/tes spieler remove <Name>` ausführen.
-2. Im Chat erscheint eine Warnung mit einem anklickbaren `[Bestätigen]`-Button.
+2. Im Chat erscheint eine Warnung mit einem anklickbaren `»» BESTÄTIGEN ««`-Button.
 3. Innerhalb von **30 Sekunden** den Button anklicken (oder den vorgeschlagenen Befehl inkl.
    Bestätigungscode erneut eingeben). Danach verfällt die Bestätigung und der Befehl muss neu
    gestartet werden.

@@ -9,6 +9,8 @@ Development proceeds in stages. Each stage adds one or more significant features
 - **Permissions**: [LuckPerms](https://luckperms.net/) is a hard requirement on the target server. TES does not implement its own permission system — it only needs to define and check sufficient permission nodes (e.g. `tes.admin`, `tes.shop.create`, `tes.rechnung.erstellen`, ...). Granting/assigning nodes to players/groups is server-side LuckPerms configuration, out of scope for this plugin.
 - **Worlds**: a separate plugin already manages worlds on the server, using only standard Bukkit world APIs. Farm-world creation/reset (Stage 5) should stick to standard Bukkit world-management calls, which should coexist without conflict.
 - **GUI implementation**: whether to hand-roll inventory-GUI handling or pull in a third-party GUI library is an open implementation choice — revisit it at the start of Stage 3, the first GUI-heavy stage (multi-level chest interfaces with sub-interfaces, pagination, back-navigation).
+- **Commands**: `/tes` (and later `/bp`/`/backpack`) subcommands are real Brigadier command trees (`Commands.literal(...).then(...)`), registered via a `PluginBootstrap` (`TesBootstrap`, using `LifecycleEvents.COMMANDS`) during the bootstrap phase — not Paper's `BasicCommand` shim, and not legacy `plugin.yml`-style YAML command declarations (Paper plugins don't support those at all). This was decided in Stage 0 after `BasicCommand` shipped with broken tab-completion; follow the shape in `TesCommand`/`SpielerCommand` for new subcommands.
+- **Local dev/test server**: `mvn run-paper:install verify exec:exec@download-luckperms run-paper:run-server` (or the shared IntelliJ "Run Test Server" config in `.run/`) boots a real Paper server with the plugin and LuckPerms auto-installed. See `docs/dev-server.md`.
 
 ## Branching & versioning convention
 
@@ -23,7 +25,7 @@ Development proceeds in stages. Each stage adds one or more significant features
 Status: `[ ]` not started
 Implements: §1.2, §1.4 (partial)
 
-- Persistent player data layer (registration record, TP/EP/level counters, pause/sanction flag) — storage approach (flat per-player YAML vs. embedded SQLite) to be decided during implementation.
+- Persistent player data layer (registration record, TP/EP/level counters, pause/sanction flag) — implemented via embedded SQLite (`org.xerial:sqlite-jdbc`, schema-versioned through `PRAGMA user_version` in `SchemaMigrator`), chosen over flat per-player YAML for the relational drill-down queries later stages need (Stage 4 income drill-down, Stage 1 shop/transaction records).
 - Central config system (ratios Taler:TP / Taler:EP, spec defaults 1:5 / 1:3).
 - `/tes` command with subcommand dispatch and a defined set of LuckPerms permission nodes per subcommand (admin vs. player-facing).
 - `/tes spieler add|remove|pause|unpause <Name>`, including the required re-confirmation step for `remove` and full data wipe on confirmed removal.
