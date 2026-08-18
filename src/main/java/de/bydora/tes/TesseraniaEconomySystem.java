@@ -37,6 +37,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private PendingNotificationRepository pendingNotificationRepository;
     private ShopRegistry shopRegistry;
     private ShopSessionManager shopSessionManager;
+    private ShopChatListener shopChatListener;
     private BukkitTask shopMaintenanceTask;
 
     @Override
@@ -55,8 +56,10 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         shopRegistry.load();
         shopSessionManager = new ShopSessionManager(Duration.ofSeconds(tesConfig.shopSessionTimeoutSeconds()));
 
+        shopChatListener = new ShopChatListener(this, shopSessionManager, shopRepository, shopRegistry);
+
         Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
-        Bukkit.getPluginManager().registerEvents(new ShopChatListener(this, shopSessionManager, shopRepository, shopRegistry), this);
+        Bukkit.getPluginManager().registerEvents(shopChatListener, this);
         Bukkit.getPluginManager().registerEvents(new ShopTradeListener(shopRegistry, shopTransactionRepository), this);
         Bukkit.getPluginManager().registerEvents(new PendingNotificationListener(pendingNotificationRepository), this);
 
@@ -101,6 +104,10 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
     public ShopSessionManager shopSessionManager() {
         return shopSessionManager;
+    }
+
+    public ShopChatListener shopChatListener() {
+        return shopChatListener;
     }
 
     public TesConfig tesConfig() {

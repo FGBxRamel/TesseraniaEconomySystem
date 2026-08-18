@@ -15,6 +15,8 @@ import de.bydora.tes.shop.ShopRecord;
 import de.bydora.tes.shop.ShopRegistry;
 import de.bydora.tes.shop.ShopRepository;
 import de.bydora.tes.shop.ShopTransactionRepository;
+import de.bydora.tes.shop.session.ShopSession;
+import de.bydora.tes.shop.session.ShopSessionField;
 import de.bydora.tes.shop.session.ShopSessionManager;
 import de.bydora.tes.util.Messages;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -75,7 +77,13 @@ public final class ShopCommand {
                         .then(Commands.argument("world", StringArgumentType.word())
                                 .suggests(ShopCommand::suggestWorlds)
                                 .then(Commands.argument("id", StringArgumentType.word())
-                                        .executes(ShopCommand::teleport))));
+                                        .executes(ShopCommand::teleport))))
+                .then(Commands.literal("feld")
+                        .then(Commands.argument("key", StringArgumentType.word())
+                                .suggests(ShopCommand::suggestFieldKeys)
+                                .executes(ShopCommand::feld)))
+                .then(Commands.literal("bestaetigen").executes(ShopCommand::bestaetigen))
+                .then(Commands.literal("abbrechen").executes(ShopCommand::abbrechen));
     }
 
     private static CompletableFuture<Suggestions> suggestWorlds(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
@@ -84,6 +92,19 @@ public final class ShopCommand {
                 .map(World::getName)
                 .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
                 .forEach(builder::suggest);
+        return builder.buildFuture();
+    }
+
+    private static CompletableFuture<Suggestions> suggestFieldKeys(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        if (ctx.getSource().getSender() instanceof Player player) {
+            plugin().shopSessionManager().active(player.getUniqueId())
+                    .map(ShopSession::mode)
+                    .ifPresent(mode -> ShopSessionField.visibleFor(mode).stream()
+                            .map(ShopSessionField::key)
+                            .filter(key -> key.startsWith(remaining))
+                            .forEach(builder::suggest));
+        }
         return builder.buildFuture();
     }
 
@@ -110,8 +131,9 @@ public final class ShopCommand {
             sender.sendMessage(Messages.shopSessionAlreadyActive());
             return Command.SINGLE_SUCCESS;
         }
-        sessions.startCreate(player.getUniqueId(), world.getName());
+        ShopSession session = sessions.startCreate(player.getUniqueId(), world.getName());
         sender.sendMessage(Messages.shopCreateStart(world.getName()));
+        sender.sendMessage(plugin().shopChatListener().renderMenu(session));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -131,8 +153,35 @@ public final class ShopCommand {
             sender.sendMessage(Messages.shopSessionAlreadyActive());
             return Command.SINGLE_SUCCESS;
         }
-        sessions.startEdit(player.getUniqueId(), shop);
+        ShopSession session = sessions.startEdit(player.getUniqueId(), shop);
         sender.sendMessage(Messages.shopEditStart(shop.world(), shop.id(), shop.name()));
+        sender.sendMessage(plugin().shopChatListener().renderMenu(session));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int feld(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        if (!(sender instanceof Player player)) {
+            return Command.SINGLE_SUCCESS;
+        }
+        Optional<ShopSessionField> field = ShopSessionField.fromKey(StringArgumentType.getString(ctx, "key"));
+        field.ifPresent(f -> plugin().shopChatListener().armField(player, f));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int bestaetigen(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        if (sender instanceof Player player) {
+            plugin().shopChatListener().confirmFromClick(player);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int abbrechen(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        if (sender instanceof Player player) {
+            plugin().shopChatListener().cancelFromClick(player);
+        }
         return Command.SINGLE_SUCCESS;
     }
 

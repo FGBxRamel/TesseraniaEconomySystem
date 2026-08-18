@@ -73,11 +73,19 @@ Jeder Spieler darf eigene Shops verwalten – dafür ist keine Admin-Berechtigun
 
 ### Shop erstellen – `/tes shop erstellen <Welt>`
 
-Startet eine Chat-geführte Einrichtung (angelehnt an das BlueMap-Marker-Plugin): der Server
-fragt nacheinander nach ID, Name, weiteren Besitzern, der Position (per Rechtsklick auf den
-Container), dem verkauften Item, dem Preis pro Slot und optional einem Teleportpunkt. Am Ende
-wird eine Zusammenfassung angezeigt; `bestätigen` speichert den Shop, `abbrechen` verwirft ihn.
-`abbrechen` funktioniert jederzeit während der Einrichtung.
+Startet eine Chat-geführte Einrichtung, angelehnt an das BlueMap-Marker-Plugin: der Server zeigt
+ein Menü mit allen Attributen (ID, Name, Besitzer, Position, Item, Preis, optional
+Teleportpunkt) – jede Zeile ist anklickbar und kann in **beliebiger Reihenfolge** ausgefüllt
+werden. Rote Zeilen sind noch offene Pflichtattribute, grüne Zeilen sind bereits gesetzt, graue
+Zeilen sind optional. Ein Klick auf eine Zeile fragt nach dem jeweiligen Wert (die Position wird
+per Rechtsklick auf den gewünschten Container festgelegt, nicht per Chat-Eingabe); danach
+erscheint das Menü mit dem aktualisierten Stand erneut. Bereits gesetzte Attribute können jederzeit
+erneut angeklickt werden, um sie zu ändern.
+
+Am Ende des Menüs stehen zwei Schaltflächen: `»» BESTÄTIGEN ««` speichert den Shop (nur möglich,
+wenn alle Pflichtattribute gesetzt sind – fehlt noch etwas, wird das gemeldet und das Menü bleibt
+offen), `»» ABBRECHEN ««` verwirft die Einrichtung. Beide funktionieren auch als Chat-Eingabe
+(`bestätigen`/`abbrechen`), jederzeit während der Einrichtung.
 
 Shops können nicht in der Kreativwelt oder (sobald verfügbar) in Farmwelten erstellt werden.
 
@@ -85,8 +93,9 @@ Erlaubte Container: Truhe, Redstone-Truhe (Trapped Chest), Fass, alle Shulkerbox
 
 ### Shop bearbeiten – `/tes shop bearbeiten <Welt> <ID>`
 
-Nur für Besitzer. Startet dieselbe Chat-Einrichtung, aber nur für die veränderbaren Attribute
-(Name, Besitzer, Item, Preis, Teleportpunkt) – ID und Position stehen fest.
+Nur für Besitzer. Startet dasselbe Menü, aber nur für die veränderbaren Attribute (Name,
+Besitzer, Item, Preis, Teleportpunkt) – ID und Position werden gar nicht erst angezeigt, da sie
+nach der Erstellung feststehen.
 
 ### Shop schließen – `/tes shop schließen <Welt> <ID>`
 

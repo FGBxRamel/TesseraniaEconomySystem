@@ -6,6 +6,8 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import java.util.List;
+
 /**
  * Centralized German, admin/player-facing chat messages for the {@code /tes} command family.
  */
@@ -109,12 +111,16 @@ public final class Messages {
     }
 
     public static Component shopCreateStart(String world) {
-        return shopHint("Shop-Erstellung in Welt \"" + world + "\" gestartet. Wie soll die ID des Shops lauten? "
-                + "(Buchstaben, Zahlen, \"_\"/\"-\", max. 32 Zeichen, muss eindeutig sein)");
+        return shopHint("Shop-Erstellung in Welt \"" + world + "\" gestartet. Klicke unten ein Attribut an, um es festzulegen.");
     }
 
     public static Component shopEditStart(String world, String id, String currentName) {
-        return shopHint("Bearbeitung von Shop \"" + id + "\" in Welt \"" + world + "\" gestartet. Neuer Name? (aktuell: \"" + currentName + "\")");
+        return shopHint("Bearbeitung von Shop \"" + id + "\" (\"" + currentName + "\") in Welt \"" + world + "\" gestartet. "
+                + "Klicke unten ein Attribut an, um es zu ändern.");
+    }
+
+    public static Component shopPromptId() {
+        return shopHint("Wie soll die ID des Shops lauten? (Buchstaben, Zahlen, \"_\"/\"-\", max. 32 Zeichen, muss eindeutig sein)");
     }
 
     public static Component shopIdInvalid() {
@@ -123,6 +129,43 @@ public final class Messages {
 
     public static Component shopIdTaken(String id) {
         return Component.text("Die ID \"" + id + "\" ist in dieser Welt bereits vergeben.", NamedTextColor.RED);
+    }
+
+    public static Component shopNoFieldArmed() {
+        return Component.text("Bitte klicke zuerst ein Attribut im Menü an.", NamedTextColor.YELLOW);
+    }
+
+    public static Component shopConfirmMissingAttributes(List<String> missingLabels) {
+        return Component.text("Folgende Pflichtattribute fehlen noch: " + String.join(", ", missingLabels) + ".", NamedTextColor.RED);
+    }
+
+    /**
+     * One line of the {@code /tes shop erstellen|bearbeiten} attribute menu (spec §3.1.1.1, UX
+     * modeled on the BlueMap-Marker plugin): green once {@code set}, otherwise red if
+     * {@code mandatory} or gray if optional.
+     */
+    public record ShopMenuLine(String key, String label, String valueDisplay, boolean mandatory, boolean set, String hoverText) {
+    }
+
+    public static Component shopMenu(List<ShopMenuLine> lines) {
+        Component menu = Component.text("--- Shop konfigurieren ---", NamedTextColor.GOLD);
+        for (ShopMenuLine line : lines) {
+            NamedTextColor color = line.set() ? NamedTextColor.GREEN : line.mandatory() ? NamedTextColor.RED : NamedTextColor.GRAY;
+            String value = line.valueDisplay() != null ? line.valueDisplay() : "Nicht gesetzt" + (line.mandatory() ? "" : " (optional)");
+            Component entry = Component.text(line.label() + ": " + value, color)
+                    .clickEvent(ClickEvent.runCommand("/tes shop feld " + line.key()))
+                    .hoverEvent(HoverEvent.showText(Component.text(line.hoverText(), NamedTextColor.GRAY)));
+            menu = menu.append(Component.newline()).append(entry);
+        }
+        Component confirm = Component.text("»» BESTÄTIGEN ««", NamedTextColor.GREEN, TextDecoration.BOLD)
+                .clickEvent(ClickEvent.runCommand("/tes shop bestaetigen"))
+                .hoverEvent(HoverEvent.showText(Component.text("Shop speichern.", NamedTextColor.GRAY)));
+        Component cancel = Component.text("»» ABBRECHEN ««", NamedTextColor.RED, TextDecoration.BOLD)
+                .clickEvent(ClickEvent.runCommand("/tes shop abbrechen"))
+                .hoverEvent(HoverEvent.showText(Component.text("Vorgang verwerfen.", NamedTextColor.GRAY)));
+        return menu.append(Component.newline()).append(confirm).append(Component.text("   ")).append(cancel)
+                .append(Component.newline())
+                .append(Component.text("(Jederzeit \"abbrechen\" eingeben, um den Vorgang zu beenden.)", NamedTextColor.GRAY));
     }
 
     public static Component shopPromptName() {
@@ -171,15 +214,6 @@ public final class Messages {
 
     public static Component shopPromptTeleport() {
         return shopHint("Teleportpunkt festlegen? \"hier\" für deinen aktuellen Standort, sonst \"nein\".");
-    }
-
-    public static Component shopPromptConfirm(Component summary) {
-        return summary.append(Component.newline())
-                .append(shopHint("\"bestätigen\" eingeben, um zu speichern, oder \"abbrechen\" zum Verwerfen."));
-    }
-
-    public static Component shopConfirmInvalidInput() {
-        return Component.text("Bitte \"bestätigen\" oder \"abbrechen\" eingeben.", NamedTextColor.RED);
     }
 
     public static Component shopCreated(String id, String name) {

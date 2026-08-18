@@ -8,13 +8,15 @@ import org.bukkit.Material;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 /**
  * Mutable, per-player state for one in-progress {@code /tes shop erstellen|bearbeiten}
- * conversation. Fields are filled in over the course of several chat messages; the session is
- * only turned into a {@link ShopRecord} once {@link ShopSessionStep#CONFIRM} is accepted.
+ * conversation. Attributes are filled in via the menu-driven {@code /tes shop feld <key>} click
+ * flow, in any order; the session is only turned into a {@link ShopRecord} once
+ * {@code /tes shop bestaetigen} is accepted with all mandatory fields set.
  */
 public final class ShopSession {
 
@@ -24,7 +26,7 @@ public final class ShopSession {
     private final String editingId;
     private final Duration timeout;
 
-    private ShopSessionStep step;
+    private ShopSessionField pendingField;
     private Instant expiresAt;
 
     private String id;
@@ -37,24 +39,23 @@ public final class ShopSession {
     private Integer price;
     private TeleportPoint teleportPoint;
 
-    private ShopSession(UUID actor, String world, ShopSessionMode mode, String editingId, ShopSessionStep firstStep, Duration timeout) {
+    private ShopSession(UUID actor, String world, ShopSessionMode mode, String editingId, Duration timeout) {
         this.actor = actor;
         this.world = world;
         this.mode = mode;
         this.editingId = editingId;
-        this.step = firstStep;
         this.timeout = timeout;
         touch();
     }
 
     public static ShopSession createNew(UUID actor, String world, Duration timeout) {
-        ShopSession session = new ShopSession(actor, world, ShopSessionMode.CREATE, null, ShopSessionStep.ID, timeout);
+        ShopSession session = new ShopSession(actor, world, ShopSessionMode.CREATE, null, timeout);
         session.owners.add(actor);
         return session;
     }
 
     public static ShopSession editing(UUID actor, ShopRecord existing, Duration timeout) {
-        ShopSession session = new ShopSession(actor, existing.world(), ShopSessionMode.EDIT, existing.id(), ShopSessionStep.NAME, timeout);
+        ShopSession session = new ShopSession(actor, existing.world(), ShopSessionMode.EDIT, existing.id(), timeout);
         session.id = existing.id();
         session.name = existing.name();
         session.owners.addAll(existing.owners());
@@ -91,13 +92,40 @@ public final class ShopSession {
         return editingId;
     }
 
-    public ShopSessionStep step() {
-        return step;
+    public ShopSessionField pendingField() {
+        return pendingField;
     }
 
-    public void advanceTo(ShopSessionStep next) {
-        this.step = next;
+    public void pendingField(ShopSessionField field) {
+        this.pendingField = field;
         touch();
+    }
+
+    /**
+     * Whether the given field currently has a value, regardless of whether it's mandatory —
+     * drives both the menu's red/green/gray color-coding and {@link #missingMandatory()}.
+     */
+    public boolean isSet(ShopSessionField field) {
+        return switch (field) {
+            case ID -> id != null;
+            case NAME -> name != null;
+            case OWNERS -> !owners.isEmpty();
+            case POSITION -> position != null;
+            case ITEM -> item != null;
+            case PRICE -> price != null;
+            case TELEPORT -> teleportPoint != null;
+        };
+    }
+
+    /**
+     * Mandatory fields (for this session's mode) that still have no value — what
+     * {@code /tes shop bestaetigen} checks before finalizing.
+     */
+    public List<ShopSessionField> missingMandatory() {
+        return ShopSessionField.visibleFor(mode).stream()
+                .filter(ShopSessionField::mandatory)
+                .filter(field -> !isSet(field))
+                .toList();
     }
 
     public String id() {

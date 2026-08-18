@@ -26,20 +26,38 @@ Double chests are stored as two positions (`ShopRecord.position()` /
 `.secondaryPosition()`) resolved from Bukkit's `DoubleChestInventory#getLeftSide()/getRightSide()`
 at creation time; both halves get tagged and both are registered to the same `ShopRecord`.
 
-## The chat session state machine
+## The chat menu (order-independent, per the BlueMap-Marker reference)
 
-`/tes shop erstellen|bearbeiten` drive a per-player `ShopSession` through
-`ShopSessionStep`s (ID → Name → Besitzer → Position → Item → Preis → Teleport → Confirm; `EDIT`
-skips ID/Position since those are immutable per UC2). `ShopChatListener` cancels the player's
-chat while a session is active and feeds the plain text to the current step's handler instead of
-broadcasting it; the POSITION step is the one exception — it's captured via a right-click on the
-target container (`PlayerInteractEvent`) rather than typed coordinates, since teleporting a
-player into a shop later would risk suffocation (the spec calls this out explicitly), and typing
-coordinates by hand is exactly the kind of friction the BlueMap-Marker-style flow avoids.
+`/tes shop erstellen|bearbeiten` open a per-player `ShopSession` and immediately render a
+re-usable chat menu (`ShopChatListener.renderMenu` / `Messages.shopMenu`): one line per
+`ShopSessionField` visible for the session's mode (`CREATE` shows ID/Name/Besitzer/Position/
+Item/Preis/Teleport; `EDIT` omits ID and Position entirely, since both are immutable per UC2 —
+not shown read-only, just absent), color-coded green once set, red if mandatory and unset, gray
+if optional and unset, each clickable and hover-annotated, ending in `»» BESTÄTIGEN ««`/
+`»» ABBRECHEN ««` buttons. This mirrors the spec's own screenshot of BlueMap Marker's builder
+interface (§3.1.1.1) rather than a sequential wizard — attributes can be filled, and later
+changed, in any order.
 
-The confirm step is handled entirely within the session (typing `bestätigen`/`abbrechen`) rather
-than layering on `ConfirmationManager` — the session itself already carries actor identity and a
-TTL, so a second token layer would be redundant.
+Clicking a menu line runs `/tes shop feld <key>`, which "arms" that field
+(`ShopSession.pendingField`); the next chat message is routed to that field's handler instead of
+being broadcast (`ShopChatListener.onChat`), and on success the field is cleared and the menu is
+re-rendered so the player can pick anything else next. `POSITION` is the one field never settable
+via typed chat — it's captured via a right-click on the target container
+(`PlayerInteractEvent`, gated on `pendingField() == POSITION`) rather than typed coordinates,
+since teleporting a player into a shop later would risk suffocation (the spec calls this out
+explicitly), and typing coordinates by hand is exactly the kind of friction the BlueMap-Marker-
+style flow avoids.
+
+`/tes shop bestaetigen`/`abbrechen` (clickable, or typed as `bestätigen`/`abbrechen` — both work)
+finalize or discard the session. Confirming re-checks `ShopSession.missingMandatory()` and, if
+anything mandatory is still unset, reports what's missing and re-shows the menu rather than
+failing silently. There's no separate confirm/summary screen the way the old linear flow had one
+— the always-visible menu already shows every current value. Confirmation is handled entirely
+within the session rather than layering on `ConfirmationManager` — the session itself already
+carries actor identity and a TTL (which arming a field also refreshes), so a second token layer
+would be redundant. The three click-driven leaves (`feld`/`bestaetigen`/`abbrechen`) carry no
+permission node of their own: they're only reachable through a runtime-checked active session,
+itself gated behind the already permission-checked `erstellen`/`bearbeiten`.
 
 ## The purchase mechanic
 

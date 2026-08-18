@@ -10,7 +10,6 @@ import de.bydora.tes.shop.TeleportPoint;
 import de.bydora.tes.util.Messages;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,13 +28,17 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
- * Drives the chat-driven {@code /tes shop erstellen|bearbeiten} conversation (spec §3.1.1.1, UX
- * modeled on the BlueMap-Marker plugin): captures chat messages while a {@link ShopSession} is
- * active instead of broadcasting them, and captures the shop's block position via a right-click
- * while {@link ShopSessionStep#POSITION} is active.
+ * Drives the chat-driven {@code /tes shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX modeled
+ * on the BlueMap-Marker plugin): a persistent, re-rendered chat menu lists every attribute for
+ * the session's mode, color-coded red/green/gray, clickable in any order via
+ * {@code /tes shop feld <key>}. Clicking a field "arms" it ({@link ShopSession#pendingField()});
+ * the next chat message (or, for {@link ShopSessionField#POSITION}, the next right-click) is fed
+ * to that field's handler instead of being broadcast. {@code /tes shop bestaetigen}/
+ * {@code abbrechen} (or the typed equivalents) finalize or discard the session.
  */
 public final class ShopChatListener implements Listener {
 
@@ -69,7 +72,7 @@ public final class ShopChatListener implements Listener {
         }
         Player player = event.getPlayer();
         Optional<ShopSession> maybeSession = sessionManager.active(player.getUniqueId());
-        if (maybeSession.isEmpty() || maybeSession.get().step() != ShopSessionStep.POSITION) {
+        if (maybeSession.isEmpty() || maybeSession.get().pendingField() != ShopSessionField.POSITION) {
             return;
         }
         ShopSession session = maybeSession.get();
@@ -81,6 +84,52 @@ public final class ShopChatListener implements Listener {
         handlePosition(player, session, block);
     }
 
+    /**
+     * Arms the given field (from clicking its menu line) and prompts the player for its value.
+     * A no-op if the field isn't visible for the session's mode (e.g. a stale click on ID/Position
+     * during an edit) — those attributes are immutable once a shop exists (UC2).
+     */
+    public void armField(Player player, ShopSessionField field) {
+        Optional<ShopSession> maybeSession = requireActiveSession(player);
+        if (maybeSession.isEmpty()) {
+            return;
+        }
+        ShopSession session = maybeSession.get();
+        if (!ShopSessionField.visibleFor(session.mode()).contains(field)) {
+            return;
+        }
+        session.pendingField(field);
+        player.sendMessage(promptFor(field));
+    }
+
+    public void confirmFromClick(Player player) {
+        Optional<ShopSession> maybeSession = requireActiveSession(player);
+        if (maybeSession.isEmpty()) {
+            return;
+        }
+        handleConfirmAction(player, maybeSession.get());
+    }
+
+    public void cancelFromClick(Player player) {
+        if (requireActiveSession(player).isEmpty()) {
+            return;
+        }
+        cancel(player);
+    }
+
+    private Optional<ShopSession> requireActiveSession(Player player) {
+        Optional<ShopSession> maybeSession = sessionManager.active(player.getUniqueId());
+        if (maybeSession.isEmpty()) {
+            player.sendMessage(Messages.shopSessionExpired());
+        }
+        return maybeSession;
+    }
+
+    private void cancel(Player player) {
+        sessionManager.cancel(player.getUniqueId());
+        player.sendMessage(Messages.shopSessionCancelled());
+    }
+
     private void handleInput(Player player, String rawText) {
         Optional<ShopSession> maybeSession = sessionManager.active(player.getUniqueId());
         if (maybeSession.isEmpty()) {
@@ -90,11 +139,20 @@ public final class ShopChatListener implements Listener {
         ShopSession session = maybeSession.get();
         String text = rawText.trim();
         if (text.equalsIgnoreCase("abbrechen")) {
-            sessionManager.cancel(player.getUniqueId());
-            player.sendMessage(Messages.shopSessionCancelled());
+            cancel(player);
             return;
         }
-        switch (session.step()) {
+        if (text.equalsIgnoreCase("bestätigen") || text.equalsIgnoreCase("bestaetigen")) {
+            handleConfirmAction(player, session);
+            return;
+        }
+        ShopSessionField field = session.pendingField();
+        if (field == null) {
+            player.sendMessage(Messages.shopNoFieldArmed());
+            player.sendMessage(renderMenu(session));
+            return;
+        }
+        switch (field) {
             case ID -> handleId(player, session, text);
             case NAME -> handleName(player, session, text);
             case OWNERS -> handleOwners(player, session, text);
@@ -102,7 +160,6 @@ public final class ShopChatListener implements Listener {
             case ITEM -> handleItem(player, session, text);
             case PRICE -> handlePrice(player, session, text);
             case TELEPORT -> handleTeleport(player, session, text);
-            case CONFIRM -> handleConfirm(player, session, text);
         }
     }
 
@@ -116,8 +173,8 @@ public final class ShopChatListener implements Listener {
             return;
         }
         session.id(text);
-        session.advanceTo(ShopSessionStep.NAME);
-        player.sendMessage(Messages.shopPromptName());
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
     private void handleName(Player player, ShopSession session, String text) {
@@ -126,8 +183,8 @@ public final class ShopChatListener implements Listener {
             return;
         }
         session.name(text);
-        session.advanceTo(ShopSessionStep.OWNERS);
-        player.sendMessage(Messages.shopPromptOwners());
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
     private void handleOwners(Player player, ShopSession session, String text) {
@@ -140,13 +197,8 @@ public final class ShopChatListener implements Listener {
                 session.owners().add(resolved.get().getUniqueId());
             }
         }
-        if (session.mode() == ShopSessionMode.CREATE) {
-            session.advanceTo(ShopSessionStep.POSITION);
-            player.sendMessage(Messages.shopPromptPosition());
-        } else {
-            session.advanceTo(ShopSessionStep.ITEM);
-            player.sendMessage(Messages.shopPromptItem());
-        }
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
     private void handlePosition(Player player, ShopSession session, Block block) {
@@ -170,8 +222,8 @@ public final class ShopChatListener implements Listener {
             return;
         }
         session.position(position, secondary, type);
-        session.advanceTo(ShopSessionStep.ITEM);
-        player.sendMessage(Messages.shopPromptItem());
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
     private BlockPos resolveSecondaryPosition(Block block) {
@@ -211,8 +263,8 @@ public final class ShopChatListener implements Listener {
             }
         }
         session.item(material);
-        session.advanceTo(ShopSessionStep.PRICE);
-        player.sendMessage(Messages.shopPromptPrice());
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
     private void handlePrice(Player player, ShopSession session, String text) {
@@ -228,8 +280,8 @@ public final class ShopChatListener implements Listener {
             return;
         }
         session.price(price);
-        session.advanceTo(ShopSessionStep.TELEPORT);
-        player.sendMessage(Messages.shopPromptTeleport());
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
     private void handleTeleport(Player player, ShopSession session, String text) {
@@ -238,24 +290,25 @@ public final class ShopChatListener implements Listener {
             session.teleportPoint(new TeleportPoint(
                     location.getWorld().getName(), location.getX(), location.getY(), location.getZ(),
                     location.getYaw(), location.getPitch()));
-        } else if (!text.equalsIgnoreCase("nein")) {
+        } else if (text.equalsIgnoreCase("nein")) {
+            session.teleportPoint(null);
+        } else {
             player.sendMessage(Messages.shopPromptTeleport());
             return;
         }
-        session.advanceTo(ShopSessionStep.CONFIRM);
-        player.sendMessage(Messages.shopPromptConfirm(summarize(session)));
+        session.pendingField(null);
+        player.sendMessage(renderMenu(session));
     }
 
-    private void handleConfirm(Player player, ShopSession session, String text) {
-        if (text.equalsIgnoreCase("bestätigen")) {
-            finalizeSession(player, session);
-            sessionManager.cancel(player.getUniqueId());
-        } else if (text.equalsIgnoreCase("abbrechen")) {
-            sessionManager.cancel(player.getUniqueId());
-            player.sendMessage(Messages.shopSessionCancelled());
-        } else {
-            player.sendMessage(Messages.shopConfirmInvalidInput());
+    private void handleConfirmAction(Player player, ShopSession session) {
+        List<ShopSessionField> missing = session.missingMandatory();
+        if (!missing.isEmpty()) {
+            player.sendMessage(Messages.shopConfirmMissingAttributes(missing.stream().map(ShopSessionField::label).toList()));
+            player.sendMessage(renderMenu(session));
+            return;
         }
+        finalizeSession(player, session);
+        sessionManager.cancel(player.getUniqueId());
     }
 
     private void finalizeSession(Player player, ShopSession session) {
@@ -283,7 +336,32 @@ public final class ShopChatListener implements Listener {
         }
     }
 
-    private Component summarize(ShopSession session) {
+    private Component promptFor(ShopSessionField field) {
+        return switch (field) {
+            case ID -> Messages.shopPromptId();
+            case NAME -> Messages.shopPromptName();
+            case OWNERS -> Messages.shopPromptOwners();
+            case POSITION -> Messages.shopPromptPosition();
+            case ITEM -> Messages.shopPromptItem();
+            case PRICE -> Messages.shopPromptPrice();
+            case TELEPORT -> Messages.shopPromptTeleport();
+        };
+    }
+
+    private String displayValue(ShopSession session, ShopSessionField field) {
+        return switch (field) {
+            case ID -> session.id();
+            case NAME -> session.name();
+            case OWNERS -> session.owners().isEmpty() ? null : ownerNames(session);
+            case POSITION -> session.position() == null ? null
+                    : session.position().x() + " " + session.position().y() + " " + session.position().z();
+            case ITEM -> session.item() == null ? null : session.item().name();
+            case PRICE -> session.price() == null ? null : session.price() + " Taler/Slot";
+            case TELEPORT -> session.teleportPoint() != null ? "gesetzt" : null;
+        };
+    }
+
+    private String ownerNames(ShopSession session) {
         StringBuilder owners = new StringBuilder();
         for (var owner : session.owners()) {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(owner);
@@ -292,15 +370,15 @@ public final class ShopChatListener implements Listener {
             }
             owners.append(offlinePlayer.getName());
         }
-        Component summary = Component.text("--- Zusammenfassung ---", NamedTextColor.GOLD)
-                .append(Component.newline()).append(Component.text("ID: " + session.id(), NamedTextColor.WHITE))
-                .append(Component.newline()).append(Component.text("Name: " + session.name(), NamedTextColor.WHITE))
-                .append(Component.newline()).append(Component.text("Besitzer: " + owners, NamedTextColor.WHITE))
-                .append(Component.newline()).append(Component.text("Item: " + session.item(), NamedTextColor.WHITE))
-                .append(Component.newline()).append(Component.text("Preis: " + session.price() + " Taler/Slot", NamedTextColor.WHITE));
-        if (session.teleportPoint() != null) {
-            summary = summary.append(Component.newline()).append(Component.text("Teleportpunkt: gesetzt", NamedTextColor.WHITE));
-        }
-        return summary;
+        return owners.toString();
+    }
+
+    public Component renderMenu(ShopSession session) {
+        List<Messages.ShopMenuLine> lines = ShopSessionField.visibleFor(session.mode()).stream()
+                .map(field -> new Messages.ShopMenuLine(
+                        field.key(), field.label(), displayValue(session, field), field.mandatory(),
+                        session.isSet(field), field.hoverText()))
+                .toList();
+        return Messages.shopMenu(lines);
     }
 }
