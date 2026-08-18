@@ -214,4 +214,36 @@ public final class Messages {
         return Component.text("Shop \"" + name + "\" (ID: " + id + ") wurde geschlossen.", NamedTextColor.GREEN);
     }
 
+    public static Component shopListHeader(int page, int totalPages) {
+        return Component.text("--- Deine Shops (Seite " + page + "/" + totalPages + ") ---", NamedTextColor.GOLD);
+    }
+
+    public static Component shopListEmpty() {
+        return Component.text("Du besitzt noch keine Shops.", NamedTextColor.YELLOW);
+    }
+
+    public static Component shopListEntry(String id, String world, String name, String item, int price) {
+        Component entry = Component.text(id + " — " + name + " (" + item + " | " + price + " Taler/Slot)", NamedTextColor.AQUA)
+                .clickEvent(ClickEvent.runCommand("/tes shop tp " + world + " " + id))
+                .hoverEvent(HoverEvent.showText(Component.text("Klicken zum Teleportieren (Welt: " + world + ")", NamedTextColor.GRAY)));
+        return entry;
+    }
+
+    public static Component shopListNav(int page, int totalPages) {
+        Component nav = Component.empty();
+        if (page > 1) {
+            nav = nav.append(Component.text("« Vorherige Seite ", NamedTextColor.GOLD)
+                    .clickEvent(ClickEvent.runCommand("/tes shop liste " + (page - 1))));
+        }
+        if (page < totalPages) {
+            nav = nav.append(Component.text("Nächste Seite »", NamedTextColor.GOLD)
+                    .clickEvent(ClickEvent.runCommand("/tes shop liste " + (page + 1))));
+        }
+        return nav;
+    }
+
+    public static Component shopTeleporting(String name) {
+        return Component.text("Du wurdest zu Shop \"" + name + "\" teleportiert.", NamedTextColor.GREEN);
+    }
+
 }

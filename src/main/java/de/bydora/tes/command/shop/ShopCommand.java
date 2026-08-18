@@ -1,6 +1,7 @@
 package de.bydora.tes.command.shop;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -24,15 +25,19 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Implements {@code /tes shop erstellen|bearbeiten|schließen} (spec §3.1.1.1, UC1–UC3).
- * {@code liste} is added separately once pagination lands.
+ * Implements {@code /tes shop erstellen|bearbeiten|schließen|liste} (spec §3.1.1.1, UC1–UC3 plus
+ * the shop list).
  */
 public final class ShopCommand {
+
+    private static final int SHOPS_PER_PAGE = 10;
 
     private ShopCommand() {
     }
@@ -40,7 +45,7 @@ public final class ShopCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("shop")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes shop <erstellen|bearbeiten|schließen> <world> [id]"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes shop <erstellen|bearbeiten|schließen|liste>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("erstellen")
@@ -59,7 +64,18 @@ public final class ShopCommand {
                         .then(Commands.argument("world", StringArgumentType.word())
                                 .suggests(ShopCommand::suggestWorlds)
                                 .then(Commands.argument("id", StringArgumentType.word())
-                                        .executes(ShopCommand::schliessen))));
+                                        .executes(ShopCommand::schliessen))))
+                .then(Commands.literal("liste")
+                        .requires(source -> source.getSender().hasPermission("tes.shop.list"))
+                        .executes(ctx -> liste(ctx, 1))
+                        .then(Commands.argument("seite", IntegerArgumentType.integer(1))
+                                .executes(ctx -> liste(ctx, IntegerArgumentType.getInteger(ctx, "seite")))))
+                .then(Commands.literal("tp")
+                        .requires(source -> source.getSender().hasPermission("tes.shop.list"))
+                        .then(Commands.argument("world", StringArgumentType.word())
+                                .suggests(ShopCommand::suggestWorlds)
+                                .then(Commands.argument("id", StringArgumentType.word())
+                                        .executes(ShopCommand::teleport))));
     }
 
     private static CompletableFuture<Suggestions> suggestWorlds(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
@@ -175,6 +191,69 @@ public final class ShopCommand {
             return Optional.empty();
         }
         return shop;
+    }
+
+    private static int liste(CommandContext<CommandSourceStack> ctx, int requestedPage) {
+        CommandSender sender = ctx.getSource().getSender();
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Messages.usage("/tes shop liste ist nur für Spieler verfügbar."));
+            return Command.SINGLE_SUCCESS;
+        }
+        List<ShopRecord> shops = plugin().shopRegistry().allByOwner(player.getUniqueId()).stream()
+                .sorted(Comparator.comparingLong(ShopRecord::createdAt))
+                .toList();
+        if (shops.isEmpty()) {
+            sender.sendMessage(Messages.shopListEmpty());
+            return Command.SINGLE_SUCCESS;
+        }
+        int totalPages = (shops.size() + SHOPS_PER_PAGE - 1) / SHOPS_PER_PAGE;
+        int page = Math.max(1, Math.min(requestedPage, totalPages));
+        int fromIndex = (page - 1) * SHOPS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + SHOPS_PER_PAGE, shops.size());
+
+        sender.sendMessage(Messages.shopListHeader(page, totalPages));
+        for (ShopRecord shop : shops.subList(fromIndex, toIndex)) {
+            sender.sendMessage(Messages.shopListEntry(shop.id(), shop.world(), shop.name(), shop.item().name(), shop.price()));
+        }
+        if (totalPages > 1) {
+            sender.sendMessage(Messages.shopListNav(page, totalPages));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int teleport(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        if (!(sender instanceof Player player)) {
+            return Command.SINGLE_SUCCESS;
+        }
+        Optional<ShopRecord> maybeShop = resolveOwnedShop(ctx, player);
+        if (maybeShop.isEmpty()) {
+            return Command.SINGLE_SUCCESS;
+        }
+        ShopRecord shop = maybeShop.get();
+        Location destination = shop.teleportPoint() != null
+                ? new Location(Bukkit.getWorld(shop.teleportPoint().world()), shop.teleportPoint().x(), shop.teleportPoint().y(),
+                        shop.teleportPoint().z(), shop.teleportPoint().yaw(), shop.teleportPoint().pitch())
+                : safeLocationAboveShop(shop);
+        if (destination == null || destination.getWorld() == null) {
+            sender.sendMessage(Messages.shopUnknownWorld(shop.world()));
+            return Command.SINGLE_SUCCESS;
+        }
+        player.teleport(destination);
+        sender.sendMessage(Messages.shopTeleporting(shop.name()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Standing directly on top of the shop's block avoids teleporting the player into the
+     * container itself (suffocation risk, called out explicitly in spec §3.1.1.1).
+     */
+    private static Location safeLocationAboveShop(ShopRecord shop) {
+        World world = Bukkit.getWorld(shop.world());
+        if (world == null) {
+            return null;
+        }
+        return new Location(world, shop.position().x() + 0.5, shop.position().y() + 1, shop.position().z() + 0.5);
     }
 
     private static TesseraniaEconomySystem plugin() {

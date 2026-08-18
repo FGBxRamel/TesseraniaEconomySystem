@@ -94,6 +94,12 @@ Nur für Besitzer, die sich in der Nähe des Shops befinden. Wandelt den Contain
 normalen Block um. Noch offene (innerhalb der 60-Sekunden-Frist stornierbare) Käufe werden dabei
 automatisch rückabgewickelt.
 
+### Shops auflisten – `/tes shop liste`
+
+Listet alle eigenen Shops (über alle Welten hinweg), 10 pro Seite. Jeder Eintrag ist anklickbar
+und teleportiert zum jeweiligen Shop (zum gesetzten Teleportpunkt, sonst auf den Container).
+Bei mehr als einer Seite erscheinen anklickbare Navigationsbuttons.
+
 ### Kaufen im Shop
 
 Käufer klicken einfach mit Linksklick auf den gewünschten Slot im Container. Bei ausreichend
