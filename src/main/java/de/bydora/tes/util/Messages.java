@@ -56,9 +56,9 @@ public final class Messages {
     /**
      * The clickable re-confirmation prompt shown before {@code /tes spieler remove} takes effect.
      */
-    public static Component removeConfirmPrompt(String name, String label, String token, long ttlSeconds) {
+    public static Component removeConfirmPrompt(String name, String token, long ttlSeconds) {
         Component button = Component.text("[Bestätigen]", NamedTextColor.RED, net.kyori.adventure.text.format.TextDecoration.BOLD)
-                .clickEvent(ClickEvent.runCommand("/" + label + " spieler remove " + name + " " + token))
+                .clickEvent(ClickEvent.runCommand("/tes spieler remove " + name + " " + token))
                 .hoverEvent(HoverEvent.showText(Component.text(
                         "Löscht ALLE Daten von " + name + " unwiderruflich (Statistiken, virtuelle Inventare, TP/EP/Level). Läuft in " + ttlSeconds + " Sekunden ab.",
                         NamedTextColor.RED)));

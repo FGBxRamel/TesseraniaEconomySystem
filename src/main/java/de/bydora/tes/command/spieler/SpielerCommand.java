@@ -36,17 +36,17 @@ public final class SpielerCommand implements TesSubCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String label, String[] args) {
+    public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(Messages.usage("/" + label + " spieler <add|remove|pause|unpause> <Name>"));
+            sender.sendMessage(Messages.usage("/tes spieler <add|remove|pause|unpause> <Name>"));
             return;
         }
         switch (args[0].toLowerCase()) {
             case "add" -> add(sender, args);
-            case "remove" -> remove(sender, label, args);
+            case "remove" -> remove(sender, args);
             case "pause" -> pause(sender, args);
             case "unpause" -> unpause(sender, args);
-            default -> sender.sendMessage(Messages.usage("/" + label + " spieler <add|remove|pause|unpause> <Name>"));
+            default -> sender.sendMessage(Messages.usage("/tes spieler <add|remove|pause|unpause> <Name>"));
         }
     }
 
@@ -124,7 +124,7 @@ public final class SpielerCommand implements TesSubCommand {
         sender.sendMessage(Messages.unpaused(args[1]));
     }
 
-    private void remove(CommandSender sender, String label, String[] args) {
+    private void remove(CommandSender sender, String[] args) {
         if (!sender.hasPermission("tes.admin.spieler.remove")) {
             sender.sendMessage(Messages.noPermission());
             return;
@@ -137,7 +137,7 @@ public final class SpielerCommand implements TesSubCommand {
                 return;
             }
             String token = removeConfirmations.create(actor, record.get().uuid());
-            sender.sendMessage(Messages.removeConfirmPrompt(args[1], label, token, removeConfirmations.ttl().toSeconds()));
+            sender.sendMessage(Messages.removeConfirmPrompt(args[1], token, removeConfirmations.ttl().toSeconds()));
             return;
         }
         if (args.length == 3) {
@@ -152,7 +152,7 @@ public final class SpielerCommand implements TesSubCommand {
             sender.sendMessage(Messages.removed(name));
             return;
         }
-        sender.sendMessage(Messages.usage("/" + label + " spieler remove <Name>"));
+        sender.sendMessage(Messages.usage("/tes spieler remove <Name>"));
     }
 
     private Optional<OfflinePlayer> resolveKnownPlayer(CommandSender sender, String name) {

@@ -28,9 +28,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         TesCommand tesCommand = new TesCommand();
         tesCommand.register(new SpielerCommand(playerRepository, new ConfirmationManager<UUID>(Duration.ofSeconds(30))));
 
-        var command = getCommand("tes");
-        command.setExecutor(tesCommand);
-        command.setTabCompleter(tesCommand);
+        registerCommand("tes", "Hauptbefehl des Tesserania Economy Systems", tesCommand);
     }
 
     @Override

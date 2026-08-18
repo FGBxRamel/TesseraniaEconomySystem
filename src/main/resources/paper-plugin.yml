@@ -8,11 +8,8 @@ load: STARTUP
 
 authors: [ FGBxRamel ]
 
-commands:
-  tes:
-    description: Hauptbefehl des Tesserania Economy Systems
-    usage: /tes <spieler> ...
-
+# Commands are registered programmatically (JavaPlugin#registerCommand) in onEnable, not
+# declared here — Paper plugins do not support YAML-based command declarations.
 permissions:
   tes.admin.spieler.add:
     description: Erlaubt das Hinzufügen eines Spielers zum Belohnungssystem

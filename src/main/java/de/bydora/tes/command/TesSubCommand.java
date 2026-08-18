@@ -21,7 +21,7 @@ public interface TesSubCommand {
      * responsible for their own, finer-grained permission checks (e.g. per action) since a
      * subcommand's actions commonly map to distinct permission nodes.
      */
-    void execute(CommandSender sender, String label, String[] args);
+    void execute(CommandSender sender, String[] args);
 
     /**
      * Tab-completion for this subcommand's arguments, with the subcommand's own name already
