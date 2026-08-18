@@ -103,11 +103,18 @@ Nur für Besitzer, die sich in der Nähe des Shops befinden. Wandelt den Contain
 normalen Block um. Noch offene (innerhalb der 60-Sekunden-Frist stornierbare) Käufe werden dabei
 automatisch rückabgewickelt.
 
-### Shops auflisten – `/tes shop liste`
+### Shops auflisten – `/tes shop liste [Seite]`
 
 Listet alle eigenen Shops (über alle Welten hinweg), 10 pro Seite. Jeder Eintrag ist anklickbar
 und teleportiert zum jeweiligen Shop (zum gesetzten Teleportpunkt, sonst auf den Container).
-Bei mehr als einer Seite erscheinen anklickbare Navigationsbuttons.
+Bei mehr als einer Seite erscheinen anklickbare Navigationsbuttons; eine Seite kann auch direkt
+per `/tes shop liste <Seite>` angesprungen werden.
+
+### Zu einem Shop teleportieren – `/tes shop tp <Welt> <ID>`
+
+Nur für Besitzer. Teleportiert direkt zum angegebenen Shop (zum gesetzten Teleportpunkt, sonst
+sicher oberhalb des Containers, um ein Ersticken im Block zu vermeiden) – derselbe Sprung, den
+auch ein Klick auf einen Eintrag in `/tes shop liste` auslöst.
 
 ### Kaufen im Shop
 

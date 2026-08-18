@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-TES (Tesserania Economy System) is a PaperMC plugin (`de.bydora.tes.TesseraniaEconomySystem`) for the Minecraft server "Tesserania". The codebase is currently a bare plugin skeleton (`onEnable`/`onDisable` only) — the actual economy features described below have not been implemented yet. `docs/Tesserania-Economy-System.pdf` is the authoritative (German-language) requirements/design spec; consult it before implementing any of the systems below, since it defines exact command syntax, inventory layouts, coordinates for reference inventories in the creative world, and reward tables.
+TES (Tesserania Economy System) is a PaperMC plugin (`de.bydora.tes.TesseraniaEconomySystem`) for the Minecraft server "Tesserania". Development proceeds in stages tracked in `docs/ROADMAP.md`; check it for what's currently shipped (merged to `main`) vs. in progress vs. not started before assuming any given feature does or doesn't exist. `docs/Tesserania-Economy-System.pdf` is the authoritative (German-language) requirements/design spec; consult it before implementing any of the systems below, since it defines exact command syntax, inventory layouts, coordinates for reference inventories in the creative world, and reward tables.
 
 ## Build
 

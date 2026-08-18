@@ -35,7 +35,7 @@ Implements: §1.2, §1.4 (partial)
 - Deliverable: plugin builds and loads; admins can register/pause players; nothing player-facing yet, but every future merge to `main` produces a downloadable, correctly versioned jar automatically.
 
 ### Stage 1 — Item Shops & Transaction Capture
-Status: `[ ]` not started
+Status: `[ ]` in progress — implemented on `feat/stage-1-item-shops`, PR #7 open, undergoing manual in-game testing before merge (first round of tester-reported bugs fixed 2026-08-18)
 Implements: §3.1.1.1
 
 - Shop container conversion (chest, double chest, redstone chest/double, barrel, shulker + colors) with required attributes (ID, name, owner(s), position, item, price/slot) and optional teleport point.
