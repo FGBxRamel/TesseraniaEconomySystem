@@ -9,7 +9,7 @@ testing during development. Not part of the release build — purely a dev conve
 - **IntelliJ**: pick `Run Test Server` from the run configuration dropdown and press Run/Debug.
   It's a shared configuration checked in under `.run/`, so it shows up automatically for anyone
   who opens the project.
-- **CLI**: `mvn run-paper:install verify run-paper:run-server`
+- **CLI**: `mvn run-paper:install verify exec:exec@download-luckperms run-paper:run-server`
 
 Either way, this rebuilds the plugin jar (`verify` runs `package`) and (re)starts the server —
 it does **not** run `clean`, so world data and installed plugins in `target/run/` survive between
@@ -24,12 +24,16 @@ The first run downloads the Paper 26.2 server jar, a JetBrains Runtime, and Hots
 (needed for hot-swapping, see below) into `target/run/`. This can take a while; later runs
 reuse what's already downloaded.
 
-## Adding other plugins (e.g. LuckPerms)
+## LuckPerms
 
-`run-paper-maven-plugin` only manages the TES plugin jar itself. To test alongside other
-plugins the real server depends on (per `docs/ROADMAP.md`, LuckPerms is a hard external
-requirement), download their jars once and drop them into `target/run/plugins/` — they'll be
-picked up on every subsequent run until `target/run/` is wiped, at which point they need to be
+LuckPerms (a hard external requirement of the target server, per `docs/ROADMAP.md`) is fetched
+automatically: `scripts/download-luckperms.sh`, run via `exec:exec@download-luckperms`, pulls
+the latest Paper-compatible build from the [Modrinth API](https://modrinth.com/plugin/luckperms)
+(LuckPerms isn't on Hangar or Maven Central) into `target/run/plugins/`, skipping the download if
+that exact build is already present. Runs on every server start; safe to re-run.
+
+To add any other plugin, download its jar once and drop it into `target/run/plugins/` — it'll be
+picked up on every subsequent run until `target/run/` is wiped, at which point it needs to be
 re-added.
 
 ## Hot-swapping

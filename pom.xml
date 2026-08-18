@@ -69,6 +69,32 @@
                     <hotswap>true</hotswap>
                 </configuration>
             </plugin>
+            <!--
+                Downloads the latest Paper build of LuckPerms (an external requirement of the target
+                server, see docs/ROADMAP.md) into the dev server's plugins folder. LuckPerms isn't on
+                Hangar/Maven Central, only Modrinth and luckperms.net, so it's fetched directly rather
+                than as a dependency. Not bound to any phase — invoked explicitly as
+                `exec:exec@download-luckperms` alongside the run-paper goals.
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>download-luckperms</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/scripts/download-luckperms.sh</executable>
+                            <arguments>
+                                <argument>${project.build.directory}/run/plugins</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <resources>
             <resource>

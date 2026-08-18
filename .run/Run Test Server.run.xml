@@ -10,6 +10,7 @@
           <list>
             <option value="run-paper:install" />
             <option value="verify" />
+            <option value="exec:exec@download-luckperms" />
             <option value="run-paper:run-server" />
           </list>
         </option>
