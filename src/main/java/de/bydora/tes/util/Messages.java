@@ -84,4 +84,8 @@ public final class Messages {
         return Component.text(name + "s " + kontoLabel + " wurden angepasst. Neuer Stand: " + newValue, NamedTextColor.GREEN);
     }
 
+    public static Component shopBlockProtected() {
+        return Component.text("Dieses Objekt ist ein Shop und kann nicht zerstört werden.", NamedTextColor.RED);
+    }
+
 }

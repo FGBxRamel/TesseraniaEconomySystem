@@ -5,6 +5,15 @@ import de.bydora.tes.config.TesConfig;
 import de.bydora.tes.data.Database;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.data.SqlitePlayerRepository;
+import de.bydora.tes.shop.PendingNotificationRepository;
+import de.bydora.tes.shop.ShopProtectionListener;
+import de.bydora.tes.shop.ShopRegistry;
+import de.bydora.tes.shop.ShopRepository;
+import de.bydora.tes.shop.ShopTransactionRepository;
+import de.bydora.tes.shop.SqlitePendingNotificationRepository;
+import de.bydora.tes.shop.SqliteShopRepository;
+import de.bydora.tes.shop.SqliteShopTransactionRepository;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
@@ -15,16 +24,29 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private final ConfirmationManager<UUID> removeConfirmations = new ConfirmationManager<>(Duration.ofSeconds(30));
 
     private Database database;
+    private TesConfig tesConfig;
     private PlayerRepository playerRepository;
+    private ShopRepository shopRepository;
+    private ShopTransactionRepository shopTransactionRepository;
+    private PendingNotificationRepository pendingNotificationRepository;
+    private ShopRegistry shopRegistry;
 
     @Override
     public void onEnable() {
-        TesConfig tesConfig = new TesConfig(this);
+        tesConfig = new TesConfig(this);
         tesConfig.load();
 
         database = new Database(this);
         database.open();
         playerRepository = new SqlitePlayerRepository(database);
+        shopRepository = new SqliteShopRepository(database);
+        shopTransactionRepository = new SqliteShopTransactionRepository(database);
+        pendingNotificationRepository = new SqlitePendingNotificationRepository(database);
+
+        shopRegistry = new ShopRegistry(shopRepository);
+        shopRegistry.load();
+
+        Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
     }
 
     @Override
@@ -40,6 +62,26 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
      */
     public PlayerRepository playerRepository() {
         return playerRepository;
+    }
+
+    public ShopRepository shopRepository() {
+        return shopRepository;
+    }
+
+    public ShopTransactionRepository shopTransactionRepository() {
+        return shopTransactionRepository;
+    }
+
+    public PendingNotificationRepository pendingNotificationRepository() {
+        return pendingNotificationRepository;
+    }
+
+    public ShopRegistry shopRegistry() {
+        return shopRegistry;
+    }
+
+    public TesConfig tesConfig() {
+        return tesConfig;
     }
 
     public ConfirmationManager<UUID> removeConfirmations() {
