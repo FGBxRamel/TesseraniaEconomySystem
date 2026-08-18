@@ -22,7 +22,7 @@ Development proceeds in stages. Each stage adds one or more significant features
 ## Stages
 
 ### Stage 0 — Foundation & Release CI
-Status: `[ ]` not started
+Status: `[x]` shipped (2026-08-18, release `v0.1.0`)
 Implements: §1.2, §1.4 (partial)
 
 - Persistent player data layer (registration record, TP/EP/level counters, pause/sanction flag) — implemented via embedded SQLite (`org.xerial:sqlite-jdbc`, schema-versioned through `PRAGMA user_version` in `SchemaMigrator`), chosen over flat per-player YAML for the relational drill-down queries later stages need (Stage 4 income drill-down, Stage 1 shop/transaction records).
