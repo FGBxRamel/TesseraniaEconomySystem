@@ -2,9 +2,12 @@ package de.bydora.tes.shop;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Nameable;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataHolder;
@@ -82,6 +85,39 @@ public final class ShopConversion {
     public static Optional<String> readShopTag(Plugin plugin, BlockState state) {
         PersistentDataContainer container = ((PersistentDataHolder) state).getPersistentDataContainer();
         return Optional.ofNullable(container.get(shopKey(plugin), PersistentDataType.STRING));
+    }
+
+    /**
+     * Marks the shop's block(s) (both halves, for a double chest) as converted and applies the
+     * current label. Used both on creation and after an edit changes item/price.
+     */
+    public static void applyToShop(Plugin plugin, ShopRecord shop) {
+        World world = Bukkit.getWorld(shop.world());
+        if (world == null) {
+            return;
+        }
+        markBlock(plugin, world, shop.position(), shop);
+        if (shop.secondaryPosition() != null) {
+            markBlock(plugin, world, shop.secondaryPosition(), shop);
+        }
+    }
+
+    /**
+     * Reverts the shop's block(s) back to a plain vanilla container, used by
+     * {@code /tes shop schließen} and orphan cleanup.
+     */
+    public static void removeFromShop(Plugin plugin, World world, BlockPos position) {
+        Block block = world.getBlockAt(position.x(), position.y(), position.z());
+        BlockState state = block.getState();
+        clearShopTag(plugin, state);
+        state.update(true, false);
+    }
+
+    private static void markBlock(Plugin plugin, World world, BlockPos position, ShopRecord shop) {
+        Block block = world.getBlockAt(position.x(), position.y(), position.z());
+        BlockState state = block.getState();
+        markAsShop(plugin, state, shop.world(), shop.id(), shop.item(), shop.price());
+        state.update(true, false);
     }
 
     public static Component label(Material item, int price) {

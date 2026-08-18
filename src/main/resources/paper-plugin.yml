@@ -43,3 +43,15 @@ permissions:
   tes.admin.erfahrungspunkte.set:
     description: Erlaubt das Festsetzen des Erfahrungspunktestands eines Spielers
     default: op
+  tes.shop.create:
+    description: Erlaubt das Erstellen eines neuen Item-Shops
+    default: true
+  tes.shop.edit:
+    description: Erlaubt das Bearbeiten eigener Item-Shops
+    default: true
+  tes.shop.close:
+    description: Erlaubt das Schließen eigener Item-Shops
+    default: true
+  tes.shop.list:
+    description: Erlaubt das Auflisten eigener Item-Shops
+    default: true

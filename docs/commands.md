@@ -64,3 +64,41 @@ registriert sein (siehe `/tes spieler add`).
 
 Im Stage-1-Umfang gibt es noch keine Möglichkeit, Treuepunkte auszugeben (Treuepunkteshop folgt
 in Stage 3) – Spieler sammeln TP/EP beim Bezahlen in Item-Shops bereits im Hintergrund.
+
+## `/tes shop` (Spieler)
+
+Verwaltet eigene Item-Shops: umgewandelte Truhen, Doppeltruhen, Redstone-Truhen, Fässer und
+Shulkerboxen (alle Farben), die andere Spieler direkt aus dem Container heraus bedienen können.
+Jeder Spieler darf eigene Shops verwalten – dafür ist keine Admin-Berechtigung nötig.
+
+### Shop erstellen – `/tes shop erstellen <Welt>`
+
+Startet eine Chat-geführte Einrichtung (angelehnt an das BlueMap-Marker-Plugin): der Server
+fragt nacheinander nach ID, Name, weiteren Besitzern, der Position (per Rechtsklick auf den
+Container), dem verkauften Item, dem Preis pro Slot und optional einem Teleportpunkt. Am Ende
+wird eine Zusammenfassung angezeigt; `bestätigen` speichert den Shop, `abbrechen` verwirft ihn.
+`abbrechen` funktioniert jederzeit während der Einrichtung.
+
+Shops können nicht in der Kreativwelt oder (sobald verfügbar) in Farmwelten erstellt werden.
+
+Erlaubte Container: Truhe, Redstone-Truhe (Trapped Chest), Fass, alle Shulkerbox-Farben.
+
+### Shop bearbeiten – `/tes shop bearbeiten <Welt> <ID>`
+
+Nur für Besitzer. Startet dieselbe Chat-Einrichtung, aber nur für die veränderbaren Attribute
+(Name, Besitzer, Item, Preis, Teleportpunkt) – ID und Position stehen fest.
+
+### Shop schließen – `/tes shop schließen <Welt> <ID>`
+
+Nur für Besitzer, die sich in der Nähe des Shops befinden. Wandelt den Container zurück in einen
+normalen Block um. Noch offene (innerhalb der 60-Sekunden-Frist stornierbare) Käufe werden dabei
+automatisch rückabgewickelt.
+
+### Kaufen im Shop
+
+Käufer klicken einfach mit Linksklick auf den gewünschten Slot im Container. Bei ausreichend
+Talern (Diamanten) wird das Item gegen Diamanten getauscht. Der Kauf ist **60 Sekunden lang**
+stornierbar (an der Diamanten-Schwingungsanimation im Slot erkennbar, wie beim
+Enderperlen-Cooldown) – ein erneuter Klick auf denselben Slot innerhalb dieser Frist macht den
+Kauf rückgängig. Erst nach Ablauf der Frist kann der Shopbesitzer die Diamanten entnehmen; TP/EP
+werden dem Käufer zu diesem Zeitpunkt automatisch gutgeschrieben.

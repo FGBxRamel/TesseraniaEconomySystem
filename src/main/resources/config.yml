@@ -1,3 +1,12 @@
 ratios:
   taler-to-tp: 5
   taler-to-ep: 3
+
+shops:
+  # Welten, in denen keine Shops erstellt werden dürfen (§3.1.1.1: nicht in der Kreativwelt).
+  restricted-worlds:
+    - kreativwelt
+  # Wie nah ein Besitzer an seinem Shop stehen muss, um ihn zu schließen.
+  proximity-blocks: 10
+  # Wie lange eine Shop-Erstellung/-Bearbeitung im Chat auf Eingaben wartet, bevor sie verfällt.
+  session-timeout-seconds: 120
