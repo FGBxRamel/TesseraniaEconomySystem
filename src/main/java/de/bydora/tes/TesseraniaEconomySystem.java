@@ -5,7 +5,9 @@ import de.bydora.tes.config.TesConfig;
 import de.bydora.tes.data.Database;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.data.SqlitePlayerRepository;
+import de.bydora.tes.shop.PendingNotificationListener;
 import de.bydora.tes.shop.PendingNotificationRepository;
+import de.bydora.tes.shop.ShopMaintenanceTask;
 import de.bydora.tes.shop.ShopProtectionListener;
 import de.bydora.tes.shop.ShopRegistry;
 import de.bydora.tes.shop.ShopRepository;
@@ -18,6 +20,7 @@ import de.bydora.tes.shop.session.ShopChatListener;
 import de.bydora.tes.shop.session.ShopSessionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -34,6 +37,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private PendingNotificationRepository pendingNotificationRepository;
     private ShopRegistry shopRegistry;
     private ShopSessionManager shopSessionManager;
+    private BukkitTask shopMaintenanceTask;
 
     @Override
     public void onEnable() {
@@ -54,10 +58,18 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
         Bukkit.getPluginManager().registerEvents(new ShopChatListener(this, shopSessionManager, shopRepository, shopRegistry), this);
         Bukkit.getPluginManager().registerEvents(new ShopTradeListener(shopRegistry, shopTransactionRepository), this);
+        Bukkit.getPluginManager().registerEvents(new PendingNotificationListener(pendingNotificationRepository), this);
+
+        ShopMaintenanceTask maintenanceTask = new ShopMaintenanceTask(this, shopRegistry, shopRepository,
+                shopTransactionRepository, playerRepository, pendingNotificationRepository, tesConfig);
+        shopMaintenanceTask = maintenanceTask.runTaskTimer(this, 100L, 100L);
     }
 
     @Override
     public void onDisable() {
+        if (shopMaintenanceTask != null) {
+            shopMaintenanceTask.cancel();
+        }
         if (database != null) {
             database.close();
         }

@@ -258,4 +258,21 @@ public final class Messages {
         return Component.text("Dieser Shop verkauft nur " + item + ".", NamedTextColor.RED);
     }
 
+    /**
+     * UC5: the shop's block no longer exists or was tampered with outside the plugin. Returned
+     * as plain text since it's also what gets persisted for offline owners via
+     * {@link de.bydora.tes.shop.PendingNotificationRepository} and re-rendered on next login.
+     */
+    public static String shopOrphanedText(String name, String id) {
+        return "Dein Shop \"" + name + "\" (ID: " + id + ") wurde entfernt, da der zugehörige Block nicht mehr existiert.";
+    }
+
+    public static Component shopOrphaned(String name, String id) {
+        return Component.text(shopOrphanedText(name, id), NamedTextColor.RED);
+    }
+
+    public static Component pendingNotification(String text) {
+        return Component.text(text, NamedTextColor.YELLOW);
+    }
+
 }
