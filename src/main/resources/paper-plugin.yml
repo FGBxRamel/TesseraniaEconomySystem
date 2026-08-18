@@ -3,7 +3,25 @@ description: $description
 version: '${version}'
 
 main: de.bydora.tes.TesseraniaEconomySystem
+bootstrapper: de.bydora.tes.TesBootstrap
 api-version: '26.2'
 load: STARTUP
 
 authors: [ FGBxRamel ]
+
+# Commands are registered as a Brigadier command tree in TesBootstrap during the plugin
+# bootstrap phase, not declared here — Paper plugins do not support YAML-based command
+# declarations.
+permissions:
+  tes.admin.spieler.add:
+    description: Erlaubt das Hinzufügen eines Spielers zum Belohnungssystem
+    default: op
+  tes.admin.spieler.remove:
+    description: Erlaubt das endgültige Entfernen eines Spielers inkl. aller Daten
+    default: op
+  tes.admin.spieler.pause:
+    description: Erlaubt das Pausieren eines Spielers im Belohnungssystem
+    default: op
+  tes.admin.spieler.unpause:
+    description: Erlaubt das Entpausieren eines Spielers
+    default: op

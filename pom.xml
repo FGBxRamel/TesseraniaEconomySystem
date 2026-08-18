@@ -6,7 +6,7 @@
 
     <groupId>de.bydora</groupId>
     <artifactId>TesseraniaEconomySystem</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.0</version>
     <packaging>jar</packaging>
 
     <name>TES</name>
@@ -38,6 +38,60 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <!--
+                                org.sqlite is intentionally NOT relocated: sqlite-jdbc's native-library
+                                loading and ServiceLoader registration do not survive shade relocation
+                                (see xerial/sqlite-jdbc#145). This leaves a small, accepted risk of
+                                classpath clashes with another plugin bundling a different sqlite-jdbc
+                                version on the same server.
+                            -->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+                Local dev/test server (not part of the release build): `mvn run-paper:install verify
+                run-paper:run-server` downloads a real Paper server, drops in the freshly-built shaded
+                jar, and boots it under target/run. Bound to the IntelliJ run configuration in .run/.
+            -->
+            <plugin>
+                <groupId>blue.lhf</groupId>
+                <artifactId>run-paper-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <minecraftVersion>26.2</minecraftVersion>
+                    <acceptEula>true</acceptEula>
+                    <serverDirectory>run</serverDirectory>
+                    <hotswap>true</hotswap>
+                </configuration>
+            </plugin>
+            <!--
+                Downloads the latest Paper build of LuckPerms (an external requirement of the target
+                server, see docs/ROADMAP.md) into the dev server's plugins folder. LuckPerms isn't on
+                Hangar/Maven Central, only Modrinth and luckperms.net, so it's fetched directly rather
+                than as a dependency. Not bound to any phase — invoked explicitly as
+                `exec:exec@download-luckperms` alongside the run-paper goals.
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>download-luckperms</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/scripts/download-luckperms.sh</executable>
+                            <arguments>
+                                <argument>${project.build.directory}/run/plugins</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -57,12 +111,25 @@
         </repository>
     </repositories>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>lhf-releases</id>
+            <name>Ilari's Project Repository</name>
+            <url>https://maven.lhf.blue/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>[26.2.build,)</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.49.1.0</version>
         </dependency>
     </dependencies>
 </project>
