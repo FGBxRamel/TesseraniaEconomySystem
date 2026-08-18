@@ -14,9 +14,10 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         with:
-          # TODO: if branch protection on main requires status checks/reviews that block the
-          # default GITHUB_TOKEN from pushing/merging the release PR branch, swap in a PAT
-          # stored as e.g. secrets.RELEASE_PLEASE_PAT instead.
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # The default GITHUB_TOKEN can't create pull requests on this repo ("GitHub Actions is
+          # not permitted to create or approve pull requests" — a repo/org setting, off by
+          # default). A fine-grained PAT (Contents: read/write, Pull requests: read/write) stored
+          # as this secret is used instead.
+          token: ${{ secrets.RELEASE_PLEASE_PAT }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
