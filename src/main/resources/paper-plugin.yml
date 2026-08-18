@@ -3,13 +3,15 @@ description: $description
 version: '${version}'
 
 main: de.bydora.tes.TesseraniaEconomySystem
+bootstrapper: de.bydora.tes.TesBootstrap
 api-version: '26.2'
 load: STARTUP
 
 authors: [ FGBxRamel ]
 
-# Commands are registered programmatically (JavaPlugin#registerCommand) in onEnable, not
-# declared here — Paper plugins do not support YAML-based command declarations.
+# Commands are registered as a Brigadier command tree in TesBootstrap during the plugin
+# bootstrap phase, not declared here — Paper plugins do not support YAML-based command
+# declarations.
 permissions:
   tes.admin.spieler.add:
     description: Erlaubt das Hinzufügen eines Spielers zum Belohnungssystem

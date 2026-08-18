@@ -1,64 +1,28 @@
 package de.bydora.tes.command;
 
-import io.papermc.paper.command.brigadier.BasicCommand;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import de.bydora.tes.command.spieler.SpielerCommand;
+import de.bydora.tes.util.Messages;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.command.CommandSender;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import io.papermc.paper.command.brigadier.Commands;
 
 /**
- * Top-level {@code /tes} command. Dispatches to registered {@link TesSubCommand}s by their
- * first argument. Implemented as a Paper {@link BasicCommand} (not a YAML-declared command via
- * {@code plugin.yml}/{@code paper-plugin.yml}), since Paper plugins register commands
- * programmatically.
+ * Builds the {@code /tes} Brigadier command tree. Later stages add their subcommand's tree here
+ * (shop, treuepunkte, erfahrungspunkte, level, rechnung, farmwelt, ...) via another
+ * {@code .then(...)}.
  */
-public final class TesCommand implements BasicCommand {
+public final class TesCommand {
 
-    private final Map<String, TesSubCommand> subCommands = new LinkedHashMap<>();
-
-    public void register(TesSubCommand subCommand) {
-        subCommands.put(subCommand.name().toLowerCase(), subCommand);
+    private TesCommand() {
     }
 
-    @Override
-    public void execute(CommandSourceStack source, String[] args) {
-        CommandSender sender = source.getSender();
-        if (args.length == 0) {
-            sender.sendMessage(Component.text("Verwendung: /tes <" + String.join("|", subCommands.keySet()) + "> ...", NamedTextColor.RED));
-            return;
-        }
-        TesSubCommand subCommand = subCommands.get(args[0].toLowerCase());
-        if (subCommand == null) {
-            sender.sendMessage(Component.text("Unbekannter Unterbefehl: " + args[0], NamedTextColor.RED));
-            return;
-        }
-        subCommand.execute(sender, Arrays.copyOfRange(args, 1, args.length));
-    }
-
-    @Override
-    public Collection<String> suggest(CommandSourceStack source, String[] args) {
-        if (args.length == 1) {
-            List<String> matches = new ArrayList<>();
-            for (String name : subCommands.keySet()) {
-                if (name.startsWith(args[0].toLowerCase())) {
-                    matches.add(name);
-                }
-            }
-            return matches;
-        }
-        if (args.length > 1) {
-            TesSubCommand subCommand = subCommands.get(args[0].toLowerCase());
-            if (subCommand != null) {
-                return subCommand.tabComplete(source.getSender(), Arrays.copyOfRange(args, 1, args.length));
-            }
-        }
-        return List.of();
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommand() {
+        return Commands.literal("tes")
+                .executes(ctx -> {
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes <spieler> ..."));
+                    return Command.SINGLE_SUCCESS;
+                })
+                .then(SpielerCommand.build());
     }
 }

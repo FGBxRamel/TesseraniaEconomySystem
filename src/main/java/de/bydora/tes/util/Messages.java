@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 /**
  * Centralized German, admin/player-facing chat messages for the {@code /tes} command family.
@@ -57,13 +58,14 @@ public final class Messages {
      * The clickable re-confirmation prompt shown before {@code /tes spieler remove} takes effect.
      */
     public static Component removeConfirmPrompt(String name, String token, long ttlSeconds) {
-        Component button = Component.text("[Bestätigen]", NamedTextColor.RED, net.kyori.adventure.text.format.TextDecoration.BOLD)
+        Component button = Component.text("»» BESTÄTIGEN ««", NamedTextColor.GOLD, TextDecoration.BOLD, TextDecoration.UNDERLINED)
                 .clickEvent(ClickEvent.runCommand("/tes spieler remove " + name + " " + token))
                 .hoverEvent(HoverEvent.showText(Component.text(
                         "Löscht ALLE Daten von " + name + " unwiderruflich (Statistiken, virtuelle Inventare, TP/EP/Level). Läuft in " + ttlSeconds + " Sekunden ab.",
                         NamedTextColor.RED)));
-        return Component.text("Achtung: ", NamedTextColor.RED, net.kyori.adventure.text.format.TextDecoration.BOLD)
-                .append(Component.text("Das Entfernen von " + name + " löscht unwiderruflich alle zugehörigen Daten. ", NamedTextColor.RED))
+        return Component.text("⚠ Achtung: ", NamedTextColor.RED, TextDecoration.BOLD)
+                .append(Component.text("Das Entfernen von " + name + " löscht unwiderruflich alle zugehörigen Daten.", NamedTextColor.RED))
+                .append(Component.newline())
                 .append(button);
     }
 

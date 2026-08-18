@@ -1,161 +1,159 @@
 package de.bydora.tes.command.spieler;
 
-import de.bydora.tes.command.TesSubCommand;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.command.confirm.ConfirmationManager;
 import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.util.Messages;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Implements {@code /tes spieler add|remove|pause|unpause <Name>} (spec §1.4).
  */
-public final class SpielerCommand implements TesSubCommand {
+public final class SpielerCommand {
 
     /** Stand-in actor identity for the console, which has no player UUID of its own. */
     private static final UUID CONSOLE_ACTOR = new UUID(0, 0);
 
-    private final PlayerRepository playerRepository;
-    private final ConfirmationManager<UUID> removeConfirmations;
-
-    public SpielerCommand(PlayerRepository playerRepository, ConfirmationManager<UUID> removeConfirmations) {
-        this.playerRepository = playerRepository;
-        this.removeConfirmations = removeConfirmations;
+    private SpielerCommand() {
     }
 
-    @Override
-    public String name() {
-        return "spieler";
+    public static LiteralArgumentBuilder<CommandSourceStack> build() {
+        return Commands.literal("spieler")
+                .executes(ctx -> {
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes spieler <add|remove|pause|unpause> <Name>"));
+                    return Command.SINGLE_SUCCESS;
+                })
+                .then(Commands.literal("add")
+                        .requires(source -> source.getSender().hasPermission("tes.admin.spieler.add"))
+                        .then(Commands.argument("name", StringArgumentType.word())
+                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .executes(SpielerCommand::add)))
+                .then(Commands.literal("pause")
+                        .requires(source -> source.getSender().hasPermission("tes.admin.spieler.pause"))
+                        .then(Commands.argument("name", StringArgumentType.word())
+                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .executes(SpielerCommand::pause)))
+                .then(Commands.literal("unpause")
+                        .requires(source -> source.getSender().hasPermission("tes.admin.spieler.unpause"))
+                        .then(Commands.argument("name", StringArgumentType.word())
+                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .executes(SpielerCommand::unpause)))
+                .then(Commands.literal("remove")
+                        .requires(source -> source.getSender().hasPermission("tes.admin.spieler.remove"))
+                        .then(Commands.argument("name", StringArgumentType.word())
+                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .executes(SpielerCommand::removeStart)
+                                .then(Commands.argument("token", StringArgumentType.word())
+                                        .executes(SpielerCommand::removeConfirm))));
     }
 
-    @Override
-    public void execute(CommandSender sender, String[] args) {
-        if (args.length == 0) {
-            sender.sendMessage(Messages.usage("/tes spieler <add|remove|pause|unpause> <Name>"));
-            return;
-        }
-        switch (args[0].toLowerCase()) {
-            case "add" -> add(sender, args);
-            case "remove" -> remove(sender, args);
-            case "pause" -> pause(sender, args);
-            case "unpause" -> unpause(sender, args);
-            default -> sender.sendMessage(Messages.usage("/tes spieler <add|remove|pause|unpause> <Name>"));
-        }
+    private static CompletableFuture<Suggestions> suggestPlayerNames(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName)
+                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(builder::suggest);
+        return builder.buildFuture();
     }
 
-    @Override
-    public List<String> tabComplete(CommandSender sender, String[] args) {
-        if (args.length == 1) {
-            return List.of("add", "remove", "pause", "unpause").stream()
-                    .filter(action -> action.startsWith(args[0].toLowerCase()))
-                    .toList();
-        }
-        return List.of();
-    }
-
-    private void add(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("tes.admin.spieler.add")) {
-            sender.sendMessage(Messages.noPermission());
-            return;
-        }
-        if (args.length != 2) {
-            sender.sendMessage(Messages.usage("/tes spieler add <Name>"));
-            return;
-        }
-        Optional<OfflinePlayer> target = resolveKnownPlayer(sender, args[1]);
+    private static int add(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        String name = StringArgumentType.getString(ctx, "name");
+        Optional<OfflinePlayer> target = resolveKnownPlayer(sender, name);
         if (target.isEmpty()) {
-            return;
+            return Command.SINGLE_SUCCESS;
         }
         OfflinePlayer offlinePlayer = target.get();
-        if (playerRepository.isRegistered(offlinePlayer.getUniqueId())) {
-            sender.sendMessage(Messages.alreadyRegistered(args[1]));
-            return;
+        if (repository().isRegistered(offlinePlayer.getUniqueId())) {
+            sender.sendMessage(Messages.alreadyRegistered(name));
+            return Command.SINGLE_SUCCESS;
         }
-        playerRepository.register(offlinePlayer.getUniqueId(), args[1]);
-        sender.sendMessage(Messages.registered(args[1]));
+        repository().register(offlinePlayer.getUniqueId(), name);
+        sender.sendMessage(Messages.registered(name));
+        return Command.SINGLE_SUCCESS;
     }
 
-    private void pause(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("tes.admin.spieler.pause")) {
-            sender.sendMessage(Messages.noPermission());
-            return;
-        }
-        if (args.length != 2) {
-            sender.sendMessage(Messages.usage("/tes spieler pause <Name>"));
-            return;
-        }
-        Optional<PlayerRecord> record = requireRegistered(sender, args[1]);
+    private static int pause(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        String name = StringArgumentType.getString(ctx, "name");
+        Optional<PlayerRecord> record = requireRegistered(sender, name);
         if (record.isEmpty()) {
-            return;
+            return Command.SINGLE_SUCCESS;
         }
         if (record.get().paused()) {
-            sender.sendMessage(Messages.alreadyPaused(args[1]));
-            return;
+            sender.sendMessage(Messages.alreadyPaused(name));
+            return Command.SINGLE_SUCCESS;
         }
-        playerRepository.setPaused(record.get().uuid(), true);
-        sender.sendMessage(Messages.paused(args[1]));
+        repository().setPaused(record.get().uuid(), true);
+        sender.sendMessage(Messages.paused(name));
+        return Command.SINGLE_SUCCESS;
     }
 
-    private void unpause(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("tes.admin.spieler.unpause")) {
-            sender.sendMessage(Messages.noPermission());
-            return;
-        }
-        if (args.length != 2) {
-            sender.sendMessage(Messages.usage("/tes spieler unpause <Name>"));
-            return;
-        }
-        Optional<PlayerRecord> record = requireRegistered(sender, args[1]);
+    private static int unpause(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        String name = StringArgumentType.getString(ctx, "name");
+        Optional<PlayerRecord> record = requireRegistered(sender, name);
         if (record.isEmpty()) {
-            return;
+            return Command.SINGLE_SUCCESS;
         }
         if (!record.get().paused()) {
-            sender.sendMessage(Messages.notPaused(args[1]));
-            return;
+            sender.sendMessage(Messages.notPaused(name));
+            return Command.SINGLE_SUCCESS;
         }
-        playerRepository.setPaused(record.get().uuid(), false);
-        sender.sendMessage(Messages.unpaused(args[1]));
+        repository().setPaused(record.get().uuid(), false);
+        sender.sendMessage(Messages.unpaused(name));
+        return Command.SINGLE_SUCCESS;
     }
 
-    private void remove(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("tes.admin.spieler.remove")) {
-            sender.sendMessage(Messages.noPermission());
-            return;
+    private static int removeStart(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        String name = StringArgumentType.getString(ctx, "name");
+        Optional<PlayerRecord> record = requireRegistered(sender, name);
+        if (record.isEmpty()) {
+            return Command.SINGLE_SUCCESS;
         }
-        UUID actor = sender instanceof Player player ? player.getUniqueId() : CONSOLE_ACTOR;
-
-        if (args.length == 2) {
-            Optional<PlayerRecord> record = requireRegistered(sender, args[1]);
-            if (record.isEmpty()) {
-                return;
-            }
-            String token = removeConfirmations.create(actor, record.get().uuid());
-            sender.sendMessage(Messages.removeConfirmPrompt(args[1], token, removeConfirmations.ttl().toSeconds()));
-            return;
-        }
-        if (args.length == 3) {
-            String name = args[1];
-            String token = args[2];
-            Optional<UUID> confirmed = removeConfirmations.consume(actor, token);
-            if (confirmed.isEmpty()) {
-                sender.sendMessage(Messages.removeConfirmExpiredOrInvalid());
-                return;
-            }
-            playerRepository.delete(confirmed.get());
-            sender.sendMessage(Messages.removed(name));
-            return;
-        }
-        sender.sendMessage(Messages.usage("/tes spieler remove <Name>"));
+        ConfirmationManager<UUID> confirmations = removeConfirmations();
+        String token = confirmations.create(actorOf(sender), record.get().uuid());
+        sender.sendMessage(Messages.removeConfirmPrompt(name, token, confirmations.ttl().toSeconds()));
+        return Command.SINGLE_SUCCESS;
     }
 
-    private Optional<OfflinePlayer> resolveKnownPlayer(CommandSender sender, String name) {
+    private static int removeConfirm(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        String name = StringArgumentType.getString(ctx, "name");
+        String token = StringArgumentType.getString(ctx, "token");
+        Optional<UUID> confirmed = removeConfirmations().consume(actorOf(sender), token);
+        if (confirmed.isEmpty()) {
+            sender.sendMessage(Messages.removeConfirmExpiredOrInvalid());
+            return Command.SINGLE_SUCCESS;
+        }
+        repository().delete(confirmed.get());
+        sender.sendMessage(Messages.removed(name));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static UUID actorOf(CommandSender sender) {
+        return sender instanceof Player player ? player.getUniqueId() : CONSOLE_ACTOR;
+    }
+
+    private static Optional<OfflinePlayer> resolveKnownPlayer(CommandSender sender, String name) {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(name);
         if (!offlinePlayer.hasPlayedBefore() && !offlinePlayer.isOnline()) {
             sender.sendMessage(Messages.playerNeverSeen(name));
@@ -164,15 +162,23 @@ public final class SpielerCommand implements TesSubCommand {
         return Optional.of(offlinePlayer);
     }
 
-    private Optional<PlayerRecord> requireRegistered(CommandSender sender, String name) {
+    private static Optional<PlayerRecord> requireRegistered(CommandSender sender, String name) {
         Optional<OfflinePlayer> target = resolveKnownPlayer(sender, name);
         if (target.isEmpty()) {
             return Optional.empty();
         }
-        Optional<PlayerRecord> record = playerRepository.findByUuid(target.get().getUniqueId());
+        Optional<PlayerRecord> record = repository().findByUuid(target.get().getUniqueId());
         if (record.isEmpty()) {
             sender.sendMessage(Messages.notRegistered(name));
         }
         return record;
+    }
+
+    private static PlayerRepository repository() {
+        return TesseraniaEconomySystem.getPlugin(TesseraniaEconomySystem.class).playerRepository();
+    }
+
+    private static ConfirmationManager<UUID> removeConfirmations() {
+        return TesseraniaEconomySystem.getPlugin(TesseraniaEconomySystem.class).removeConfirmations();
     }
 }
