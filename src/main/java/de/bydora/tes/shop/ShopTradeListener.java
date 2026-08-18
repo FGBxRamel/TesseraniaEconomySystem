@@ -1,7 +1,10 @@
 package de.bydora.tes.shop;
 
 import de.bydora.tes.util.Messages;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.UseCooldown;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,23 +14,29 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
+import java.util.Locale;
 import java.util.Optional;
 
 /**
  * Handles UC4 (the purchase flow) directly on a shop's own container inventory: a single
  * left-click by a non-owner either buys the clicked slot's stock (diamonds ⇄ item, in place) or,
  * if it's the buyer's own still-{@link TransactionState#PENDING} diamonds, refunds it. Owners may
- * withdraw diamonds once their 60-second window has elapsed and restock with the configured item;
- * everything else on the shop's side of the inventory is blocked to keep the interaction to the
- * single-slot-click model the spec describes.
+ * withdraw diamonds (once their 60-second window has elapsed, by normal or shift click) and
+ * restock with the configured item; everything else on the shop's side of the inventory is
+ * blocked to keep the interaction to the single-slot-click model the spec describes.
  */
 public final class ShopTradeListener implements Listener {
 
+    private static final int REFUND_WINDOW_TICKS = 1200;
+
+    private final Plugin plugin;
     private final ShopRegistry shopRegistry;
     private final ShopTransactionRepository transactionRepository;
 
-    public ShopTradeListener(ShopRegistry shopRegistry, ShopTransactionRepository transactionRepository) {
+    public ShopTradeListener(Plugin plugin, ShopRegistry shopRegistry, ShopTransactionRepository transactionRepository) {
+        this.plugin = plugin;
         this.shopRegistry = shopRegistry;
         this.transactionRepository = transactionRepository;
     }
@@ -40,12 +49,17 @@ public final class ShopTradeListener implements Listener {
             return;
         }
         ShopRecord shop = maybeShop.get();
+        boolean clickedTop = topInventory.equals(event.getClickedInventory());
 
         if (event.getClick().isShiftClick() || event.getAction() == InventoryAction.COLLECT_TO_CURSOR) {
-            event.setCancelled(true);
+            if (clickedTop && shop.isOwner(player.getUniqueId())) {
+                handleOwnerShiftWithdraw(event, shop, player);
+            } else {
+                event.setCancelled(true);
+            }
             return;
         }
-        if (event.getClickedInventory() == null || !event.getClickedInventory().equals(topInventory)) {
+        if (!clickedTop) {
             return;
         }
 
@@ -97,10 +111,13 @@ public final class ShopTradeListener implements Listener {
         int amount = clicked.getAmount();
         Material item = clicked.getType();
         removeDiamonds(buyer, price);
-        shopInventory.setItem(slot, new ItemStack(Material.DIAMOND, price));
+        NamespacedKey cooldownGroup = cooldownGroup(shop, slot);
+        ItemStack pendingDiamonds = new ItemStack(Material.DIAMOND, price);
+        pendingDiamonds.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(REFUND_WINDOW_TICKS / 20f).cooldownGroup(cooldownGroup));
+        shopInventory.setItem(slot, pendingDiamonds);
         giveItem(buyer, new ItemStack(item, amount));
         transactionRepository.insertPending(shop.world(), shop.id(), slot, buyer.getUniqueId(), item, amount, price, System.currentTimeMillis());
-        buyer.setCooldown(Material.DIAMOND, 1200);
+        buyer.setCooldown(cooldownGroup, REFUND_WINDOW_TICKS);
     }
 
     private void handleOwnerClick(InventoryClickEvent event, ShopRecord shop, Player owner) {
@@ -126,10 +143,37 @@ public final class ShopTradeListener implements Listener {
         }
     }
 
+    /**
+     * Owner shift-clicking a withdrawable (non-pending) diamond stack is left uncancelled so
+     * vanilla move-to-other-inventory handles the transfer; anything else on the shop's side
+     * (item stock, or diamonds still within the buyer's refund window) stays blocked.
+     */
+    private void handleOwnerShiftWithdraw(InventoryClickEvent event, ShopRecord shop, Player owner) {
+        int slot = event.getSlot();
+        ItemStack clicked = event.getClickedInventory().getItem(slot);
+        if (clicked == null || clicked.getType() != Material.DIAMOND) {
+            event.setCancelled(true);
+            return;
+        }
+        if (transactionRepository.findPendingBySlot(shop.world(), shop.id(), slot).isPresent()) {
+            event.setCancelled(true);
+            owner.sendMessage(Messages.shopWithdrawCooldownActive());
+        }
+    }
+
     private void refund(Inventory shopInventory, ShopTransactionRecord transaction, Player buyer) {
         shopInventory.setItem(transaction.slot(), new ItemStack(transaction.item(), transaction.amount()));
         giveItem(buyer, new ItemStack(Material.DIAMOND, transaction.price()));
         transactionRepository.markRefunded(transaction.id(), System.currentTimeMillis());
+    }
+
+    /**
+     * A cooldown group scoped to this shop's slot, so the refund-window overlay shows only on the
+     * pending diamond stack sitting in that slot — not on the buyer's real currency diamonds
+     * elsewhere in their inventory, and without resetting any other slot's still-running overlay.
+     */
+    private NamespacedKey cooldownGroup(ShopRecord shop, int slot) {
+        return new NamespacedKey(plugin, ("shop-pending-" + shop.id() + "-" + slot).toLowerCase(Locale.ROOT));
     }
 
     private static int countDiamonds(Player player) {

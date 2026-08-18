@@ -37,6 +37,10 @@ public final class ShopProtectionListener implements Listener {
         if (gameMode == GameMode.SURVIVAL || gameMode == GameMode.ADVENTURE) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(Messages.shopBlockProtected());
+            // The client predicts the break locally on the last swing before the server denies it;
+            // without an explicit resync it keeps rendering the block as gone until it reloads.
+            Block block = event.getBlock();
+            event.getPlayer().sendBlockChange(block.getLocation(), block.getBlockData());
         }
     }
 

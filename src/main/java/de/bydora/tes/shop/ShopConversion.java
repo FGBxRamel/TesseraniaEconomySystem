@@ -15,7 +15,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 import java.util.EnumSet;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,7 +22,7 @@ import java.util.Set;
  * Converts a vanilla container into a shop object and back: tags its
  * {@link PersistentDataContainer} with the owning shop's world/id (the defensive signal
  * {@link ShopMaintenanceTask}'s orphan scan checks against {@link ShopRegistry}) and sets its
- * display name to {@code "<Item> | <Preis>"} per spec §3.1.1.1.
+ * display name to {@code "<Name> | <Preis>"} per spec §3.1.1.1.
  */
 public final class ShopConversion {
 
@@ -59,11 +58,11 @@ public final class ShopConversion {
      * responsible for calling this on both halves of a double chest and persisting the state
      * ({@code state.update(true, false)}).
      */
-    public static void markAsShop(Plugin plugin, BlockState state, String world, String id, Material item, int price) {
+    public static void markAsShop(Plugin plugin, BlockState state, String world, String id, String name, int price) {
         PersistentDataContainer container = ((PersistentDataHolder) state).getPersistentDataContainer();
         container.set(shopKey(plugin), PersistentDataType.STRING, world + ":" + id);
         if (state instanceof Nameable nameable) {
-            nameable.customName(label(item, price));
+            nameable.customName(label(name, price));
         }
     }
 
@@ -116,23 +115,11 @@ public final class ShopConversion {
     private static void markBlock(Plugin plugin, World world, BlockPos position, ShopRecord shop) {
         Block block = world.getBlockAt(position.x(), position.y(), position.z());
         BlockState state = block.getState();
-        markAsShop(plugin, state, shop.world(), shop.id(), shop.item(), shop.price());
+        markAsShop(plugin, state, shop.world(), shop.id(), shop.name(), shop.price());
         state.update(true, false);
     }
 
-    public static Component label(Material item, int price) {
-        return Component.text(formatMaterialName(item) + " | " + price, NamedTextColor.GOLD);
-    }
-
-    private static String formatMaterialName(Material material) {
-        String[] words = material.name().toLowerCase(Locale.ROOT).split("_");
-        StringBuilder builder = new StringBuilder();
-        for (String word : words) {
-            if (!builder.isEmpty()) {
-                builder.append(' ');
-            }
-            builder.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
-        }
-        return builder.toString();
+    public static Component label(String name, int price) {
+        return Component.text(name + " | " + price, NamedTextColor.GOLD);
     }
 }

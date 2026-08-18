@@ -15,7 +15,7 @@ a 3-diamond stack, in place. This means Stage 1 needed zero GUI framework; the o
 
 `ShopConversion` tags a converted container's `PersistentDataContainer` with `"<world>:<id>"`
 under the `NamespacedKey(plugin, "shop")` key, and sets its `Nameable` custom name to
-`"<Item> | <Preis>"`. That tag is a *defensive secondary signal*, not the source of truth for
+`"<Name> | <Preis>"`. That tag is a *defensive secondary signal*, not the source of truth for
 anything on the hot path — `ShopRegistry` is. It's an in-memory index (block position → shop,
 and world+id → shop), warmed once from `ShopRepository` on enable, and every listener that needs
 "is this a shop" (protection, trading) queries it directly rather than touching the database or
@@ -62,15 +62,21 @@ itself gated behind the already permission-checked `erstellen`/`bearbeiten`.
 ## The purchase mechanic
 
 `ShopTradeListener` hooks `InventoryClickEvent` on the shop's own (top) inventory. A buyer's
-plain left-click on the sold item swaps it for diamonds in that slot and calls
-`buyer.setCooldown(Material.DIAMOND, 1200)` — vanilla's ender-pearl-cooldown mechanism, applied to
-`DIAMOND` instead. Because the purchase just turned that slot into a diamond stack, the swirl
-overlay renders on exactly that slot for the buyer, which is a precise match for the spec's own
-"like the ender pearl cooldown" description rather than an approximation. Clicking that same
-still-`PENDING` stack again within the 60-second window refunds it (swap back, `REFUNDED`);
-owners can't touch it until it's no longer pending, and restocking only accepts the shop's
-configured item. Shift-clicks and drags on the shop side are blocked outright to keep the whole
-interaction to the single-slot-click model UC4 describes.
+plain left-click on the sold item swaps it for diamonds in that slot. Those diamonds carry a
+`UseCooldown` data component (`DataComponentTypes.USE_COOLDOWN`) scoped to a per-shop-and-slot
+`NamespacedKey` (`shop-pending-<id>-<slot>`), and `buyer.setCooldown(group, 1200)` starts the
+swirl overlay for that group — vanilla's ender-pearl-cooldown mechanism, but keyed to a custom
+cooldown group instead of the `DIAMOND` material. That matters for two reasons a plain
+`Material.DIAMOND` cooldown can't handle: it doesn't bleed onto the buyer's own currency diamonds
+sitting elsewhere in their inventory (they don't carry the component, so they never render the
+overlay), and a second, concurrent purchase in a different slot gets its own group and doesn't
+reset an already-running overlay in another slot. Clicking that same still-`PENDING` stack again
+within the 60-second window refunds it (swap back, `REFUNDED`); the plain diamonds handed back on
+refund carry no cooldown component. Owners can't touch a slot's diamonds (by normal click or
+shift-click) until it's no longer pending — after that, both are allowed, so `Shift` works as a
+quick withdraw. Restocking only accepts the shop's configured item, and non-owner shift-clicks and
+all drags on the shop side stay blocked outright to keep the interaction to the single-slot-click
+model UC4 describes.
 
 ## `ShopMaintenanceTask`: two jobs sharing a cause
 

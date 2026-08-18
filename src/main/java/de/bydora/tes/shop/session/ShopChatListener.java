@@ -262,6 +262,10 @@ public final class ShopChatListener implements Listener {
                 return;
             }
         }
+        if (material == Material.DIAMOND) {
+            player.sendMessage(Messages.shopItemIsCurrency());
+            return;
+        }
         session.item(material);
         session.pendingField(null);
         player.sendMessage(renderMenu(session));

@@ -204,6 +204,10 @@ public final class Messages {
         return Component.text("Unbekanntes Item: \"" + text + "\".", NamedTextColor.RED);
     }
 
+    public static Component shopItemIsCurrency() {
+        return Component.text("Diamanten sind die Währung (Taler) und können nicht verkauft werden.", NamedTextColor.RED);
+    }
+
     public static Component shopPromptPrice() {
         return shopHint("Preis pro Slot in Talern (ganze Zahl, größer als 0)?");
     }

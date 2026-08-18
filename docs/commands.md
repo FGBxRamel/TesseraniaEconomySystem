@@ -119,5 +119,8 @@ Kauf rückgängig. Erst nach Ablauf der Frist kann der Shopbesitzer die Diamante
 werden dem Käufer zu diesem Zeitpunkt automatisch gutgeschrieben.
 
 Shopbesitzer füllen einen Shop nach, indem sie das konfigurierte Item einfach in einen freien
-Slot legen – andere Items werden abgelehnt. Shift-Klicks und Drag-Aktionen sind im Shop-Inventar
-deaktiviert, um beim Kauf/Nachfüllen ausschließlich beim beschriebenen Einzelklick zu bleiben.
+Slot legen – andere Items werden abgelehnt. Diamanten selbst können nicht als Shop-Item verkauft
+werden, da sie die Währung (Taler) sind. Shift-Klicks und Drag-Aktionen sind im Shop-Inventar für
+Käufer sowie für Nicht-Diamanten-Slots deaktiviert, um beim Kauf/Nachfüllen ausschließlich beim
+beschriebenen Einzelklick zu bleiben – Besitzer dürfen entnahmebereite (nicht mehr stornierbare)
+Diamanten aber auch per Shift-Klick entnehmen.
