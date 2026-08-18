@@ -7,3 +7,22 @@ api-version: '26.2'
 load: STARTUP
 
 authors: [ FGBxRamel ]
+
+commands:
+  tes:
+    description: Hauptbefehl des Tesserania Economy Systems
+    usage: /tes <spieler> ...
+
+permissions:
+  tes.admin.spieler.add:
+    description: Erlaubt das Hinzufügen eines Spielers zum Belohnungssystem
+    default: op
+  tes.admin.spieler.remove:
+    description: Erlaubt das endgültige Entfernen eines Spielers inkl. aller Daten
+    default: op
+  tes.admin.spieler.pause:
+    description: Erlaubt das Pausieren eines Spielers im Belohnungssystem
+    default: op
+  tes.admin.spieler.unpause:
+    description: Erlaubt das Entpausieren eines Spielers
+    default: op
