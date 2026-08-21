@@ -4,6 +4,7 @@ import de.bydora.tes.util.Messages;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -28,7 +29,7 @@ public final class ShopProtectionListener implements Listener {
         this.registry = registry;
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
         if (!isShopBlock(event.getBlock())) {
             return;
