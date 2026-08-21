@@ -296,6 +296,10 @@ public final class Messages {
         return Component.text("Dieser Shop verkauft nur " + item + ".", NamedTextColor.RED);
     }
 
+    public static Component shopRefundItemMissing() {
+        return Component.text("Stornierung nicht möglich: Du besitzt die gekauften Items nicht mehr vollständig.", NamedTextColor.RED);
+    }
+
     /**
      * UC5: the shop's block no longer exists or was tampered with outside the plugin. Returned
      * as plain text since it's also what gets persisted for offline owners via

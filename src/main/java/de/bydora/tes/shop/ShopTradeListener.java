@@ -162,6 +162,11 @@ public final class ShopTradeListener implements Listener {
     }
 
     private void refund(Inventory shopInventory, ShopTransactionRecord transaction, Player buyer) {
+        if (countMaterial(buyer, transaction.item()) < transaction.amount()) {
+            buyer.sendMessage(Messages.shopRefundItemMissing());
+            return;
+        }
+        removeMaterial(buyer, transaction.item(), transaction.amount());
         shopInventory.setItem(transaction.slot(), new ItemStack(transaction.item(), transaction.amount()));
         giveItem(buyer, new ItemStack(Material.DIAMOND, transaction.price()));
         transactionRepository.markRefunded(transaction.id(), System.currentTimeMillis());
@@ -177,9 +182,13 @@ public final class ShopTradeListener implements Listener {
     }
 
     private static int countDiamonds(Player player) {
+        return countMaterial(player, Material.DIAMOND);
+    }
+
+    private static int countMaterial(Player player, Material material) {
         int total = 0;
         for (ItemStack stack : player.getInventory().getStorageContents()) {
-            if (stack != null && stack.getType() == Material.DIAMOND) {
+            if (stack != null && stack.getType() == material) {
                 total += stack.getAmount();
             }
         }
@@ -187,11 +196,21 @@ public final class ShopTradeListener implements Listener {
     }
 
     private static void removeDiamonds(Player player, int amount) {
+        removeMaterial(player, Material.DIAMOND, amount);
+    }
+
+    /**
+     * Removes up to {@code amount} of {@code material} from the player's storage contents,
+     * scanning slots in order. Callers must first confirm sufficient quantity via
+     * {@link #countMaterial(Player, Material)}; this method takes whatever is present without
+     * erroring if that turns out to be less than {@code amount}.
+     */
+    private static void removeMaterial(Player player, Material material, int amount) {
         ItemStack[] contents = player.getInventory().getStorageContents();
         int remaining = amount;
         for (int i = 0; i < contents.length && remaining > 0; i++) {
             ItemStack stack = contents[i];
-            if (stack == null || stack.getType() != Material.DIAMOND) {
+            if (stack == null || stack.getType() != material) {
                 continue;
             }
             int take = Math.min(stack.getAmount(), remaining);
