@@ -87,6 +87,9 @@ verkauft dann jedes Item außer Diamanten (Diamanten bleiben die Währung) zum f
 Preis pro Slot – nützlich für Sammel-/Ankaufsshops, die nicht auf ein einzelnes Item beschränkt
 sein sollen.
 
+Der Preis pro Slot ist eine ganze Zahl zwischen **1 und 64** Talern (ein Slot fasst maximal
+einen vollen Stack, daher die Obergrenze).
+
 Am Ende des Menüs stehen zwei Schaltflächen: `»» BESTÄTIGEN ««` speichert den Shop (nur möglich,
 wenn alle Pflichtattribute gesetzt sind – fehlt noch etwas, wird das gemeldet und das Menü bleibt
 offen), `»» ABBRECHEN ««` verwirft die Einrichtung. Beide funktionieren auch als Chat-Eingabe
