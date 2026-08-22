@@ -247,6 +247,12 @@ public final class ShopChatListener implements Listener {
     }
 
     private void handleItem(Player player, ShopSession session, String text) {
+        if (text.equalsIgnoreCase("alle") || text.equalsIgnoreCase("all")) {
+            session.item(ShopRecord.SELL_ALL_SENTINEL);
+            session.pendingField(null);
+            player.sendMessage(renderMenu(session));
+            return;
+        }
         Material material;
         if (text.equalsIgnoreCase("hand")) {
             ItemStack inHand = player.getInventory().getItemInMainHand();
@@ -359,7 +365,7 @@ public final class ShopChatListener implements Listener {
             case OWNERS -> session.owners().isEmpty() ? null : ownerNames(session);
             case POSITION -> session.position() == null ? null
                     : session.position().x() + " " + session.position().y() + " " + session.position().z();
-            case ITEM -> session.item() == null ? null : session.item().name();
+            case ITEM -> session.item() == null ? null : ShopRecord.itemDisplayName(session.item());
             case PRICE -> session.price() == null ? null : session.price() + " Taler/Slot";
             case TELEPORT -> session.teleportPoint() != null ? "gesetzt" : null;
         };

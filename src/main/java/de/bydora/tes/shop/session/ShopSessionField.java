@@ -19,7 +19,7 @@ public enum ShopSessionField {
     NAME("name", "Name", "Anzeigename des Shops.", true),
     OWNERS("owners", "Besitzer", "Spieler, die diesen Shop verwalten dürfen.", true),
     POSITION("position", "Position", "Truhe/Doppeltruhe/Redstone-Truhe/Fass/Shulkerbox, die zum Shop wird (Rechtsklick auf den Block).", true),
-    ITEM("item", "Item", "Das im Shop verkaufte Item.", true),
+    ITEM("item", "Item", "Das im Shop verkaufte Item, oder \"alle\" für jedes Item außer Diamanten.", true),
     PRICE("price", "Preis", "Preis pro Slot in Talern.", true),
     TELEPORT("teleport", "Teleportpunkt", "Optionaler Zielpunkt für \"/tes shop tp\".", false);
 

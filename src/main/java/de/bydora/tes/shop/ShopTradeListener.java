@@ -24,7 +24,8 @@ import java.util.Optional;
  * left-click by a non-owner either buys the clicked slot's stock (diamonds ⇄ item, in place) or,
  * if it's the buyer's own still-{@link TransactionState#PENDING} diamonds, refunds it. Owners may
  * withdraw diamonds (once their 60-second window has elapsed, by normal or shift click) and
- * restock with the configured item; everything else on the shop's side of the inventory is
+ * restock with the configured item — or, for a {@link ShopRecord#sellsAllItems() sell-all-items}
+ * shop, with anything except diamonds; everything else on the shop's side of the inventory is
  * blocked to keep the interaction to the single-slot-click model the spec describes.
  */
 public final class ShopTradeListener implements Listener {
@@ -99,7 +100,7 @@ public final class ShopTradeListener implements Listener {
             return;
         }
 
-        if (clicked.getType() != shop.item()) {
+        if (!shop.sellsAllItems() && clicked.getType() != shop.item()) {
             return;
         }
         int price = shop.price();
@@ -139,7 +140,15 @@ public final class ShopTradeListener implements Listener {
             case PLACE_ALL, PLACE_SOME, PLACE_ONE, SWAP_WITH_CURSOR -> true;
             default -> false;
         };
-        if (placingItem && cursor.getType() != shop.item()) {
+        if (!placingItem) {
+            return;
+        }
+        if (shop.sellsAllItems()) {
+            if (cursor.getType() == Material.DIAMOND) {
+                event.setCancelled(true);
+                owner.sendMessage(Messages.shopDiamondsNotStockable());
+            }
+        } else if (cursor.getType() != shop.item()) {
             event.setCancelled(true);
             owner.sendMessage(Messages.shopWrongItemForShop(shop.item().name()));
         }

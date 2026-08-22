@@ -82,6 +82,11 @@ per Rechtsklick auf den gewünschten Container festgelegt, nicht per Chat-Eingab
 erscheint das Menü mit dem aktualisierten Stand erneut. Bereits gesetzte Attribute können jederzeit
 erneut angeklickt werden, um sie zu ändern.
 
+Beim Item-Attribut kann statt eines Materialnamens auch `alle` eingegeben werden: Der Shop
+verkauft dann jedes Item außer Diamanten (Diamanten bleiben die Währung) zum festgelegten
+Preis pro Slot – nützlich für Sammel-/Ankaufsshops, die nicht auf ein einzelnes Item beschränkt
+sein sollen.
+
 Am Ende des Menüs stehen zwei Schaltflächen: `»» BESTÄTIGEN ««` speichert den Shop (nur möglich,
 wenn alle Pflichtattribute gesetzt sind – fehlt noch etwas, wird das gemeldet und das Menü bleibt
 offen), `»» ABBRECHEN ««` verwirft die Einrichtung. Beide funktionieren auch als Chat-Eingabe
@@ -126,8 +131,9 @@ Kauf rückgängig. Erst nach Ablauf der Frist kann der Shopbesitzer die Diamante
 werden dem Käufer zu diesem Zeitpunkt automatisch gutgeschrieben.
 
 Shopbesitzer füllen einen Shop nach, indem sie das konfigurierte Item einfach in einen freien
-Slot legen – andere Items werden abgelehnt. Diamanten selbst können nicht als Shop-Item verkauft
-werden, da sie die Währung (Taler) sind. Shift-Klicks und Drag-Aktionen sind im Shop-Inventar für
+Slot legen – andere Items werden abgelehnt (bei einem "alle"-Shop ist jedes Item außer Diamanten
+erlaubt). Diamanten selbst können nicht als Shop-Item verkauft werden, da sie die Währung (Taler)
+sind. Shift-Klicks und Drag-Aktionen sind im Shop-Inventar für
 Käufer sowie für Nicht-Diamanten-Slots deaktiviert, um beim Kauf/Nachfüllen ausschließlich beim
 beschriebenen Einzelklick zu bleiben – Besitzer dürfen entnahmebereite (nicht mehr stornierbare)
 Diamanten aber auch per Shift-Klick entnehmen.

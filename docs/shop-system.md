@@ -78,6 +78,21 @@ quick withdraw. Restocking only accepts the shop's configured item, and non-owne
 all drags on the shop side stay blocked outright to keep the interaction to the single-slot-click
 model UC4 describes.
 
+### Sell-all-items shops
+
+Typing `alle`/`all` for the Item attribute instead of a material name creates a shop that buys any
+non-diamond item at the configured flat price per slot, rather than one fixed material.
+`ShopRecord.SELL_ALL_SENTINEL` (`Material.AIR`) represents this: AIR can never be a legitimately
+configured single item (it's not `Material#isItem()`, and the setup flow's material lookup already
+rejects it), so it doubles as the "sell all" flag without a new field, DB column, or migration —
+`shop.item()` round-trips through SQLite as the string `"AIR"` exactly like any other material.
+`ShopRecord.sellsAllItems()`/`itemDisplayName(Material)` are the two call sites that need to know
+about the sentinel; everywhere else (refund, withdraw, persistence, the orphan scan) is already
+item-agnostic since it operates on the *purchased* item recorded per transaction, not the shop's
+configured one. `ShopTradeListener` only special-cases the buy-side match check (skip it entirely
+for a sell-all shop) and the owner restock check (block diamonds specifically, since there's no
+single configured material left to compare against).
+
 ## `ShopMaintenanceTask`: two jobs sharing a cause
 
 Both of the task's responsibilities exist because a shop's on-disk state and its real-world block

@@ -261,7 +261,7 @@ public final class ShopCommand {
 
         sender.sendMessage(Messages.shopListHeader(page, totalPages));
         for (ShopRecord shop : shops.subList(fromIndex, toIndex)) {
-            sender.sendMessage(Messages.shopListEntry(shop.id(), shop.world(), shop.name(), shop.item().name(), shop.price()));
+            sender.sendMessage(Messages.shopListEntry(shop.id(), shop.world(), shop.name(), ShopRecord.itemDisplayName(shop.item()), shop.price()));
         }
         if (totalPages > 1) {
             sender.sendMessage(Messages.shopListNav(page, totalPages));

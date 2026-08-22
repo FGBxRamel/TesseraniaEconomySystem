@@ -197,7 +197,8 @@ public final class Messages {
     }
 
     public static Component shopPromptItem() {
-        return shopHint("Welches Item soll verkauft werden? Materialname eingeben (z. B. \"dirt\") oder \"hand\" für das Item in deiner Hand.");
+        return shopHint("Welches Item soll verkauft werden? Materialname eingeben (z. B. \"dirt\"), \"hand\" für das "
+                + "Item in deiner Hand, oder \"alle\" für einen Shop, der jedes Item außer Diamanten verkauft.");
     }
 
     public static Component shopItemInvalid(String text) {
@@ -294,6 +295,10 @@ public final class Messages {
 
     public static Component shopWrongItemForShop(String item) {
         return Component.text("Dieser Shop verkauft nur " + item + ".", NamedTextColor.RED);
+    }
+
+    public static Component shopDiamondsNotStockable() {
+        return Component.text("Diamanten können nicht als Shop-Bestand eingelagert werden.", NamedTextColor.RED);
     }
 
     public static Component shopRefundItemMissing() {
