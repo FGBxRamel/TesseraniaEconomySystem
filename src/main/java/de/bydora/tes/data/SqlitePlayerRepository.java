@@ -80,6 +80,37 @@ public final class SqlitePlayerRepository implements PlayerRepository {
     }
 
     @Override
+    public void addTreuepunkte(UUID uuid, int delta) {
+        applyCounterUpdate("UPDATE players SET treuepunkte = MAX(0, treuepunkte + ?), updated_at = ? WHERE uuid = ?", delta, uuid);
+    }
+
+    @Override
+    public void setTreuepunkte(UUID uuid, int value) {
+        applyCounterUpdate("UPDATE players SET treuepunkte = MAX(0, ?), updated_at = ? WHERE uuid = ?", value, uuid);
+    }
+
+    @Override
+    public void addErfahrungspunkte(UUID uuid, int delta) {
+        applyCounterUpdate("UPDATE players SET erfahrungspunkte = MAX(0, erfahrungspunkte + ?), updated_at = ? WHERE uuid = ?", delta, uuid);
+    }
+
+    @Override
+    public void setErfahrungspunkte(UUID uuid, int value) {
+        applyCounterUpdate("UPDATE players SET erfahrungspunkte = MAX(0, ?), updated_at = ? WHERE uuid = ?", value, uuid);
+    }
+
+    private void applyCounterUpdate(String sql, int amount, UUID uuid) {
+        database.execute(() -> {
+            try (PreparedStatement statement = database.connection().prepareStatement(sql)) {
+                statement.setInt(1, amount);
+                statement.setLong(2, System.currentTimeMillis());
+                statement.setString(3, uuid.toString());
+                return statement.executeUpdate();
+            }
+        });
+    }
+
+    @Override
     public void delete(UUID uuid) {
         database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement(
