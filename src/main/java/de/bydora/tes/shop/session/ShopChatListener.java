@@ -286,7 +286,7 @@ public final class ShopChatListener implements Listener {
             player.sendMessage(Messages.shopPriceInvalid());
             return;
         }
-        if (price <= 0) {
+        if (price <= 0 || price > 64) {
             player.sendMessage(Messages.shopPriceInvalid());
             return;
         }

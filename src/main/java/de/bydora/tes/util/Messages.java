@@ -210,11 +210,11 @@ public final class Messages {
     }
 
     public static Component shopPromptPrice() {
-        return shopHint("Preis pro Slot in Talern (ganze Zahl, größer als 0)?");
+        return shopHint("Preis pro Slot in Talern (ganze Zahl, 1 bis 64)?");
     }
 
     public static Component shopPriceInvalid() {
-        return Component.text("Ungültiger Preis. Bitte eine ganze Zahl größer als 0 eingeben.", NamedTextColor.RED);
+        return Component.text("Ungültiger Preis. Bitte eine ganze Zahl zwischen 1 und 64 eingeben.", NamedTextColor.RED);
     }
 
     public static Component shopPromptTeleport() {
