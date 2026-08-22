@@ -128,6 +128,8 @@ public final class ShopTradeListener implements Listener {
             if (transactionRepository.findPendingBySlot(shop.world(), shop.id(), slot).isPresent()) {
                 event.setCancelled(true);
                 owner.sendMessage(Messages.shopWithdrawCooldownActive());
+            } else if (clicked.hasData(DataComponentTypes.USE_COOLDOWN)) {
+                event.getClickedInventory().setItem(slot, withoutCooldown(clicked));
             }
             return;
         }
@@ -158,7 +160,23 @@ public final class ShopTradeListener implements Listener {
         if (transactionRepository.findPendingBySlot(shop.world(), shop.id(), slot).isPresent()) {
             event.setCancelled(true);
             owner.sendMessage(Messages.shopWithdrawCooldownActive());
+            return;
         }
+        if (clicked.hasData(DataComponentTypes.USE_COOLDOWN)) {
+            event.getClickedInventory().setItem(slot, withoutCooldown(clicked));
+        }
+    }
+
+    /**
+     * Strips the refund-window {@code USE_COOLDOWN} overlay component from a shop-slot diamond
+     * stack once it's no longer pending, so withdrawn diamonds are plain stacks again and merge
+     * normally with the player's other diamonds instead of being permanently kept apart by the
+     * shop/slot-specific cooldown group baked into the component.
+     */
+    private static ItemStack withoutCooldown(ItemStack stack) {
+        ItemStack copy = stack.clone();
+        copy.resetData(DataComponentTypes.USE_COOLDOWN);
+        return copy;
     }
 
     private void refund(Inventory shopInventory, ShopTransactionRecord transaction, Player buyer) {
