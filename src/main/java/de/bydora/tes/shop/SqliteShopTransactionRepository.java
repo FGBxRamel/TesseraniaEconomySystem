@@ -1,7 +1,7 @@
 package de.bydora.tes.shop;
 
 import de.bydora.tes.data.Database;
-import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,26 +25,25 @@ public final class SqliteShopTransactionRepository implements ShopTransactionRep
     }
 
     @Override
-    public ShopTransactionRecord insertPending(String shopWorld, String shopId, int slot, UUID buyer, Material item, int amount, int price, long purchasedAt) {
+    public ShopTransactionRecord insertPending(String shopWorld, String shopId, int slot, UUID buyer, ItemStack item, int price, long purchasedAt) {
         return database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement(
-                    "INSERT INTO shop_transactions (shop_world, shop_id, slot, buyer_uuid, item, amount, price, state, purchased_at, resolved_at) "
-                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)",
+                    "INSERT INTO shop_transactions (shop_world, shop_id, slot, buyer_uuid, item, price, state, purchased_at, resolved_at) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, shopWorld);
                 statement.setString(2, shopId);
                 statement.setInt(3, slot);
                 statement.setString(4, buyer.toString());
-                statement.setString(5, item.name());
-                statement.setInt(6, amount);
-                statement.setInt(7, price);
-                statement.setString(8, TransactionState.PENDING.name());
-                statement.setLong(9, purchasedAt);
+                statement.setBytes(5, item.serializeAsBytes());
+                statement.setInt(6, price);
+                statement.setString(7, TransactionState.PENDING.name());
+                statement.setLong(8, purchasedAt);
                 statement.executeUpdate();
                 try (ResultSet keys = statement.getGeneratedKeys()) {
                     keys.next();
                     long id = keys.getLong(1);
-                    return new ShopTransactionRecord(id, shopWorld, shopId, slot, buyer, item, amount, price, TransactionState.PENDING, purchasedAt, null);
+                    return new ShopTransactionRecord(id, shopWorld, shopId, slot, buyer, item, price, TransactionState.PENDING, purchasedAt, null);
                 }
             }
         });
@@ -151,8 +150,7 @@ public final class SqliteShopTransactionRepository implements ShopTransactionRep
                 resultSet.getString("shop_id"),
                 resultSet.getInt("slot"),
                 UUID.fromString(resultSet.getString("buyer_uuid")),
-                Material.valueOf(resultSet.getString("item")),
-                resultSet.getInt("amount"),
+                ItemStack.deserializeBytes(resultSet.getBytes("item")),
                 resultSet.getInt("price"),
                 TransactionState.valueOf(resultSet.getString("state")),
                 resultSet.getLong("purchased_at"),

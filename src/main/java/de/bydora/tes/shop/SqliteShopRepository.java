@@ -2,6 +2,7 @@ package de.bydora.tes.shop;
 
 import de.bydora.tes.data.Database;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -120,7 +121,7 @@ public final class SqliteShopRepository implements ShopRepository {
                             + "teleport_y = ?, teleport_z = ?, teleport_yaw = ?, teleport_pitch = ?, updated_at = ? "
                             + "WHERE world = ? AND id = ?")) {
                 statement.setString(1, shop.name());
-                statement.setString(2, shop.item().name());
+                statement.setBytes(2, serializeItem(shop.item()));
                 statement.setInt(3, shop.price());
                 TeleportPoint teleport = shop.teleportPoint();
                 if (teleport == null) {
@@ -214,7 +215,7 @@ public final class SqliteShopRepository implements ShopRepository {
         statement.setString(1, shop.id());
         statement.setString(2, shop.world());
         statement.setString(3, shop.name());
-        statement.setString(4, shop.item().name());
+        statement.setBytes(4, serializeItem(shop.item()));
         statement.setInt(5, shop.price());
         statement.setString(6, shop.containerType().name());
         statement.setInt(7, shop.position().x());
@@ -268,7 +269,7 @@ public final class SqliteShopRepository implements ShopRepository {
                 resultSet.getString("id"),
                 resultSet.getString("world"),
                 resultSet.getString("name"),
-                Material.valueOf(resultSet.getString("item")),
+                deserializeItem(resultSet.getBytes("item")),
                 resultSet.getInt("price"),
                 Material.valueOf(resultSet.getString("container_type")),
                 new BlockPos(resultSet.getInt("pos_x"), resultSet.getInt("pos_y"), resultSet.getInt("pos_z")),
@@ -278,6 +279,19 @@ public final class SqliteShopRepository implements ShopRepository {
                 resultSet.getLong("created_at"),
                 resultSet.getLong("updated_at")
         );
+    }
+
+    /**
+     * {@link ItemStack#serializeAsBytes()} rejects an empty stack (a shop's
+     * {@link ShopRecord#SELL_ALL_SENTINEL}, {@code Material.AIR}), so it's stored as a
+     * zero-length marker instead; {@link #deserializeItem} recognizes that marker on the way back.
+     */
+    private static byte[] serializeItem(ItemStack item) {
+        return item.isEmpty() ? new byte[0] : item.serializeAsBytes();
+    }
+
+    private static ItemStack deserializeItem(byte[] bytes) {
+        return bytes.length == 0 ? ShopRecord.SELL_ALL_SENTINEL.clone() : ItemStack.deserializeBytes(bytes);
     }
 
     private static Integer getNullableInt(ResultSet resultSet, String column) throws SQLException {

@@ -253,26 +253,27 @@ public final class ShopChatListener implements Listener {
             player.sendMessage(renderMenu(session));
             return;
         }
-        Material material;
+        ItemStack item;
         if (text.equalsIgnoreCase("hand")) {
             ItemStack inHand = player.getInventory().getItemInMainHand();
             if (inHand.getType() == Material.AIR) {
                 player.sendMessage(Messages.shopItemInvalid(text));
                 return;
             }
-            material = inHand.getType();
+            item = inHand.clone();
         } else {
-            material = Material.matchMaterial(text);
+            Material material = Material.matchMaterial(text);
             if (material == null || !material.isItem()) {
                 player.sendMessage(Messages.shopItemInvalid(text));
                 return;
             }
+            item = new ItemStack(material);
         }
-        if (material == Material.DIAMOND) {
+        if (item.getType() == Material.DIAMOND) {
             player.sendMessage(Messages.shopItemIsCurrency());
             return;
         }
-        session.item(material);
+        session.item(item);
         session.pendingField(null);
         player.sendMessage(renderMenu(session));
     }

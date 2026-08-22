@@ -4,6 +4,7 @@ import de.bydora.tes.shop.BlockPos;
 import de.bydora.tes.shop.ShopRecord;
 import de.bydora.tes.shop.TeleportPoint;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -35,7 +36,7 @@ public final class ShopSession {
     private BlockPos position;
     private BlockPos secondaryPosition;
     private Material containerType;
-    private Material item;
+    private ItemStack item;
     private Integer price;
     private TeleportPoint teleportPoint;
 
@@ -62,7 +63,7 @@ public final class ShopSession {
         session.position = existing.position();
         session.secondaryPosition = existing.secondaryPosition();
         session.containerType = existing.containerType();
-        session.item = existing.item();
+        session.item = existing.item().clone();
         session.price = existing.price();
         session.teleportPoint = existing.teleportPoint();
         return session;
@@ -166,12 +167,12 @@ public final class ShopSession {
         return containerType;
     }
 
-    public Material item() {
+    public ItemStack item() {
         return item;
     }
 
-    public void item(Material item) {
-        this.item = item;
+    public void item(ItemStack item) {
+        this.item = item == null ? null : item.clone();
     }
 
     public Integer price() {

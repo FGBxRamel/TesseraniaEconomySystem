@@ -18,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Handles UC4 (the purchase flow) directly on a shop's own container inventory: a single
@@ -100,7 +101,7 @@ public final class ShopTradeListener implements Listener {
             return;
         }
 
-        if (!shop.sellsAllItems() && clicked.getType() != shop.item()) {
+        if (!shop.sellsAllItems() && !clicked.isSimilar(shop.item())) {
             return;
         }
         int price = shop.price();
@@ -109,15 +110,14 @@ public final class ShopTradeListener implements Listener {
             return;
         }
 
-        int amount = clicked.getAmount();
-        Material item = clicked.getType();
+        ItemStack sold = clicked.clone();
         removeDiamonds(buyer, price);
         NamespacedKey cooldownGroup = cooldownGroup(shop, slot);
         ItemStack pendingDiamonds = new ItemStack(Material.DIAMOND, price);
         pendingDiamonds.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(REFUND_WINDOW_TICKS / 20f).cooldownGroup(cooldownGroup));
         shopInventory.setItem(slot, pendingDiamonds);
-        giveItem(buyer, new ItemStack(item, amount));
-        transactionRepository.insertPending(shop.world(), shop.id(), slot, buyer.getUniqueId(), item, amount, price, System.currentTimeMillis());
+        giveItem(buyer, sold.clone());
+        transactionRepository.insertPending(shop.world(), shop.id(), slot, buyer.getUniqueId(), sold, price, System.currentTimeMillis());
         buyer.setCooldown(cooldownGroup, REFUND_WINDOW_TICKS);
     }
 
@@ -148,9 +148,9 @@ public final class ShopTradeListener implements Listener {
                 event.setCancelled(true);
                 owner.sendMessage(Messages.shopDiamondsNotStockable());
             }
-        } else if (cursor.getType() != shop.item()) {
+        } else if (!cursor.isSimilar(shop.item())) {
             event.setCancelled(true);
-            owner.sendMessage(Messages.shopWrongItemForShop(shop.item().name()));
+            owner.sendMessage(Messages.shopWrongItemForShop(ShopRecord.itemDisplayName(shop.item())));
         }
     }
 
@@ -189,12 +189,13 @@ public final class ShopTradeListener implements Listener {
     }
 
     private void refund(Inventory shopInventory, ShopTransactionRecord transaction, Player buyer) {
-        if (countMaterial(buyer, transaction.item()) < transaction.amount()) {
+        ItemStack item = transaction.item();
+        if (countMatching(buyer, stack -> stack.isSimilar(item)) < item.getAmount()) {
             buyer.sendMessage(Messages.shopRefundItemMissing());
             return;
         }
-        removeMaterial(buyer, transaction.item(), transaction.amount());
-        shopInventory.setItem(transaction.slot(), new ItemStack(transaction.item(), transaction.amount()));
+        removeMatching(buyer, stack -> stack.isSimilar(item), item.getAmount());
+        shopInventory.setItem(transaction.slot(), item.clone());
         giveItem(buyer, new ItemStack(Material.DIAMOND, transaction.price()));
         transactionRepository.markRefunded(transaction.id(), System.currentTimeMillis());
     }
@@ -209,13 +210,13 @@ public final class ShopTradeListener implements Listener {
     }
 
     private static int countDiamonds(Player player) {
-        return countMaterial(player, Material.DIAMOND);
+        return countMatching(player, stack -> stack.getType() == Material.DIAMOND);
     }
 
-    private static int countMaterial(Player player, Material material) {
+    private static int countMatching(Player player, Predicate<ItemStack> matcher) {
         int total = 0;
         for (ItemStack stack : player.getInventory().getStorageContents()) {
-            if (stack != null && stack.getType() == material) {
+            if (stack != null && matcher.test(stack)) {
                 total += stack.getAmount();
             }
         }
@@ -223,21 +224,21 @@ public final class ShopTradeListener implements Listener {
     }
 
     private static void removeDiamonds(Player player, int amount) {
-        removeMaterial(player, Material.DIAMOND, amount);
+        removeMatching(player, stack -> stack.getType() == Material.DIAMOND, amount);
     }
 
     /**
-     * Removes up to {@code amount} of {@code material} from the player's storage contents,
-     * scanning slots in order. Callers must first confirm sufficient quantity via
-     * {@link #countMaterial(Player, Material)}; this method takes whatever is present without
-     * erroring if that turns out to be less than {@code amount}.
+     * Removes up to {@code amount} of items matching {@code matcher} from the player's storage
+     * contents, scanning slots in order. Callers must first confirm sufficient quantity via
+     * {@link #countMatching(Player, java.util.function.Predicate)}; this method takes whatever is
+     * present without erroring if that turns out to be less than {@code amount}.
      */
-    private static void removeMaterial(Player player, Material material, int amount) {
+    private static void removeMatching(Player player, Predicate<ItemStack> matcher, int amount) {
         ItemStack[] contents = player.getInventory().getStorageContents();
         int remaining = amount;
         for (int i = 0; i < contents.length && remaining > 0; i++) {
             ItemStack stack = contents[i];
-            if (stack == null || stack.getType() != material) {
+            if (stack == null || !matcher.test(stack)) {
                 continue;
             }
             int take = Math.min(stack.getAmount(), remaining);

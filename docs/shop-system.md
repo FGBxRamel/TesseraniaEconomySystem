@@ -82,16 +82,54 @@ model UC4 describes.
 
 Typing `alle`/`all` for the Item attribute instead of a material name creates a shop that buys any
 non-diamond item at the configured flat price per slot, rather than one fixed material.
-`ShopRecord.SELL_ALL_SENTINEL` (`Material.AIR`) represents this: AIR can never be a legitimately
-configured single item (it's not `Material#isItem()`, and the setup flow's material lookup already
-rejects it), so it doubles as the "sell all" flag without a new field, DB column, or migration —
-`shop.item()` round-trips through SQLite as the string `"AIR"` exactly like any other material.
-`ShopRecord.sellsAllItems()`/`itemDisplayName(Material)` are the two call sites that need to know
+`ShopRecord.SELL_ALL_SENTINEL` (an `ItemStack` of `Material.AIR`) represents this: AIR can never be
+a legitimately configured single item (it's not `Material#isItem()`, and the setup flow's material
+lookup already rejects it), so it doubles as the "sell all" flag without a new field, DB column, or
+migration — `shop.item()` round-trips through SQLite as a serialized `ItemStack` exactly like any
+other configured item, it just happens to be an empty AIR stack.
+`ShopRecord.sellsAllItems()`/`itemDisplayName(ItemStack)` are the two call sites that need to know
 about the sentinel; everywhere else (refund, withdraw, persistence, the orphan scan) is already
 item-agnostic since it operates on the *purchased* item recorded per transaction, not the shop's
 configured one. `ShopTradeListener` only special-cases the buy-side match check (skip it entirely
 for a sell-all shop) and the owner restock check (block diamonds specifically, since there's no
-single configured material left to compare against).
+single configured item left to compare against).
+
+## Item identity is a full `ItemStack`, not just a `Material`
+
+`ShopRecord.item` and `ShopTransactionRecord.item` are `ItemStack`s, not `Material`s — a shop's
+configured item and a recorded purchase carry their full NBT (enchantments, potion data, custom
+display name/lore, custom model data, etc.), not just a type enum. This matters because the shop's
+own container inventory *is* the sale slot (see above): whatever `ItemStack` an owner physically
+places there — an enchanted book, a named sword, a brewed potion — is exactly what gets sold, and
+losing that data on purchase would hand the buyer a plain vanilla item instead. Both records
+defensively `clone()` their `item` in a compact constructor, since `ItemStack` is mutable and these
+are otherwise-immutable records.
+
+Matching now uses `ItemStack#isSimilar` (type + meta, ignoring stack size) instead of `Material`
+equality, both for the owner's restock check and the buyer's "is this the shop's configured item"
+check. A purchase clones the *actual clicked stack* (`clicked.clone()`) rather than reconstructing
+one from `shop.item()`, so what the buyer receives — and what a refund puts back — is byte-for-byte
+what was in the slot, not a freshly-built copy of the shop's template item.
+
+Persistence stores the `ItemStack` via `ItemStack#serializeAsBytes()`/`ItemStack.deserializeBytes`
+into a `BLOB` column (`shops.item`, `shop_transactions.item`), replacing the earlier `TEXT` column
+that only held `Material.name()`. `shop_transactions` also dropped its separate `amount` column —
+the stored `ItemStack` already carries its own amount via `getAmount()`, so keeping both would have
+been two sources of truth for the same value.
+
+`ItemStack#serializeAsBytes()` throws on an empty stack, so `SqliteShopRepository` can't call it
+directly on `shop.item()` for a sell-all shop (`SELL_ALL_SENTINEL` is an empty `Material.AIR`
+stack) — `SqliteShopRepository.serializeItem`/`deserializeItem` special-case that with a
+zero-length byte array marker instead of delegating straight to `serializeAsBytes`/
+`deserializeBytes`. `ShopTransactionRecord.item` never needs this: it's always a real purchased
+item, never the sentinel.
+
+The migration that switches these columns to `BLOB` drops and recreates `shops`,
+`shop_owners`, and `shop_transactions` (all emptied first, see above) rather than the usual
+rename-copy-drop dance used elsewhere in `SchemaMigrator` — renaming a table SQLite is currently
+referencing as an FK target auto-rewrites the *other* tables' FK clauses to the new name (so
+`shops` → `shops_old` would leave `shop_owners`/`shop_transactions` referencing a table that gets
+dropped a few statements later), so the parent is recreated before its children instead.
 
 ## `ShopMaintenanceTask`: two jobs sharing a cause
 

@@ -1,6 +1,6 @@
 package de.bydora.tes.shop;
 
-import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public interface ShopTransactionRepository {
 
-    ShopTransactionRecord insertPending(String shopWorld, String shopId, int slot, UUID buyer, Material item, int amount, int price, long purchasedAt);
+    ShopTransactionRecord insertPending(String shopWorld, String shopId, int slot, UUID buyer, ItemStack item, int price, long purchasedAt);
 
     /**
      * The buyer's own still-{@code PENDING} transaction occupying {@code slot}, if any — used to

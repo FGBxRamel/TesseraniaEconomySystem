@@ -44,7 +44,7 @@ public final class ShopEconomy {
         for (ShopTransactionRecord transaction : pending) {
             inventory.ifPresent(inv -> {
                 if (transaction.slot() < inv.getSize()) {
-                    inv.setItem(transaction.slot(), new ItemStack(transaction.item(), transaction.amount()));
+                    inv.setItem(transaction.slot(), transaction.item().clone());
                 }
             });
             Player buyer = Bukkit.getPlayer(transaction.buyerUuid());
