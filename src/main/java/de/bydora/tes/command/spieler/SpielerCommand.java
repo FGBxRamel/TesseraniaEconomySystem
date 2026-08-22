@@ -4,24 +4,20 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import de.bydora.tes.TesseraniaEconomySystem;
+import de.bydora.tes.command.PlayerLookup;
 import de.bydora.tes.command.confirm.ConfirmationManager;
 import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.util.Messages;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Implements {@code /tes spieler add|remove|pause|unpause <Name>} (spec §1.4).
@@ -43,40 +39,31 @@ public final class SpielerCommand {
                 .then(Commands.literal("add")
                         .requires(source -> source.getSender().hasPermission("tes.admin.spieler.add"))
                         .then(Commands.argument("name", StringArgumentType.word())
-                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .suggests(PlayerLookup::suggestOnlinePlayerNames)
                                 .executes(SpielerCommand::add)))
                 .then(Commands.literal("pause")
                         .requires(source -> source.getSender().hasPermission("tes.admin.spieler.pause"))
                         .then(Commands.argument("name", StringArgumentType.word())
-                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .suggests(PlayerLookup::suggestOnlinePlayerNames)
                                 .executes(SpielerCommand::pause)))
                 .then(Commands.literal("unpause")
                         .requires(source -> source.getSender().hasPermission("tes.admin.spieler.unpause"))
                         .then(Commands.argument("name", StringArgumentType.word())
-                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .suggests(PlayerLookup::suggestOnlinePlayerNames)
                                 .executes(SpielerCommand::unpause)))
                 .then(Commands.literal("remove")
                         .requires(source -> source.getSender().hasPermission("tes.admin.spieler.remove"))
                         .then(Commands.argument("name", StringArgumentType.word())
-                                .suggests(SpielerCommand::suggestPlayerNames)
+                                .suggests(PlayerLookup::suggestOnlinePlayerNames)
                                 .executes(SpielerCommand::removeStart)
                                 .then(Commands.argument("token", StringArgumentType.word())
                                         .executes(SpielerCommand::removeConfirm))));
     }
 
-    private static CompletableFuture<Suggestions> suggestPlayerNames(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
-        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
-        Bukkit.getOnlinePlayers().stream()
-                .map(Player::getName)
-                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
-                .forEach(builder::suggest);
-        return builder.buildFuture();
-    }
-
     private static int add(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         String name = StringArgumentType.getString(ctx, "name");
-        Optional<OfflinePlayer> target = resolveKnownPlayer(sender, name);
+        Optional<OfflinePlayer> target = PlayerLookup.resolveKnownPlayer(sender, name);
         if (target.isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
@@ -93,7 +80,7 @@ public final class SpielerCommand {
     private static int pause(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         String name = StringArgumentType.getString(ctx, "name");
-        Optional<PlayerRecord> record = requireRegistered(sender, name);
+        Optional<PlayerRecord> record = PlayerLookup.requireRegistered(sender, repository(), name);
         if (record.isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
@@ -109,7 +96,7 @@ public final class SpielerCommand {
     private static int unpause(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         String name = StringArgumentType.getString(ctx, "name");
-        Optional<PlayerRecord> record = requireRegistered(sender, name);
+        Optional<PlayerRecord> record = PlayerLookup.requireRegistered(sender, repository(), name);
         if (record.isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
@@ -125,7 +112,7 @@ public final class SpielerCommand {
     private static int removeStart(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         String name = StringArgumentType.getString(ctx, "name");
-        Optional<PlayerRecord> record = requireRegistered(sender, name);
+        Optional<PlayerRecord> record = PlayerLookup.requireRegistered(sender, repository(), name);
         if (record.isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
@@ -151,27 +138,6 @@ public final class SpielerCommand {
 
     private static UUID actorOf(CommandSender sender) {
         return sender instanceof Player player ? player.getUniqueId() : CONSOLE_ACTOR;
-    }
-
-    private static Optional<OfflinePlayer> resolveKnownPlayer(CommandSender sender, String name) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(name);
-        if (!offlinePlayer.hasPlayedBefore() && !offlinePlayer.isOnline()) {
-            sender.sendMessage(Messages.playerNeverSeen(name));
-            return Optional.empty();
-        }
-        return Optional.of(offlinePlayer);
-    }
-
-    private static Optional<PlayerRecord> requireRegistered(CommandSender sender, String name) {
-        Optional<OfflinePlayer> target = resolveKnownPlayer(sender, name);
-        if (target.isEmpty()) {
-            return Optional.empty();
-        }
-        Optional<PlayerRecord> record = repository().findByUuid(target.get().getUniqueId());
-        if (record.isEmpty()) {
-            sender.sendMessage(Messages.notRegistered(name));
-        }
-        return record;
     }
 
     private static PlayerRepository repository() {
