@@ -89,19 +89,19 @@ can drift apart:
   they're unregistered or paused.
 - **Orphan scan (UC5)**: re-checks every registered shop's block(s) against the expected material
   and PDC tag; a mismatch means the block was destroyed or altered outside the plugin. The shop is
-  hard-deleted (no legitimate transaction history is worth keeping for a shop whose block no
-  longer exists — contrast with `schließen`'s soft delete, which does keep history), any pending
-  purchase is force-refunded via the shared `ShopEconomy` helper, and every owner is notified —
-  immediately if online, otherwise queued in `pending_notifications` and delivered on next join by
-  `PendingNotificationListener`.
+  hard-deleted, any pending purchase is force-refunded via the shared `ShopEconomy` helper, and
+  every owner is notified — immediately if online, otherwise queued in `pending_notifications` and
+  delivered on next join by `PendingNotificationListener`.
 
 `pending_notifications` is deliberately shop-agnostic (just a UUID and a message string) so
 Stage 2's invoice notifications can reuse it without a schema change.
 
-## Soft delete vs. hard delete
+## Closing always hard-deletes
 
-`schließen` (a deliberate, owner-initiated close) soft-deletes: the `shops` row gets a
-`closed_at` timestamp but stays, along with its transaction history — Stage 4's planned
-per-shop income drill-down needs that history to survive a shop being closed and later
-recreated under a new ID. Orphan cleanup hard-deletes, since there's nothing legitimate to keep
-a record of once the block itself is gone.
+Both `schließen` (owner-initiated close) and orphan cleanup hard-delete the `shops` row via
+`ShopRepository.delete`. `shop_owners` and `shop_transactions` reference `shops(world, id)` with
+`ON DELETE CASCADE`, so their rows for that shop are removed automatically — a single
+`DELETE FROM shops` is enough. This means a shop's transaction history does not survive its
+closing, but its ID becomes immediately reusable in that world, which is the point: an earlier
+soft-delete design (a nullable `closed_at` column) kept history around but permanently reserved
+the ID, which turned out to matter more in practice.

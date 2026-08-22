@@ -321,7 +321,7 @@ public final class ShopChatListener implements Listener {
             ShopRecord record = new ShopRecord(
                     session.id(), session.world(), session.name(), session.item(), session.price(),
                     session.containerType(), session.position(), session.secondaryPosition(),
-                    session.teleportPoint(), session.owners(), now, now, null);
+                    session.teleportPoint(), session.owners(), now, now);
             shopRepository.insert(record);
             shopRegistry.register(record);
             ShopConversion.applyToShop(plugin, record);
@@ -331,7 +331,7 @@ public final class ShopChatListener implements Listener {
             ShopRecord updated = new ShopRecord(
                     existing.id(), existing.world(), session.name(), session.item(), session.price(),
                     existing.containerType(), existing.position(), existing.secondaryPosition(),
-                    session.teleportPoint(), session.owners(), existing.createdAt(), now, existing.closedAt());
+                    session.teleportPoint(), session.owners(), existing.createdAt(), now);
             shopRepository.updateAttributes(updated);
             shopRepository.replaceOwners(updated.world(), updated.id(), updated.owners());
             shopRegistry.register(updated);

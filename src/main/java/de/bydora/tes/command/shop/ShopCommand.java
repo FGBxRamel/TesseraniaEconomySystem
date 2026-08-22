@@ -206,8 +206,7 @@ public final class ShopCommand {
         ShopEconomy.forceRefundPending(transactionRepository, shop, world);
 
         ShopRepository shopRepository = plugin().shopRepository();
-        long now = System.currentTimeMillis();
-        shopRepository.close(shop.world(), shop.id(), now);
+        shopRepository.delete(shop.world(), shop.id());
         plugin().shopRegistry().unregister(shop.world(), shop.id());
         ShopConversion.removeFromShop(plugin(), world, shop.position());
         if (shop.secondaryPosition() != null) {

@@ -85,6 +85,44 @@ final class SchemaMigrator {
                 created_at INTEGER NOT NULL
             )
             """,
+            "CREATE INDEX IF NOT EXISTS idx_shop_transactions_pending ON shop_transactions(state, purchased_at)",
+            // Closing a shop now hard-deletes its row (so the ID becomes reusable) instead of
+            // soft-deleting via closed_at, so the column is no longer needed.
+            "ALTER TABLE shops DROP COLUMN closed_at",
+            // Rebuild shop_owners/shop_transactions with ON DELETE CASCADE so deleting a shop
+            // (on close or as an orphan) cleans up its owner and transaction rows automatically,
+            // instead of failing the FK check or requiring manual multi-statement deletes.
+            "ALTER TABLE shop_owners RENAME TO shop_owners_old",
+            """
+            CREATE TABLE shop_owners (
+                shop_world TEXT NOT NULL,
+                shop_id    TEXT NOT NULL,
+                uuid       TEXT NOT NULL,
+                PRIMARY KEY (shop_world, shop_id, uuid),
+                FOREIGN KEY (shop_world, shop_id) REFERENCES shops(world, id) ON DELETE CASCADE
+            )
+            """,
+            "INSERT INTO shop_owners SELECT * FROM shop_owners_old",
+            "DROP TABLE shop_owners_old",
+            "ALTER TABLE shop_transactions RENAME TO shop_transactions_old",
+            """
+            CREATE TABLE shop_transactions (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                shop_world   TEXT NOT NULL,
+                shop_id      TEXT NOT NULL,
+                slot         INTEGER NOT NULL,
+                buyer_uuid   TEXT NOT NULL,
+                item         TEXT NOT NULL,
+                amount       INTEGER NOT NULL,
+                price        INTEGER NOT NULL,
+                state        TEXT NOT NULL,
+                purchased_at INTEGER NOT NULL,
+                resolved_at  INTEGER,
+                FOREIGN KEY (shop_world, shop_id) REFERENCES shops(world, id) ON DELETE CASCADE
+            )
+            """,
+            "INSERT INTO shop_transactions SELECT * FROM shop_transactions_old",
+            "DROP TABLE shop_transactions_old",
             "CREATE INDEX IF NOT EXISTS idx_shop_transactions_pending ON shop_transactions(state, purchased_at)"
     );
 

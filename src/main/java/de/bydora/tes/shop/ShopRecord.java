@@ -20,7 +20,6 @@ import java.util.UUID;
  * @param owners            the shop's owner(s); at least one
  * @param createdAt         epoch millis of creation
  * @param updatedAt         epoch millis of the last attribute change
- * @param closedAt          epoch millis the shop was closed via {@code /tes shop schließen}, or {@code null} if still open
  */
 public record ShopRecord(
         String id,
@@ -34,13 +33,8 @@ public record ShopRecord(
         TeleportPoint teleportPoint,
         Set<UUID> owners,
         long createdAt,
-        long updatedAt,
-        Long closedAt
+        long updatedAt
 ) {
-
-    public boolean isClosed() {
-        return closedAt != null;
-    }
 
     public boolean isOwner(UUID uuid) {
         return owners.contains(uuid);

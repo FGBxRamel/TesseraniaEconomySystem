@@ -13,13 +13,13 @@ public interface ShopRepository {
     Optional<ShopRecord> findByWorldAndId(String world, String id);
 
     /**
-     * All open (non-closed) shops owned by {@code owner}, across every world, ordered by
-     * creation time — backs {@code /tes shop liste}.
+     * All shops owned by {@code owner}, across every world, ordered by creation time — backs
+     * {@code /tes shop liste}.
      */
     List<ShopRecord> findAllByOwner(UUID owner);
 
     /**
-     * Every open shop, across every world — used to warm {@link ShopRegistry} on enable.
+     * Every registered shop, across every world — used to warm {@link ShopRegistry} on enable.
      */
     List<ShopRecord> findAllActive();
 
@@ -35,11 +35,10 @@ public interface ShopRepository {
 
     void replaceOwners(String world, String id, Set<UUID> owners);
 
-    void close(String world, String id, long closedAt);
-
     /**
-     * Hard-deletes a shop and its owner rows. Used by orphan cleanup (UC5), where the
-     * underlying block is already gone and there is no legitimate history worth keeping.
+     * Hard-deletes a shop, cascading to its owner and transaction rows, so its ID becomes
+     * reusable. Used both for owner-initiated close ({@code /tes shop schließen}) and orphan
+     * cleanup (UC5).
      */
     void delete(String world, String id);
 }

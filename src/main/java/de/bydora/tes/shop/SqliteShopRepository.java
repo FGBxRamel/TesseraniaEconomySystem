@@ -45,7 +45,7 @@ public final class SqliteShopRepository implements ShopRepository {
             List<ShopRecord> shops = new ArrayList<>();
             try (PreparedStatement statement = database.connection().prepareStatement(
                     "SELECT s.* FROM shops s JOIN shop_owners o ON s.world = o.shop_world AND s.id = o.shop_id "
-                            + "WHERE o.uuid = ? AND s.closed_at IS NULL ORDER BY s.created_at")) {
+                            + "WHERE o.uuid = ? ORDER BY s.created_at")) {
                 statement.setString(1, owner.toString());
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
@@ -62,7 +62,7 @@ public final class SqliteShopRepository implements ShopRepository {
         return database.execute(() -> {
             List<ShopRecord> shops = new ArrayList<>();
             try (PreparedStatement statement = database.connection().prepareStatement(
-                    "SELECT * FROM shops WHERE closed_at IS NULL");
+                    "SELECT * FROM shops");
                  ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     shops.add(toRecord(resultSet, loadOwners(resultSet.getString("world"), resultSet.getString("id"))));
@@ -95,8 +95,8 @@ public final class SqliteShopRepository implements ShopRepository {
                 try (PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO shops (id, world, name, item, price, container_type, pos_x, pos_y, pos_z, "
                                 + "pos2_x, pos2_y, pos2_z, teleport_world, teleport_x, teleport_y, teleport_z, "
-                                + "teleport_yaw, teleport_pitch, created_at, updated_at, closed_at) "
-                                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                                + "teleport_yaw, teleport_pitch, created_at, updated_at) "
+                                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                     bindInsert(statement, shop);
                     statement.executeUpdate();
                 }
@@ -171,44 +171,14 @@ public final class SqliteShopRepository implements ShopRepository {
     }
 
     @Override
-    public void close(String world, String id, long closedAt) {
-        database.execute(() -> {
-            try (PreparedStatement statement = database.connection().prepareStatement(
-                    "UPDATE shops SET closed_at = ? WHERE world = ? AND id = ?")) {
-                statement.setLong(1, closedAt);
-                statement.setString(2, world);
-                statement.setString(3, id);
-                return statement.executeUpdate();
-            }
-        });
-    }
-
-    @Override
     public void delete(String world, String id) {
         database.execute(() -> {
-            var connection = database.connection();
-            connection.setAutoCommit(false);
-            try {
-                try (PreparedStatement statement = connection.prepareStatement(
-                        "DELETE FROM shop_owners WHERE shop_world = ? AND shop_id = ?")) {
-                    statement.setString(1, world);
-                    statement.setString(2, id);
-                    statement.executeUpdate();
-                }
-                try (PreparedStatement statement = connection.prepareStatement(
-                        "DELETE FROM shops WHERE world = ? AND id = ?")) {
-                    statement.setString(1, world);
-                    statement.setString(2, id);
-                    statement.executeUpdate();
-                }
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(true);
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "DELETE FROM shops WHERE world = ? AND id = ?")) {
+                statement.setString(1, world);
+                statement.setString(2, id);
+                return statement.executeUpdate();
             }
-            return null;
         });
     }
 
@@ -278,7 +248,6 @@ public final class SqliteShopRepository implements ShopRepository {
         }
         statement.setLong(19, shop.createdAt());
         statement.setLong(20, shop.updatedAt());
-        statement.setNull(21, java.sql.Types.INTEGER);
     }
 
     private static ShopRecord toRecord(ResultSet resultSet, Set<UUID> owners) throws SQLException {
@@ -295,8 +264,6 @@ public final class SqliteShopRepository implements ShopRepository {
                 resultSet.getFloat("teleport_pitch")
         );
 
-        Long closedAt = getNullableLong(resultSet, "closed_at");
-
         return new ShopRecord(
                 resultSet.getString("id"),
                 resultSet.getString("world"),
@@ -309,18 +276,12 @@ public final class SqliteShopRepository implements ShopRepository {
                 teleport,
                 owners,
                 resultSet.getLong("created_at"),
-                resultSet.getLong("updated_at"),
-                closedAt
+                resultSet.getLong("updated_at")
         );
     }
 
     private static Integer getNullableInt(ResultSet resultSet, String column) throws SQLException {
         int value = resultSet.getInt(column);
-        return resultSet.wasNull() ? null : value;
-    }
-
-    private static Long getNullableLong(ResultSet resultSet, String column) throws SQLException {
-        long value = resultSet.getLong(column);
         return resultSet.wasNull() ? null : value;
     }
 }
