@@ -3,6 +3,8 @@ package de.bydora.tes.invoice;
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.util.Messages;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -28,15 +30,17 @@ public final class InvoiceGui {
 
     public static void open(TesseraniaEconomySystem plugin, Player player) {
         Item closeItem = Item.builder()
-                .setItemProvider(new ItemBuilder(Material.BARRIER).setName("§cSchließen"))
+                .setItemProvider(new ItemBuilder(Material.BARRIER).setName(Component.text("Schließen", NamedTextColor.RED)))
                 .addClickHandler(click -> click.player().closeInventory())
                 .build();
 
         Item diamondItem = Item.builder()
                 .setItemProvider(viewer -> new ItemBuilder(Material.DIAMOND)
-                        .setName("§eAuszahlen")
-                        .addLoreLines("§7Aktueller Kontostand: §f" + currentBalance(plugin, viewer) + " Taler")
-                        .addLoreLines("§7Klicken zum Auszahlen in dein Belohnungsinventar."))
+                        .setName(Component.text("Auszahlen", NamedTextColor.YELLOW))
+                        .addLoreLines(
+                                Component.text("Aktueller Kontostand: ", NamedTextColor.GRAY)
+                                        .append(Component.text(currentBalance(plugin, viewer) + " Taler", NamedTextColor.WHITE)),
+                                Component.text("Klicken zum Auszahlen in dein Belohnungsinventar.", NamedTextColor.GRAY)))
                 .addClickHandler((item, click) -> {
                     InvoiceEconomy.CashOutResult result = InvoiceEconomy.cashOut(
                             plugin.playerRepository(), plugin.rewardInventoryService(), click.player());
@@ -50,7 +54,7 @@ public final class InvoiceGui {
                 .build();
 
         Item nextPageItem = BoundItem.pagedBuilder()
-                .setItemProvider((viewer, gui) -> new ItemBuilder(Material.ARROW).setName("§eNächste Seite"))
+                .setItemProvider((viewer, gui) -> new ItemBuilder(Material.ARROW).setName(Component.text("Nächste Seite", NamedTextColor.YELLOW)))
                 .addClickHandler((item, gui, click) -> gui.setPage(gui.getPage() + 1))
                 .build();
 
@@ -60,13 +64,14 @@ public final class InvoiceGui {
                         "x x x x x x x x x",
                         "x x x x x x x x x",
                         "x x x x x x x x x",
-                        "x x x x x x x x x",
-                        "c d # # # # # # n")
-                .addIngredient('#', Item.simple(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName(" ")))
+                        "# # # # # # # # #",
+                        "c # # # d # # # n")
+                .addIngredient('#', Item.simple(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName(Component.text(" "))))
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('c', closeItem)
                 .addIngredient('d', diamondItem)
                 .addIngredient('n', nextPageItem)
+                .setBackground(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName(Component.text(" ")))
                 .setContent(content(plugin, player))
                 .build();
 
@@ -93,9 +98,10 @@ public final class InvoiceGui {
         String creatorName = creator.getName() != null ? creator.getName() : record.creatorUuid().toString();
         return Item.builder()
                 .setItemProvider(new ItemBuilder(Material.PAPER)
-                        .setName("§e" + record.price() + " Taler von " + creatorName)
-                        .addLoreLines("§7Grund: §f" + record.reason())
-                        .addLoreLines("§7Linksklick zum Bezahlen."))
+                        .setName(Component.text(record.price() + " Taler von " + creatorName, NamedTextColor.YELLOW))
+                        .addLoreLines(
+                                Component.text("Grund: ", NamedTextColor.GRAY).append(Component.text(record.reason(), NamedTextColor.WHITE)),
+                                Component.text("Linksklick zum Bezahlen.", NamedTextColor.GRAY)))
                 .addClickHandler((item, click) -> {
                     InvoiceEconomy.SettleResult result = InvoiceEconomy.settle(
                             plugin.invoiceRepository(), plugin.playerRepository(), click.player(), record.id());

@@ -3,6 +3,8 @@ package de.bydora.tes.reward;
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.shop.ShopRecord;
 import de.bydora.tes.util.Messages;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.Markers;
@@ -29,14 +31,14 @@ public final class RewardInventoryGui {
     public static void open(TesseraniaEconomySystem plugin, Player player) {
         Item backItem = Item.builder()
                 .setItemProvider(new ItemBuilder(Material.ARROW)
-                        .setName("§7Zurück")
-                        .addLoreLines("§7Das Levelinterface folgt in einer späteren Stage."))
+                        .setName(Component.text("Zurück", NamedTextColor.GRAY))
+                        .addLoreLines(Component.text("Das Levelinterface folgt in einer späteren Stage.", NamedTextColor.GRAY)))
                 .addClickHandler(click -> {
                 })
                 .build();
 
         Item nextPageItem = BoundItem.pagedBuilder()
-                .setItemProvider((viewer, gui) -> new ItemBuilder(Material.ARROW).setName("§eNächste Seite"))
+                .setItemProvider((viewer, gui) -> new ItemBuilder(Material.ARROW).setName(Component.text("Nächste Seite", NamedTextColor.YELLOW)))
                 .addClickHandler((item, gui, click) -> gui.setPage(gui.getPage() + 1))
                 .build();
 
@@ -46,12 +48,13 @@ public final class RewardInventoryGui {
                         "x x x x x x x x x",
                         "x x x x x x x x x",
                         "x x x x x x x x x",
-                        "x x x x x x x x x",
+                        "# # # # # # # # #",
                         "b # # # # # # # n")
-                .addIngredient('#', Item.simple(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName(" ")))
+                .addIngredient('#', Item.simple(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName(Component.text(" "))))
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('b', backItem)
                 .addIngredient('n', nextPageItem)
+                .setBackground(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName(Component.text(" ")))
                 .setContent(content(plugin, player))
                 .build();
 
