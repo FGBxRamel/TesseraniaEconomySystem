@@ -8,8 +8,9 @@ implementation approach for future maintainers; see `docs/commands.md` for the p
 
 A shop is not a custom inventory screen — it *is* the converted container's own inventory. UC4's
 worked example makes this explicit: buying 64 Dirt at 3 diamonds/slot turns that exact slot into
-a 3-diamond stack, in place. This means Stage 1 needed zero GUI framework; the open question in
-`ROADMAP.md` about pulling in a third-party GUI library only applies from Stage 3 onward.
+a 3-diamond stack, in place. This means Stage 1 needed zero GUI framework. `ROADMAP.md` originally
+deferred the GUI-library decision to Stage 3, but Stage 2's Belohnungsinventar and invoice list
+needed one first — see `docs/gui-library.md` for the InvUI adoption that resulted.
 
 ## Conversion and the registry
 

@@ -140,3 +140,20 @@ sind. Shift-Klicks und Drag-Aktionen sind im Shop-Inventar für
 Käufer sowie für Nicht-Diamanten-Slots deaktiviert, um beim Kauf/Nachfüllen ausschließlich beim
 beschriebenen Einzelklick zu bleiben – Besitzer dürfen entnahmebereite (nicht mehr stornierbare)
 Diamanten aber auch per Shift-Klick entnehmen.
+
+## `/tes belohnung` (Spieler)
+
+Öffnet dein **Belohnungsinventar**: Immer wenn du Items über das Treuepunkte- oder Levelsystem
+erhältst (und, sobald verfügbar, beim Auszahlen einer Rechnung über `/tes rechnung anzeigen`),
+landen diese hier – niemals direkt in deinem Inventar oder in einem Shop. Käufe in Shops landen
+**nicht** im Belohnungsinventar.
+
+| Berechtigung | Voraussetzung |
+|---|---|
+| `tes.belohnung` | Du musst im Belohnungssystem registriert (`/tes spieler add`) und nicht pausiert sein. |
+
+Ein Linksklick auf ein Item übernimmt genau diesen einen Stapel in dein reales Inventar. Ist dein
+Inventar voll, bleibt das Item im Belohnungsinventar liegen – es geht nichts verloren. Der graue
+Pfeil unten links ("Zurück") führt später zum Levelinterface (folgt in einer späteren Stage);
+der gelbe Pfeil unten rechts blättert zur nächsten Seite, sofern mehr Items vorhanden sind, als
+auf eine Seite passen.

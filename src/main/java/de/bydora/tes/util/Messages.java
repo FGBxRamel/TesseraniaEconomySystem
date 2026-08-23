@@ -322,4 +322,19 @@ public final class Messages {
         return Component.text(text, NamedTextColor.YELLOW);
     }
 
+    // ---- Belohnungsinventar (/tes belohnung, spec §1.3/§3.3.1.4) ----
+
+    public static Component rewardInventoryNotEligible() {
+        return Component.text("Du musst im Belohnungssystem registriert und nicht pausiert sein, um dein "
+                + "Belohnungsinventar zu nutzen.", NamedTextColor.RED);
+    }
+
+    public static Component rewardInventoryTaken(String itemName) {
+        return Component.text(itemName + " wurde in dein Inventar übernommen.", NamedTextColor.GREEN);
+    }
+
+    public static Component rewardInventoryFull() {
+        return Component.text("Dein Inventar ist voll. Das Item bleibt im Belohnungsinventar.", NamedTextColor.RED);
+    }
+
 }
