@@ -58,3 +58,9 @@ permissions:
   tes.belohnung:
     description: Erlaubt das Öffnen des eigenen Belohnungsinventars
     default: true
+  tes.rechnung.erstellen:
+    description: Erlaubt das Erstellen einer Rechnung an einen anderen Spieler
+    default: true
+  tes.rechnung.anzeigen:
+    description: Erlaubt das Anzeigen und Bezahlen eigener offener Rechnungen
+    default: true

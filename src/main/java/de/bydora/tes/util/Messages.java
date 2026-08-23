@@ -337,4 +337,53 @@ public final class Messages {
         return Component.text("Dein Inventar ist voll. Das Item bleibt im Belohnungsinventar.", NamedTextColor.RED);
     }
 
+    // ---- Rechnungen / Dienstleistungen / Trödelmarkt (/tes rechnung, spec §3.1.1.3) ----
+
+    public static Component senderPaused() {
+        return Component.text("Du bist im Belohnungssystem pausiert und kannst diese Aktion nicht ausführen.", NamedTextColor.RED);
+    }
+
+    public static Component rechnungGrundInvalid(int maxLength) {
+        return Component.text("Der Grund darf nicht leer sein und maximal " + maxLength + " Zeichen lang sein.", NamedTextColor.RED);
+    }
+
+    public static Component invoiceSelfTarget() {
+        return Component.text("Du kannst dir selbst keine Rechnung stellen.", NamedTextColor.RED);
+    }
+
+    public static Component invoiceCreated(String targetName, int price, String reason) {
+        return Component.text("Rechnung über " + price + " Taler an " + targetName + " (\"" + reason + "\") wurde erstellt.", NamedTextColor.GREEN);
+    }
+
+    public static Component invoiceCreatedNotification(String creatorName, int price, String reason) {
+        return Component.text(invoiceCreatedText(creatorName, price, reason), NamedTextColor.YELLOW)
+                .clickEvent(ClickEvent.runCommand("/tes rechnung anzeigen"))
+                .hoverEvent(HoverEvent.showText(Component.text("Klicken zum Öffnen deiner offenen Rechnungen.", NamedTextColor.GRAY)));
+    }
+
+    /**
+     * Plain-text variant, used both as the base for {@link #invoiceCreatedNotification} and for
+     * offline delivery via {@link de.bydora.tes.shop.PendingNotificationRepository}.
+     */
+    public static String invoiceCreatedText(String creatorName, int price, String reason) {
+        return creatorName + " hat dir eine Rechnung über " + price + " Taler gestellt (\"" + reason + "\"). "
+                + "Mit /tes rechnung anzeigen einsehen und bezahlen.";
+    }
+
+    public static Component invoiceSettled(String creatorName, int price) {
+        return Component.text("Rechnung über " + price + " Taler an " + creatorName + " wurde bezahlt.", NamedTextColor.GREEN);
+    }
+
+    public static Component invoiceAlreadySettled() {
+        return Component.text("Diese Rechnung wurde bereits bezahlt.", NamedTextColor.RED);
+    }
+
+    public static Component invoiceCashedOut() {
+        return Component.text("Dein Kontostand wurde als Diamanten in dein Belohnungsinventar ausgezahlt.", NamedTextColor.GREEN);
+    }
+
+    public static Component invoiceNothingToCashOut() {
+        return Component.text("Du hast keinen Kontostand zum Auszahlen.", NamedTextColor.RED);
+    }
+
 }

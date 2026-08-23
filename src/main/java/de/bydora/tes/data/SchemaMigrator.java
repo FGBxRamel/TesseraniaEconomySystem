@@ -205,7 +205,27 @@ final class SchemaMigrator {
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             )
             """,
-            "CREATE INDEX IF NOT EXISTS idx_reward_inventory_items_uuid ON reward_inventory_items(uuid, granted_at)"
+            "CREATE INDEX IF NOT EXISTS idx_reward_inventory_items_uuid ON reward_inventory_items(uuid, granted_at)",
+            // Stage 2: invoices (spec §3.1.1.3) and the virtual balance they credit their
+            // creator with. invoice_balance sits on players like treuepunkte/erfahrungspunkte —
+            // a single scalar 1:1 with a player, not worth a separate table. creator_uuid has an
+            // FK (a creator must be registered); target_uuid deliberately does not, since
+            // unregistered/removed players must remain valid, payable invoice targets.
+            "ALTER TABLE players ADD COLUMN invoice_balance INTEGER NOT NULL DEFAULT 0",
+            """
+            CREATE TABLE IF NOT EXISTS invoices (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_uuid TEXT NOT NULL,
+                target_uuid  TEXT NOT NULL,
+                price        INTEGER NOT NULL,
+                reason       TEXT NOT NULL,
+                state        TEXT NOT NULL,
+                created_at   INTEGER NOT NULL,
+                settled_at   INTEGER,
+                FOREIGN KEY (creator_uuid) REFERENCES players(uuid) ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_invoices_open_target ON invoices(target_uuid, state, created_at)"
     );
 
     private SchemaMigrator() {

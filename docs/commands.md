@@ -157,3 +157,39 @@ Inventar voll, bleibt das Item im Belohnungsinventar liegen – es geht nichts v
 Pfeil unten links ("Zurück") führt später zum Levelinterface (folgt in einer späteren Stage);
 der gelbe Pfeil unten rechts blättert zur nächsten Seite, sofern mehr Items vorhanden sind, als
 auf eine Seite passen.
+
+## `/tes rechnung` (Spieler)
+
+Bildet Transaktionen aus Dienstleistungen und dem Trödelmarkt ab – Situationen, die (anders als
+Shops) nicht automatisch erfasst werden können, weil kein Container beteiligt ist.
+
+### Rechnung erstellen – `/tes rechnung erstellen <Ziel> <Preis> <Grund>`
+
+| Berechtigung | Voraussetzung |
+|---|---|
+| `tes.rechnung.erstellen` | Du musst im Belohnungssystem registriert und nicht pausiert sein. |
+
+`<Ziel>` ist der Name des Spielers, der dir den Betrag schuldet – dieser muss dem Server bekannt
+sein, aber **nicht** im Belohnungssystem registriert sein (auch unregistrierte Spieler können
+Rechnungen bezahlen). `<Preis>` ist der Betrag in Talern (Diamanten). `<Grund>` ist ein freier
+Text mit maximal **50 Zeichen** und darf mehrere Wörter enthalten (z. B.
+`/tes rechnung erstellen Beispielspieler 10 Reparatur der Brücke`).
+
+Der Zielspieler erhält sofort eine Nachricht, wenn er online ist, sonst beim nächsten Login. Eine
+Rechnung kann **nicht** storniert werden, anders als ein Shop-Kauf gibt es keine Rücktrittsfrist.
+
+### Rechnungen ansehen und bezahlen – `/tes rechnung anzeigen`
+
+| Berechtigung | Voraussetzung |
+|---|---|
+| `tes.rechnung.anzeigen` | Keine – auch unregistrierte oder pausierte Spieler können offene Rechnungen gegen sich einsehen und bezahlen. |
+
+Öffnet ein Interface mit allen offenen Rechnungen, bei denen du das Ziel bist. Ein Linksklick auf
+eine Rechnung bezahlt sie: Die Diamanten werden aus deinem Inventar entfernt und dem virtuellen
+Kontostand des Rechnungsstellers gutgeschrieben.
+
+Der Diamant unten links zeigt beim Hovern deinen eigenen virtuellen Kontostand (aus Rechnungen,
+die andere Spieler an dich bezahlt haben) und zahlt ihn per Klick vollständig aus – die
+Auszahlung landet als Diamanten in deinem **Belohnungsinventar** (`/tes belohnung`), nicht direkt
+in deinem Inventar. Der Barriere-Block schließt das Interface, der gelbe Pfeil blättert zur
+nächsten Seite.

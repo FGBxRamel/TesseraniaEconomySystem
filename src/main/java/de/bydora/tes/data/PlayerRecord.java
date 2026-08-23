@@ -13,6 +13,8 @@ import java.util.UUID;
  * @param paused           whether the player's reward mechanics are currently suspended
  * @param registeredAt     epoch millis when the player was registered
  * @param updatedAt        epoch millis of the last update to this record
+ * @param invoiceBalance   diamonds owed to this player from settled invoices they created,
+ *                         awaiting cash-out into their Belohnungsinventar (spec §3.1.1.3)
  */
 public record PlayerRecord(
         UUID uuid,
@@ -22,6 +24,7 @@ public record PlayerRecord(
         int level,
         boolean paused,
         long registeredAt,
-        long updatedAt
+        long updatedAt,
+        int invoiceBalance
 ) {
 }

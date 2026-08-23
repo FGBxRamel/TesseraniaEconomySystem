@@ -1,5 +1,6 @@
 package de.bydora.tes.shop;
 
+import de.bydora.tes.util.DiamondEconomy;
 import de.bydora.tes.util.Messages;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.UseCooldown;
@@ -105,13 +106,13 @@ public final class ShopTradeListener implements Listener {
             return;
         }
         int price = shop.price();
-        if (countDiamonds(buyer) < price) {
+        if (DiamondEconomy.countDiamonds(buyer) < price) {
             buyer.sendMessage(Messages.notEnoughTaler());
             return;
         }
 
         ItemStack sold = clicked.clone();
-        removeDiamonds(buyer, price);
+        DiamondEconomy.removeDiamonds(buyer, price);
         NamespacedKey cooldownGroup = cooldownGroup(shop, slot);
         ItemStack pendingDiamonds = new ItemStack(Material.DIAMOND, price);
         pendingDiamonds.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(REFUND_WINDOW_TICKS / 20f).cooldownGroup(cooldownGroup));
@@ -209,10 +210,6 @@ public final class ShopTradeListener implements Listener {
         return new NamespacedKey(plugin, ("shop-pending-" + shop.id() + "-" + slot).toLowerCase(Locale.ROOT));
     }
 
-    private static int countDiamonds(Player player) {
-        return countMatching(player, stack -> stack.getType() == Material.DIAMOND);
-    }
-
     private static int countMatching(Player player, Predicate<ItemStack> matcher) {
         int total = 0;
         for (ItemStack stack : player.getInventory().getStorageContents()) {
@@ -221,10 +218,6 @@ public final class ShopTradeListener implements Listener {
             }
         }
         return total;
-    }
-
-    private static void removeDiamonds(Player player, int amount) {
-        removeMatching(player, stack -> stack.getType() == Material.DIAMOND, amount);
     }
 
     /**
