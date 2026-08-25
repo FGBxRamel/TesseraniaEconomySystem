@@ -79,6 +79,16 @@ quick withdraw. Restocking only accepts the shop's configured item, and non-owne
 all drags on the shop side stay blocked outright to keep the interaction to the single-slot-click
 model UC4 describes.
 
+### Gating on pause
+
+`handleBuyerClick` blocks a purchase (before the funds check) in two independent cases: the buyer
+is paused, or every one of the shop's owners is paused. A shop with several co-owners only counts
+as out of order once **all** of them are paused — as long as one owner remains active, the shop
+keeps selling normally to non-paused buyers. Neither case blocks *opening* the shop's container;
+it's only the buy-click itself that's rejected, the same way an insufficient-funds click is
+rejected — a paused player (or one who used to shop at a now-fully-paused shop) can still browse
+the inventory.
+
 ### Sell-all-items shops
 
 Typing `alle`/`all` for the Item attribute instead of a material name creates a shop that buys any

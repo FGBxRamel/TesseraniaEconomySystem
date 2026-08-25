@@ -20,6 +20,7 @@ import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -48,14 +49,20 @@ public final class InvoiceGui {
                                 Component.text(" "),
                                 Component.text("Klicken um Betrag auszuzahlen", NamedTextColor.GRAY, TextDecoration.ITALIC)))
                 .addClickHandler((item, click) -> {
-                    InvoiceEconomy.CashOutResult result = InvoiceEconomy.cashOut(
-                            plugin.playerRepository(), plugin.rewardInventoryService(), click.player());
-                    if (result == InvoiceEconomy.CashOutResult.CASHED_OUT) {
-                        click.player().sendMessage(Messages.invoiceCashedOut());
-                    } else {
-                        click.player().sendMessage(Messages.invoiceNothingToCashOut());
+                    Player payee = click.player();
+                    Optional<PlayerRecord> payeeRecord = plugin.playerRepository().findByUuid(payee.getUniqueId());
+                    if (payeeRecord.isEmpty() || payeeRecord.get().paused()) {
+                        payee.sendMessage(Messages.rewardInventoryNotEligible());
+                        return;
                     }
-                    open(plugin, click.player());
+                    InvoiceEconomy.CashOutResult result = InvoiceEconomy.cashOut(
+                            plugin.playerRepository(), plugin.rewardInventoryService(), payee);
+                    if (result == InvoiceEconomy.CashOutResult.CASHED_OUT) {
+                        payee.sendMessage(Messages.invoiceCashedOut());
+                    } else {
+                        payee.sendMessage(Messages.invoiceNothingToCashOut());
+                    }
+                    open(plugin, payee);
                 })
                 .build();
 

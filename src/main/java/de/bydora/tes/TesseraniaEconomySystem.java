@@ -71,7 +71,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
         Bukkit.getPluginManager().registerEvents(shopChatListener, this);
-        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository), this);
+        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository, playerRepository), this);
         Bukkit.getPluginManager().registerEvents(new PendingNotificationListener(pendingNotificationRepository), this);
 
         ShopMaintenanceTask maintenanceTask = new ShopMaintenanceTask(this, shopRegistry, shopRepository,
