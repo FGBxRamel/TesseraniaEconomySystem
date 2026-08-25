@@ -5,7 +5,7 @@ identically by the spec). This doc covers the implementation approach for future
 `docs/commands.md` for the player-facing `/tes rechnung` usage guide (German), and
 `docs/reward-inventory.md` for where cash-outs land.
 
-## No time-limited refund window, unlike shops — but creator-side retraction is now spec'd (pending)
+## No time-limited refund window, unlike shops — but creator-side retraction
 
 Stage 1 item-shop purchases have an explicit 60-second cancellable window (§3.1.1.1's UC4). The
 original invoice section (§3.1.1.3, spec v1.0) had no equivalent language at all — no
@@ -14,12 +14,15 @@ was treated as deliberate: once created, an invoice stayed `OPEN` until its targ
 with no built-in way to retract or contest it.
 
 The spec's v1.2 refresh (23.08.2026 PDF) adds one: the **creator** can retract a still-`OPEN`
-invoice they sent, at any time, via a new "Versendete Rechnungen" interface reachable from "Offene
-Rechnungen" — clicking a sent invoice there withdraws it, notifying both creator and target. This
-is not a symmetric counterpart to Stage 1's 60s window (no time limit, target-side settlement is
-still final and irrevocable, only the creator can act) and is **not yet implemented**: `/tes
-rechnung anzeigen` (`InvoiceGui`) currently has no sent-invoices view or retract action. Reference
-layout for both interfaces is in the creative world at -409 -12 -3392.
+invoice they sent, at any time, via the "Versendete Rechnungen" interface (`SentInvoiceGui`)
+reachable from "Offene Rechnungen" (`InvoiceGui`) — clicking a sent invoice there withdraws it
+(`InvoiceEconomy#retract`, `InvoiceState#RETRACTED`), notifying both creator and target. This is
+not a symmetric counterpart to Stage 1's 60s window: no time limit, target-side settlement is
+still final and irrevocable, and only the creator can act. `RETRACTED` is a third terminal state
+alongside `SETTLED` (soft-transitioned like settlement, not deleted, so a retracted invoice's
+history survives) — both interfaces simply query by `state = OPEN`, so a retracted or settled row
+stops appearing without any extra filtering logic. Reference layout for both interfaces is in the
+creative world at -409 -12 -3392; see `docs/gui-library.md` for the exact slot-by-slot rework.
 
 ## `invoice_balance`: a column, not a table
 
@@ -51,15 +54,16 @@ notice, is `PlayerJoinEvent`. This is a known, accepted gap rather than somethin
 infrastructure for: the only players actually affected are ones offline at invoice-creation time
 who don't log out and back in again before wanting to know.
 
-## Other v1.2 gaps: amount cap and settle notification
+## Other v1.2 additions: amount cap and settle notification
 
-Two more spec v1.2 additions aren't in the code yet, alongside retraction above:
+Two more spec v1.2 additions, alongside retraction above:
 
-- `<Preis>` has no upper bound — `RechnungCommand` only constrains it to `IntegerArgumentType.integer(1)`.
-  The spec now caps it at **2304 Taler**.
-- Settling an invoice (`InvoiceEconomy.settle()`) only messages the payer (`Messages.invoiceSettled`);
-  the spec now also wants the creator notified. This should reuse the same online/offline delivery
-  split already used for invoice creation (`PendingNotificationRepository`), not new infrastructure.
+- `<Preis>` is capped at **2304 Taler** — `RechnungCommand` checks this manually (German error via
+  `Messages.rechnungPreisZuHoch`) rather than via `IntegerArgumentType.integer(1, 2304)`'s bound,
+  so the rejection message stays in German instead of Brigadier's default English syntax error.
+- Settling an invoice (`InvoiceGui`'s click handler) now also notifies the creator
+  (`Messages.invoiceSettledForCreator`/`-Text`), reusing the same online/offline delivery split
+  (`PendingNotificationRepository`) already used for invoice creation and, now, retraction.
 
 ## Gating
 
@@ -68,6 +72,7 @@ Two more spec v1.2 additions aren't in the code yet, alongside retraction above:
 | Creating an invoice (creator side) | Yes | Yes |
 | Being invoiced (target side) | No | No |
 | Opening `/tes rechnung anzeigen`, settling an invoice | No | No |
+| Opening "Versendete Rechnungen", retracting an invoice | No | No |
 | Cashing out (diamond icon) | Yes | Yes |
 
 The target side stays fully open because a debtor must be able to pay off what they owe

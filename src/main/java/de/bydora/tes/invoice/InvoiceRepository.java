@@ -13,11 +13,19 @@ public interface InvoiceRepository {
 
     /**
      * All open invoices where {@code targetUuid} is the payer, oldest first — backs
-     * {@code /tes rechnung anzeigen}.
+     * {@code /tes rechnung anzeigen}'s "Offene Rechnungen" list.
      */
     List<InvoiceRecord> findOpenByTarget(UUID targetUuid);
+
+    /**
+     * All open invoices where {@code creatorUuid} is the issuer, oldest first — backs the
+     * "Versendete Rechnungen" sub-screen.
+     */
+    List<InvoiceRecord> findOpenByCreator(UUID creatorUuid);
 
     Optional<InvoiceRecord> findById(long id);
 
     void markSettled(long id, long settledAt);
+
+    void markRetracted(long id);
 }

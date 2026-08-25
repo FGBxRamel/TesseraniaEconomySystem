@@ -2,7 +2,6 @@ package de.bydora.tes.invoice;
 
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.data.PlayerRecord;
-import de.bydora.tes.gui.CustomHeads;
 import de.bydora.tes.gui.PaginationControls;
 import de.bydora.tes.util.Messages;
 import net.kyori.adventure.text.Component;
@@ -22,17 +21,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The {@code /tes rechnung anzeigen} "Offene Rechnungen" screen (spec §3.1.1.3), laid out per
- * the reference build at -412 -12 -3392: a paginated list of the viewer's own open invoices (as
- * target), click-to-settle, plus a diamond icon to cash out their virtual balance into the
- * Belohnungsinventar and a link to the "Versendete Rechnungen" sub-screen ({@link SentInvoiceGui}).
+ * The "Versendete Rechnungen" sub-screen (spec §3.1.1.3 v1.2), reachable from
+ * {@link InvoiceGui}'s "Offene Rechnungen": the viewer's own still-open invoices as creator,
+ * click-to-retract. Retraction has no time limit and only the creator can trigger it — unlike
+ * Stage 1 shop purchases' buyer-side 60s refund window.
  */
-public final class InvoiceGui {
+public final class SentInvoiceGui {
 
-    private static final String SENT_INVOICES_HEAD_TEXTURE =
-            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjYyYzA4ODA1YmQ5Yzk1N2RhMzQ1MDU1NGEwOWU5OTQwNDJmNTQ2OTVkYjg1NWMxYzJjYjQ3ZWY0NDJlMWJmNiJ9fX0=";
-
-    private InvoiceGui() {
+    private SentInvoiceGui() {
     }
 
     public static void open(TesseraniaEconomySystem plugin, Player player) {
@@ -55,10 +51,10 @@ public final class InvoiceGui {
                 })
                 .build();
 
-        Item sentInvoicesItem = Item.builder()
-                .setItemProvider(new ItemBuilder(CustomHeads.texturedHead(SENT_INVOICES_HEAD_TEXTURE))
-                        .setName(Component.text("Versendete Rechnungen", NamedTextColor.WHITE, TextDecoration.BOLD)))
-                .addClickHandler((item, click) -> SentInvoiceGui.open(plugin, click.player()))
+        Item openInvoicesItem = Item.builder()
+                .setItemProvider(new ItemBuilder(Material.BOOK)
+                        .setName(Component.text("Offene Rechnungen", NamedTextColor.WHITE, TextDecoration.BOLD)))
+                .addClickHandler((item, click) -> InvoiceGui.open(plugin, click.player()))
                 .build();
 
         PagedGui<Item> gui = PagedGui.itemsBuilder()
@@ -66,7 +62,7 @@ public final class InvoiceGui {
                         "x x x x x x w w w",
                         "w w w w w w w w w",
                         "g g g g g g g g g",
-                        "c g g g d g s g n",
+                        "c g g g d g o g n",
                         "r r r r r r r r r",
                         "r r r r r r r r r")
                 .addIngredient('w', Item.simple(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName(Component.text(" "))))
@@ -75,14 +71,14 @@ public final class InvoiceGui {
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('c', PaginationControls.closeOrPreviousPageItem())
                 .addIngredient('d', diamondItem)
-                .addIngredient('s', sentInvoicesItem)
+                .addIngredient('o', openInvoicesItem)
                 .addIngredient('n', PaginationControls.nextPageItem())
                 .setContent(content(plugin, player))
                 .build();
 
         Window.builder()
                 .setViewer(player)
-                .setTitle("Offene Rechnungen")
+                .setTitle("Versendete Rechnungen")
                 .setUpperGui(gui)
                 .build()
                 .open();
@@ -93,46 +89,41 @@ public final class InvoiceGui {
     }
 
     private static List<Item> content(TesseraniaEconomySystem plugin, Player player) {
-        return plugin.invoiceRepository().findOpenByTarget(player.getUniqueId()).stream()
+        return plugin.invoiceRepository().findOpenByCreator(player.getUniqueId()).stream()
                 .map(record -> invoiceItem(plugin, record))
                 .toList();
     }
 
     private static Item invoiceItem(TesseraniaEconomySystem plugin, InvoiceRecord record) {
-        OfflinePlayer creator = Bukkit.getOfflinePlayer(record.creatorUuid());
-        String creatorName = creator.getName() != null ? creator.getName() : record.creatorUuid().toString();
+        OfflinePlayer target = Bukkit.getOfflinePlayer(record.targetUuid());
+        String targetName = target.getName() != null ? target.getName() : record.targetUuid().toString();
         return Item.builder()
                 .setItemProvider(new ItemBuilder(Material.BOOK)
-                        .setName(Component.text("Rechnung - Begleichen", NamedTextColor.WHITE))
+                        .setName(Component.text("Rechnung - Ausstehend", NamedTextColor.WHITE))
                         .addLoreLines(
-                                Component.text(record.price() + " Taler | " + creatorName, NamedTextColor.GRAY),
+                                Component.text(record.price() + " Taler | " + targetName, NamedTextColor.GRAY),
                                 Component.text(record.reason(), NamedTextColor.GRAY),
                                 Component.text(" "),
-                                Component.text("Linksklick zum Bezahlen", NamedTextColor.GRAY, TextDecoration.ITALIC)))
+                                Component.text("Linksklick zum Zurückziehen", NamedTextColor.GRAY, TextDecoration.ITALIC)))
                 .addClickHandler((item, click) -> {
-                    InvoiceEconomy.SettleResult result = InvoiceEconomy.settle(
-                            plugin.invoiceRepository(), plugin.playerRepository(), click.player(), record.id());
-                    switch (result) {
-                        case SETTLED -> {
-                            click.player().sendMessage(Messages.invoiceSettled(creatorName, record.price()));
-                            notifyCreatorOfSettlement(plugin, record.creatorUuid(), click.player().getName(), record.price());
-                        }
-                        case NOT_ENOUGH_DIAMONDS -> click.player().sendMessage(Messages.notEnoughTaler());
-                        case ALREADY_SETTLED -> click.player().sendMessage(Messages.invoiceAlreadySettled());
+                    InvoiceEconomy.RetractResult result = InvoiceEconomy.retract(plugin.invoiceRepository(), record.id());
+                    if (result == InvoiceEconomy.RetractResult.RETRACTED) {
+                        click.player().sendMessage(Messages.invoiceRetracted(targetName, record.price()));
+                        notifyTargetOfRetraction(plugin, record.targetUuid(), click.player().getName(), record.price());
+                    } else {
+                        click.player().sendMessage(Messages.invoiceRetractAlreadyResolved());
                     }
-                    if (result != InvoiceEconomy.SettleResult.NOT_ENOUGH_DIAMONDS) {
-                        open(plugin, click.player());
-                    }
+                    open(plugin, click.player());
                 })
                 .build();
     }
 
-    private static void notifyCreatorOfSettlement(TesseraniaEconomySystem plugin, UUID creatorUuid, String payerName, int price) {
-        Player creatorPlayer = Bukkit.getOfflinePlayer(creatorUuid).getPlayer();
-        if (creatorPlayer != null) {
-            creatorPlayer.sendMessage(Messages.invoiceSettledForCreator(payerName, price));
+    private static void notifyTargetOfRetraction(TesseraniaEconomySystem plugin, UUID targetUuid, String creatorName, int price) {
+        Player targetPlayer = Bukkit.getOfflinePlayer(targetUuid).getPlayer();
+        if (targetPlayer != null) {
+            targetPlayer.sendMessage(Messages.invoiceRetractedForTarget(creatorName, price));
         } else {
-            plugin.pendingNotificationRepository().enqueue(creatorUuid, Messages.invoiceSettledForCreatorText(payerName, price));
+            plugin.pendingNotificationRepository().enqueue(targetUuid, Messages.invoiceRetractedForTargetText(creatorName, price));
         }
     }
 }

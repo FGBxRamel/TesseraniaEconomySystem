@@ -153,10 +153,11 @@ landen diese hier – niemals direkt in deinem Inventar oder in einem Shop. Käu
 | `tes.belohnung` | Du musst im Belohnungssystem registriert (`/tes spieler add`) und nicht pausiert sein. |
 
 Ein Linksklick auf ein Item übernimmt genau diesen einen Stapel in dein reales Inventar. Ist dein
-Inventar voll, bleibt das Item im Belohnungsinventar liegen – es geht nichts verloren. Der graue
-Pfeil unten links ("Zurück") führt später zum Levelinterface (folgt in einer späteren Stage);
-der gelbe Pfeil unten rechts blättert zur nächsten Seite, sofern mehr Items vorhanden sind, als
-auf eine Seite passen.
+Inventar voll, bleibt das Item im Belohnungsinventar liegen – es geht nichts verloren. Der weiße
+Pfeil ("⮜ Levelinterface") führt später zum Levelinterface (folgt in einer späteren Stage); der
+Kopf ("➤ Weiter") blättert zur nächsten Seite, sofern mehr Items vorhanden sind, als auf eine Seite
+passen (14 pro Seite). Der Barriere-Block schließt das Interface – ab Seite 2 wird er stattdessen
+zum "⮜ Zurück"-Kopf, der eine Seite zurückblättert.
 
 ## `/tes rechnung` (Spieler)
 
@@ -171,12 +172,13 @@ Shops) nicht automatisch erfasst werden können, weil kein Container beteiligt i
 
 `<Ziel>` ist der Name des Spielers, der dir den Betrag schuldet – dieser muss dem Server bekannt
 sein, aber **nicht** im Belohnungssystem registriert sein (auch unregistrierte Spieler können
-Rechnungen bezahlen). `<Preis>` ist der Betrag in Talern (Diamanten). `<Grund>` ist ein freier
-Text mit maximal **50 Zeichen** und darf mehrere Wörter enthalten (z. B.
+Rechnungen bezahlen). `<Preis>` ist der Betrag in Talern (Diamanten), maximal **2304**. `<Grund>`
+ist ein freier Text mit maximal **50 Zeichen** und darf mehrere Wörter enthalten (z. B.
 `/tes rechnung erstellen Beispielspieler 10 Reparatur der Brücke`).
 
 Der Zielspieler erhält sofort eine Nachricht, wenn er online ist, sonst beim nächsten Login. Eine
-Rechnung kann **nicht** storniert werden, anders als ein Shop-Kauf gibt es keine Rücktrittsfrist.
+Rechnung hat keine Stornofrist wie ein Shop-Kauf, kann aber vom Steller jederzeit über
+"Versendete Rechnungen" (siehe unten) zurückgezogen werden.
 
 ### Rechnungen ansehen und bezahlen – `/tes rechnung anzeigen`
 
@@ -184,15 +186,23 @@ Rechnung kann **nicht** storniert werden, anders als ein Shop-Kauf gibt es keine
 |---|---|
 | `tes.rechnung.anzeigen` | Keine – auch unregistrierte oder pausierte Spieler können offene Rechnungen gegen sich einsehen und bezahlen. |
 
-Öffnet ein Interface mit allen offenen Rechnungen, bei denen du das Ziel bist. Ein Linksklick auf
-eine Rechnung bezahlt sie: Die Diamanten werden aus deinem Inventar entfernt und dem virtuellen
-Kontostand des Rechnungsstellers gutgeschrieben.
+Öffnet das Interface "Offene Rechnungen" mit allen offenen Rechnungen, bei denen du das Ziel bist
+(6 pro Seite). Ein Linksklick auf eine Rechnung bezahlt sie: Die Diamanten werden aus deinem
+Inventar entfernt und dem virtuellen Kontostand des Rechnungsstellers gutgeschrieben; der Steller
+erhält dafür eine Benachrichtigung (sofort, wenn online, sonst beim nächsten Login).
 
-Der Diamant unten links zeigt beim Hovern deinen eigenen virtuellen Kontostand (aus Rechnungen,
+Der Diamant ("Kontostand") zeigt in der Lore deinen eigenen virtuellen Kontostand (aus Rechnungen,
 die andere Spieler an dich bezahlt haben) und zahlt ihn per Klick vollständig aus – die
 Auszahlung landet als Diamanten in deinem **Belohnungsinventar** (`/tes belohnung`), nicht direkt
-in deinem Inventar. Der Barriere-Block schließt das Interface, der gelbe Pfeil blättert zur
+in deinem Inventar. Der Barriere-Block schließt das Interface (ab Seite 2 stattdessen ein
+"⮜ Zurück"-Kopf, der eine Seite zurückblättert), der Kopf rechts unten ("➤ Weiter") blättert zur
 nächsten Seite.
+
+Der Kopf "Versendete Rechnungen" öffnet ein zweites Interface mit allen offenen Rechnungen, die
+**du** gestellt hast (ebenfalls 6 pro Seite, gleiche Navigation). Ein Linksklick auf einen Eintrag
+dort zieht die Rechnung zurück – ohne Frist, jederzeit möglich, nur vom Steller selbst auslösbar.
+Ziel und Steller erhalten je eine Benachrichtigung. Ein Buch ("Offene Rechnungen") führt von dort
+zurück zum ersten Interface.
 
 ## `/tes debug dump <Position>` (Admin/Dev)
 

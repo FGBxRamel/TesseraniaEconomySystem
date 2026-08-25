@@ -225,7 +225,10 @@ final class SchemaMigrator {
                 FOREIGN KEY (creator_uuid) REFERENCES players(uuid) ON DELETE CASCADE
             )
             """,
-            "CREATE INDEX IF NOT EXISTS idx_invoices_open_target ON invoices(target_uuid, state, created_at)"
+            "CREATE INDEX IF NOT EXISTS idx_invoices_open_target ON invoices(target_uuid, state, created_at)",
+            // Stage 2 v1.2: invoice retraction backs a symmetric "Versendete Rechnungen" list
+            // (open invoices by creator), same access pattern as the target-side index above.
+            "CREATE INDEX IF NOT EXISTS idx_invoices_open_creator ON invoices(creator_uuid, state, created_at)"
     );
 
     private SchemaMigrator() {

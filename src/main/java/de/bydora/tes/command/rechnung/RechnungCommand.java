@@ -25,6 +25,7 @@ import java.util.Optional;
 public final class RechnungCommand {
 
     private static final int GRUND_MAX_LENGTH = 50;
+    private static final int PREIS_MAX = 2304;
 
     private RechnungCommand() {
     }
@@ -82,6 +83,10 @@ public final class RechnungCommand {
         }
 
         int preis = IntegerArgumentType.getInteger(ctx, "preis");
+        if (preis > PREIS_MAX) {
+            creator.sendMessage(Messages.rechnungPreisZuHoch(PREIS_MAX));
+            return Command.SINGLE_SUCCESS;
+        }
         plugin.invoiceRepository().insert(creator.getUniqueId(), target.get().getUniqueId(), preis, grund, System.currentTimeMillis());
         creator.sendMessage(Messages.invoiceCreated(targetName, preis, grund));
         notifyTarget(plugin, target.get(), creator.getName(), preis, grund);

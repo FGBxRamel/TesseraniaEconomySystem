@@ -347,6 +347,10 @@ public final class Messages {
         return Component.text("Der Grund darf nicht leer sein und maximal " + maxLength + " Zeichen lang sein.", NamedTextColor.RED);
     }
 
+    public static Component rechnungPreisZuHoch(int maxPreis) {
+        return Component.text("Der Preis darf maximal " + maxPreis + " Taler betragen.", NamedTextColor.RED);
+    }
+
     public static Component invoiceSelfTarget() {
         return Component.text("Du kannst dir selbst keine Rechnung stellen.", NamedTextColor.RED);
     }
@@ -376,6 +380,38 @@ public final class Messages {
 
     public static Component invoiceAlreadySettled() {
         return Component.text("Diese Rechnung wurde bereits bezahlt.", NamedTextColor.RED);
+    }
+
+    /**
+     * Plain-text variant, used both as the base for {@link #invoiceSettledForCreator} and for
+     * offline delivery via {@link de.bydora.tes.shop.PendingNotificationRepository}.
+     */
+    public static String invoiceSettledForCreatorText(String payerName, int price) {
+        return payerName + " hat deine Rechnung über " + price + " Taler bezahlt.";
+    }
+
+    public static Component invoiceSettledForCreator(String payerName, int price) {
+        return Component.text(invoiceSettledForCreatorText(payerName, price), NamedTextColor.GREEN);
+    }
+
+    public static Component invoiceRetractAlreadyResolved() {
+        return Component.text("Diese Rechnung ist nicht mehr offen.", NamedTextColor.RED);
+    }
+
+    public static Component invoiceRetracted(String targetName, int price) {
+        return Component.text("Rechnung über " + price + " Taler an " + targetName + " wurde zurückgezogen.", NamedTextColor.GREEN);
+    }
+
+    /**
+     * Plain-text variant, used both as the base for {@link #invoiceRetractedForTarget} and for
+     * offline delivery via {@link de.bydora.tes.shop.PendingNotificationRepository}.
+     */
+    public static String invoiceRetractedForTargetText(String creatorName, int price) {
+        return creatorName + " hat die Rechnung über " + price + " Taler gegen dich zurückgezogen.";
+    }
+
+    public static Component invoiceRetractedForTarget(String creatorName, int price) {
+        return Component.text(invoiceRetractedForTargetText(creatorName, price), NamedTextColor.YELLOW);
     }
 
     public static Component invoiceCashedOut() {

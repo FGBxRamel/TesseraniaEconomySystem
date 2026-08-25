@@ -33,13 +33,17 @@ display names, etc.
 
 ## Click-to-take-one
 
-The spec describes the Belohnungsinventar's navigation (back arrow, next-page arrow) but not how
-a player actually collects an item — this was a design decision, not a spec requirement: **left-
-click an item to take that single stack into your real inventory.** If it doesn't fully fit
-(checked via `RewardInventoryService.take()`'s all-or-nothing merge simulation — see its Javadoc),
-nothing is removed from the queue and nothing is added to the inventory; the player is told to
-free up space and try again. This avoids ever silently dropping part of a reward on the ground or
-partially crediting a stack.
+The spec describes the Belohnungsinventar's navigation (a SPECTRAL_ARROW link to the not-yet-built
+Levelinterface, a next-page control) but not how a player actually collects an item — this was a
+design decision, not a spec requirement: **left-click an item to take that single stack into your
+real inventory.** If it doesn't fully fit (checked via `RewardInventoryService.take()`'s
+all-or-nothing merge simulation — see its Javadoc), nothing is removed from the queue and nothing
+is added to the inventory; the player is told to free up space and try again. This avoids ever
+silently dropping part of a reward on the ground or partially crediting a stack.
+
+`RewardInventoryGui`'s exact layout (14 items/page, border/control-row materials, the
+close-doubles-as-previous-page pagination control) was reworked to match the reference build at
+-424 -12 -3382 — see `docs/gui-library.md` for the slot-by-slot breakdown.
 
 ## Gating
 

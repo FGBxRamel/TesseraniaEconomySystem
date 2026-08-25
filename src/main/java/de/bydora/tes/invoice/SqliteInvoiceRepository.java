@@ -64,6 +64,24 @@ public final class SqliteInvoiceRepository implements InvoiceRepository {
     }
 
     @Override
+    public List<InvoiceRecord> findOpenByCreator(UUID creatorUuid) {
+        return database.execute(() -> {
+            List<InvoiceRecord> invoices = new ArrayList<>();
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "SELECT * FROM invoices WHERE creator_uuid = ? AND state = ? ORDER BY created_at, id")) {
+                statement.setString(1, creatorUuid.toString());
+                statement.setString(2, InvoiceState.OPEN.name());
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        invoices.add(toRecord(resultSet));
+                    }
+                }
+            }
+            return invoices;
+        });
+    }
+
+    @Override
     public Optional<InvoiceRecord> findById(long id) {
         return database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement(
@@ -84,6 +102,18 @@ public final class SqliteInvoiceRepository implements InvoiceRepository {
                 statement.setString(1, InvoiceState.SETTLED.name());
                 statement.setLong(2, settledAt);
                 statement.setLong(3, id);
+                return statement.executeUpdate();
+            }
+        });
+    }
+
+    @Override
+    public void markRetracted(long id) {
+        database.execute(() -> {
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "UPDATE invoices SET state = ? WHERE id = ?")) {
+                statement.setString(1, InvoiceState.RETRACTED.name());
+                statement.setLong(2, id);
                 return statement.executeUpdate();
             }
         });

@@ -52,22 +52,24 @@ Status: `[ ]` not started
 Implements: §3.1.1.3, §1.3 (Belohnungsinventar)
 
 - Belohnungsinventar core: generic virtual per-player inventory + `/tes belohnung` command, pagination.
-- `/tes rechnung erstellen <Ziel> <Preis> <Grund>` with next-login/activity notification. Spec v1.2
-  (23.08.2026 PDF refresh) adds two constraints not yet enforced in code: a hard cap of **2304
-  Taler** on `<Preis>`, and creation restricted to **registered** players (the latter already
-  matches the current implementation's gating, see `docs/invoice-system.md`).
-- `/tes rechnung anzeigen` interface: open invoices list, click-to-settle (buyer → creator's virtual balance), creator cash-out (payout lands in reward inventory, hover-to-see-balance). Spec v1.2
-  additionally specifies a short notification to the creator when their invoice is settled — not
-  yet implemented (currently only the payer gets a confirmation message).
-- New in spec v1.2, not yet implemented: invoice **retraction**. The creator can withdraw a still-
-  open invoice they sent, via a new "Versendete Rechnungen" interface reachable from "Offene
-  Rechnungen" (clicking a sent invoice there retracts it; both creator and target get notified).
-  This is distinct from Stage 1's buyer-side 60s cancellation window — there's no time limit, and
-  only the creator can trigger it. See `docs/invoice-system.md` for the previous (now outdated)
-  "no refund window" rationale that needs revisiting once this lands.
-- Reference GUIs for both invoice interfaces ("Offene Rechnungen" / "Versendete Rechnungen") now
-  live in the creative world at **-409 -12 -3392** (new in spec v1.2; not present in v1.0).
+- `/tes rechnung erstellen <Ziel> <Preis> <Grund>` with next-login/activity notification, spec v1.2's
+  hard cap of **2304 Taler** on `<Preis>`, and creation restricted to **registered** players.
+- `/tes rechnung anzeigen` interface: open invoices list, click-to-settle (buyer → creator's
+  virtual balance), creator cash-out (payout lands in reward inventory, hover-to-see-balance), and
+  a short notification to the creator when their invoice is settled.
+- Invoice **retraction** (spec v1.2): the creator can withdraw a still-open invoice they sent, via
+  the "Versendete Rechnungen" interface reachable from "Offene Rechnungen" (clicking a sent
+  invoice there retracts it; both creator and target get notified). Distinct from Stage 1's
+  buyer-side 60s cancellation window — there's no time limit, and only the creator can trigger it.
+- Both the Belohnungsinventar and both invoice interfaces have been reworked to match their
+  reference GUI builds exactly (materials, text, layout, pagination page size derived from the
+  actual content grid, close-doubles-as-previous-page-from-page-2 convention) — see
+  `docs/gui-library.md`.
+- Reference GUIs for both invoice interfaces ("Offene Rechnungen" / "Versendete Rechnungen") live
+  in the creative world at **-409 -12 -3392** (new in spec v1.2; not present in v1.0).
 - Deliverable: full invoice/flea-market flow works; reward inventory exists and is reusable by later stages.
+  Implementation and local build are done; still needs the user's in-game testing pass before this
+  stage is ticked off.
 
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
 Status: `[ ]` not started

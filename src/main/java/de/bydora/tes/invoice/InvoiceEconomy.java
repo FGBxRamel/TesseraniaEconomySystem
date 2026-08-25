@@ -50,6 +50,27 @@ public final class InvoiceEconomy {
         return SettleResult.SETTLED;
     }
 
+    public enum RetractResult {
+        RETRACTED,
+        ALREADY_RESOLVED
+    }
+
+    /**
+     * Retracts {@code invoiceId} on behalf of its creator (spec §3.1.1.3 v1.2's "Versendete
+     * Rechnungen"): marks it {@link InvoiceState#RETRACTED} instead of deleting it, mirroring
+     * {@link InvoiceState#SETTLED}'s soft-transition shape. No-ops with
+     * {@link RetractResult#ALREADY_RESOLVED} if it's no longer {@link InvoiceState#OPEN} — same
+     * stale-GUI-render insurance as {@link #settle}.
+     */
+    public static RetractResult retract(InvoiceRepository invoiceRepository, long invoiceId) {
+        Optional<InvoiceRecord> maybeInvoice = invoiceRepository.findById(invoiceId);
+        if (maybeInvoice.isEmpty() || maybeInvoice.get().state() != InvoiceState.OPEN) {
+            return RetractResult.ALREADY_RESOLVED;
+        }
+        invoiceRepository.markRetracted(invoiceId);
+        return RetractResult.RETRACTED;
+    }
+
     public enum CashOutResult {
         CASHED_OUT,
         NOTHING_TO_CASH_OUT
