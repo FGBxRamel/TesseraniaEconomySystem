@@ -177,7 +177,12 @@ public final class Messages {
     }
 
     public static Component shopPromptOwners() {
-        return shopHint("Weitere Besitzer (durch Leerzeichen getrennt) oder \"keine\" eingeben. Du bist bereits automatisch Besitzer.");
+        return shopHint("Weitere Besitzer (durch Leerzeichen getrennt) oder \"keine\" eingeben. Du bist bereits automatisch Besitzer. "
+                + "Einen bereits eingetragenen Namen erneut eingeben entfernt ihn wieder als Besitzer (mindestens ein Besitzer muss bestehen bleiben).");
+    }
+
+    public static Component shopOwnerCannotRemoveLast(String name) {
+        return Component.text(name + " kann nicht entfernt werden: Ein Shop muss mindestens einen Besitzer haben.", NamedTextColor.RED);
     }
 
     public static Component shopPromptPosition() {

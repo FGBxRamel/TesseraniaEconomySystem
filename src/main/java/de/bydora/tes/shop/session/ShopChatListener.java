@@ -30,6 +30,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Drives the chat-driven {@code /shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX modeled
@@ -194,7 +195,16 @@ public final class ShopChatListener implements Listener {
                 if (resolved.isEmpty()) {
                     return;
                 }
-                session.owners().add(resolved.get().getUniqueId());
+                UUID uuid = resolved.get().getUniqueId();
+                if (session.owners().contains(uuid)) {
+                    if (session.owners().size() <= 1) {
+                        player.sendMessage(Messages.shopOwnerCannotRemoveLast(resolved.get().getName()));
+                        continue;
+                    }
+                    session.owners().remove(uuid);
+                } else {
+                    session.owners().add(uuid);
+                }
             }
         }
         session.pendingField(null);
