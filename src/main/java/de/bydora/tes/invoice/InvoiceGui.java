@@ -57,7 +57,7 @@ public final class InvoiceGui {
 
         Item sentInvoicesItem = Item.builder()
                 .setItemProvider(new ItemBuilder(CustomHeads.texturedHead(SENT_INVOICES_HEAD_TEXTURE))
-                        .setName(Component.text("Versendete Rechnungen", NamedTextColor.WHITE, TextDecoration.BOLD)))
+                        .setCustomName(Component.text("Versendete Rechnungen", NamedTextColor.WHITE, TextDecoration.BOLD)))
                 .addClickHandler((item, click) -> SentInvoiceGui.open(plugin, click.player()))
                 .build();
 

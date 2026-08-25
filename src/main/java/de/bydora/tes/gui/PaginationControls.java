@@ -20,9 +20,12 @@ public final class PaginationControls {
     }
 
     public static Item nextPageItem() {
+        // setCustomName, not setName: a PLAYER_HEAD with a profile renders its vanilla
+        // "<owner>'s Head" tooltip name regardless of the item_name component setName() sets,
+        // and only custom_name (an anvil-style rename) actually overrides it.
         return BoundItem.pagedBuilder()
                 .setItemProvider((viewer, gui) -> new ItemBuilder(CustomHeads.nextPageHead())
-                        .setName(Component.text("➤ Weiter", NamedTextColor.WHITE, TextDecoration.BOLD)))
+                        .setCustomName(Component.text("➤ Weiter", NamedTextColor.WHITE, TextDecoration.BOLD)))
                 .addClickHandler((item, gui, click) -> gui.setPage(gui.getPage() + 1))
                 .build();
     }
@@ -35,7 +38,7 @@ public final class PaginationControls {
         return BoundItem.pagedBuilder()
                 .setItemProvider((viewer, gui) -> gui.getPage() > 0
                         ? new ItemBuilder(CustomHeads.previousPageHead())
-                                .setName(Component.text("⮜ Zurück", NamedTextColor.WHITE, TextDecoration.BOLD))
+                                .setCustomName(Component.text("⮜ Zurück", NamedTextColor.WHITE, TextDecoration.BOLD))
                         : new ItemBuilder(Material.BARRIER)
                                 .setName(Component.text("Schließen", NamedTextColor.RED, TextDecoration.BOLD)))
                 .addClickHandler((item, gui, click) -> {
