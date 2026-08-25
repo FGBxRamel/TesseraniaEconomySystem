@@ -107,7 +107,7 @@ Erlaubte Container: Truhe, Redstone-Truhe (Trapped Chest), Fass, alle Shulkerbox
 Nur für Besitzer. Startet dasselbe Menü, aber nur für die veränderbaren Attribute (Name,
 Besitzer, Item, Preis, Teleportpunkt) – ID und Position werden gar nicht erst angezeigt, da sie
 nach der Erstellung feststehen. Shop-IDs sind weltweit eindeutig, daher genügt die ID allein zur
-Identifikation.
+Identifikation. Bist du im Belohnungssystem pausiert, kannst du deine Shops nicht bearbeiten.
 
 ### Shop schließen – `/shop schließen <ID>`
 
@@ -135,7 +135,10 @@ Talern (Diamanten) wird das Item gegen Diamanten getauscht. Der Kauf ist **60 Se
 stornierbar (an der Diamanten-Schwingungsanimation im Slot erkennbar, wie beim
 Enderperlen-Cooldown) – ein erneuter Klick auf denselben Slot innerhalb dieser Frist macht den
 Kauf rückgängig. Erst nach Ablauf der Frist kann der Shopbesitzer die Diamanten entnehmen; TP/EP
-werden dem Käufer zu diesem Zeitpunkt automatisch gutgeschrieben.
+werden dem Käufer zu diesem Zeitpunkt automatisch gutgeschrieben. Ist ein Besitzer im
+Belohnungssystem pausiert, kann er seine entnahmebereiten Diamanten nicht abheben, bis die Pause
+aufgehoben wird – bei einem Shop mit mehreren Besitzern gilt das nur für den pausierten Besitzer
+selbst, nicht für die anderen.
 
 Shopbesitzer füllen einen Shop nach, indem sie das konfigurierte Item einfach in einen freien
 Slot legen – andere Items werden abgelehnt (bei einem "alle"-Shop ist jedes Item außer Diamanten

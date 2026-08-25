@@ -89,6 +89,15 @@ it's only the buy-click itself that's rejected, the same way an insufficient-fun
 rejected — a paused player (or one who used to shop at a now-fully-paused shop) can still browse
 the inventory.
 
+A paused owner is likewise blocked from withdrawing their own diamonds — both `handleOwnerClick`
+(plain/normal click) and `handleOwnerShiftWithdraw` (shift-click) check `isPaused(owner)` right
+after the pending-transaction check and before stripping the `USE_COOLDOWN` component, so a
+paused owner's diamonds stay put (still stackable/mergeable-looking, just non-withdrawable) even
+once the refund window has elapsed. This is per-owner, not per-shop: a co-owned shop where only
+one owner is paused still lets the other owner withdraw normally. Editing is gated the same way —
+`ShopCommand.bearbeiten` rejects a paused owner before starting an edit session, so a paused
+player also can't change a shop's name/owners/item/price/teleport point while paused.
+
 ### Sell-all-items shops
 
 Typing `alle`/`all` for the Item attribute instead of a material name creates a shop that buys any

@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.config.TesConfig;
+import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.shop.ShopConversion;
 import de.bydora.tes.shop.ShopEconomy;
 import de.bydora.tes.shop.ShopRecord;
@@ -31,6 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -140,6 +142,10 @@ public final class ShopCommand {
         }
         Optional<ShopRecord> maybeShop = resolveOwnedShop(ctx, player);
         if (maybeShop.isEmpty()) {
+            return Command.SINGLE_SUCCESS;
+        }
+        if (isPaused(player.getUniqueId())) {
+            sender.sendMessage(Messages.senderPaused());
             return Command.SINGLE_SUCCESS;
         }
         ShopRecord shop = maybeShop.get();
@@ -296,6 +302,10 @@ public final class ShopCommand {
             return null;
         }
         return new Location(world, shop.position().x() + 0.5, shop.position().y() + 1, shop.position().z() + 0.5);
+    }
+
+    private static boolean isPaused(UUID uuid) {
+        return plugin().playerRepository().findByUuid(uuid).map(PlayerRecord::paused).orElse(false);
     }
 
     private static TesseraniaEconomySystem plugin() {

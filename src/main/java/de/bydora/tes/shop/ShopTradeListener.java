@@ -34,7 +34,8 @@ import java.util.function.Predicate;
  * blocked to keep the interaction to the single-slot-click model the spec describes.
  *
  * <p>A purchase is also blocked if the buyer is paused, or if every one of the shop's owners is
- * paused (a shop with at least one active owner keeps selling normally).
+ * paused (a shop with at least one active owner keeps selling normally). A paused owner may not
+ * withdraw their own earned diamonds, even from a shop that keeps selling via a co-owner.
  */
 public final class ShopTradeListener implements Listener {
 
@@ -159,6 +160,9 @@ public final class ShopTradeListener implements Listener {
             if (transactionRepository.findPendingBySlot(shop.world(), shop.id(), slot).isPresent()) {
                 event.setCancelled(true);
                 owner.sendMessage(Messages.shopWithdrawCooldownActive());
+            } else if (isPaused(owner.getUniqueId())) {
+                event.setCancelled(true);
+                owner.sendMessage(Messages.senderPaused());
             } else if (clicked.hasData(DataComponentTypes.USE_COOLDOWN)) {
                 event.getClickedInventory().setItem(slot, withoutCooldown(clicked));
             }
@@ -199,6 +203,11 @@ public final class ShopTradeListener implements Listener {
         if (transactionRepository.findPendingBySlot(shop.world(), shop.id(), slot).isPresent()) {
             event.setCancelled(true);
             owner.sendMessage(Messages.shopWithdrawCooldownActive());
+            return;
+        }
+        if (isPaused(owner.getUniqueId())) {
+            event.setCancelled(true);
+            owner.sendMessage(Messages.senderPaused());
             return;
         }
         if (clicked.hasData(DataComponentTypes.USE_COOLDOWN)) {
