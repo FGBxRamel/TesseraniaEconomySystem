@@ -31,23 +31,35 @@ any InvUI class is touched, which works out of the box once InvUI is shaded into
 
 ## Conventions for future GUIs (Stage 3/4)
 
-- **"Large Chest" (9x6) window, but the content grid is smaller than that**: every reference
-  build so far (Belohnungsinterface at -424 -12 -3382, both invoice interfaces at -412/-414 -12
-  -3392/-3393) opens as a 9x6 container, but only part of it is actual paginated content — the
-  rest is fixed border/control chrome, confirmed via `/tes debug dump` (see
-  `docs/gui-reference-capture.md`) rather than assumed:
-  - Belohnungsinventar: content is rows 2–3, columns 2–8 (2×7 = **14 slots/page**), bordered by a
-    full gray-pane top row and gray side columns; row 4 is the control row; rows 5–6 are a
-    RED_STAINED_GLASS_PANE-filled dead zone (present in every reference build — replicated as-is
-    rather than trimmed, since it's what the reference GUI actually renders as, not merely a
-    creative-world building artifact).
-  - Both invoice interfaces: content is row 1, columns 1–6 (**6 slots/page**), with row 1's
-    remaining 3 columns and all of row 2 as white-pane filler, row 3 gray-pane filler, row 4 the
-    control row, rows 5–6 the same red dead zone.
-  - These page sizes are baked directly into each GUI's `Structure` (fixed layout, matching the
-    spec's own exact mockup) rather than configurable via `TesConfig` — unlike, say,
-    `shopSessionTimeoutSeconds()`, there's no meaningful "different number" a server operator
-    would want here without also redesigning the layout around it.
+- **Dead/placeholder slots are not replicated from the reference build**: the in-world reference
+  builds (Belohnungsinterface at -424 -12 -3382, both invoice interfaces at -412/-414 -12
+  -3392/-3393) render as full 9x6 containers, with two kinds of slots that don't correspond to
+  real function:
+  - Two fully RED_STAINED_GLASS_PANE-filled rows at the bottom of every reference build — a dead
+    zone with no purpose. **Don't give these rows to the GUI at all**: trim them out of the
+    `Structure` entirely so the window itself is shorter (InvUI sizes the opened chest to however
+    many rows the `Structure` has), rather than keeping the rows and filling them with a pane.
+    Only fall back to a filler pane (use GRAY_STAINED_GLASS_PANE, matching the rest of each
+    screen's border) for a dead slot if it can't be trimmed — e.g. it's interleaved with live
+    slots in the same row rather than forming whole spare rows.
+  - WHITE_STAINED_GLASS_PANE slots in the two invoice interfaces (originally row 1 columns 7–9
+    and all of row 2) that never actually held an invoice — a static "this could have an item
+    someday" placeholder graphic. **These aren't dead slots**, so don't just recolor or trim them:
+    wire them into the real paginated content area instead
+    (`Markers.CONTENT_LIST_SLOT_HORIZONTAL`), so they show an actual invoice when there's one to
+    show and a plain empty slot otherwise. `InvoiceGui`/`SentInvoiceGui` do this — both rows 1–2
+    are live content slots, giving 18 invoices/page instead of the reference build's 6.
+  - Net effect: `RewardInventoryGui` is now a 4-row window (no red rows); `InvoiceGui` and
+    `SentInvoiceGui` are 4-row windows with an 18-slot content area (no white filler, no red
+    rows). Only the gray border/control chrome remains as real filler.
+  - Rule of thumb for new paginated GUIs: only replicate a reference-build slot if it does
+    something (real content, a control button, or genuine gray border) — a slot that's just
+    colored and inert should either not exist (trim the row/column) or become a real content slot
+    if the design intent was "more of this could go here later."
+  - Page sizes are baked directly into each GUI's `Structure` (fixed layout) rather than
+    configurable via `TesConfig` — unlike, say, `shopSessionTimeoutSeconds()`, there's no
+    meaningful "different number" a server operator would want here without also redesigning the
+    layout around it.
 - **Pagination navigation**: build next/previous-page buttons via `BoundItem.pagedBuilder()`
   rather than a plain `Item.builder()` — its three-argument click handler
   `(item, gui, click)` receives the actual bound `PagedGui` instance directly, avoiding a

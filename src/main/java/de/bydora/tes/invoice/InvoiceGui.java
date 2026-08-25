@@ -26,6 +26,9 @@ import java.util.UUID;
  * the reference build at -412 -12 -3392: a paginated list of the viewer's own open invoices (as
  * target), click-to-settle, plus a diamond icon to cash out their virtual balance into the
  * Belohnungsinventar and a link to the "Versendete Rechnungen" sub-screen ({@link SentInvoiceGui}).
+ * Unlike the reference build, rows 1–2 are both live content slots (18 invoices/page, not 6) and
+ * the unused dead-zone rows aren't replicated — see the "Dead/placeholder slots" convention in
+ * {@code docs/gui-library.md}.
  */
 public final class InvoiceGui {
 
@@ -63,15 +66,11 @@ public final class InvoiceGui {
 
         PagedGui<Item> gui = PagedGui.itemsBuilder()
                 .setStructure(
-                        "x x x x x x w w w",
-                        "w w w w w w w w w",
+                        "x x x x x x x x x",
+                        "x x x x x x x x x",
                         "g g g g g g g g g",
-                        "c g g g d g s g n",
-                        "r r r r r r r r r",
-                        "r r r r r r r r r")
-                .addIngredient('w', Item.simple(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName(Component.text(" "))))
+                        "c g g g d g s g n")
                 .addIngredient('g', Item.simple(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(Component.text(" "))))
-                .addIngredient('r', Item.simple(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(Component.text(" "))))
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('c', PaginationControls.closeOrPreviousPageItem())
                 .addIngredient('d', diamondItem)

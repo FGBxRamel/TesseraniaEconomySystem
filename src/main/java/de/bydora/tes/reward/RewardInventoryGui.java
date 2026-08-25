@@ -20,7 +20,9 @@ import java.util.List;
 /**
  * The Belohnungsinventar screen (spec §1.3/§3.3.1.4), laid out per the reference build at
  * -424 -12 -3382: a paginated list of items queued for the viewer via
- * {@link RewardInventoryService}, bordered by gray filler and two unused, red-paned rows.
+ * {@link RewardInventoryService}, bordered by gray filler. Unlike the reference build, the
+ * screen is only as tall as it needs to be — see the "Dead/placeholder slots" convention in
+ * {@code docs/gui-library.md} for why the reference build's unused rows aren't replicated here.
  * Left-clicking an item takes it into the viewer's real inventory, one at a time (design
  * decision — the spec doesn't describe a claim mechanic). The "⮜ Levelinterface" button is a
  * documented no-op until Stage 4 builds that interface.
@@ -43,11 +45,8 @@ public final class RewardInventoryGui {
                         "g g g g g g g g g",
                         "g x x x x x x x g",
                         "g x x x x x x x g",
-                        "g g c g l g n g g",
-                        "r r r r r r r r r",
-                        "r r r r r r r r r")
+                        "g g c g l g n g g")
                 .addIngredient('g', Item.simple(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(Component.text(" "))))
-                .addIngredient('r', Item.simple(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(Component.text(" "))))
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('c', PaginationControls.closeOrPreviousPageItem())
                 .addIngredient('l', levelInterfaceItem)

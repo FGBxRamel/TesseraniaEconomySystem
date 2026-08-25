@@ -24,7 +24,9 @@ import java.util.UUID;
  * The "Versendete Rechnungen" sub-screen (spec §3.1.1.3 v1.2), reachable from
  * {@link InvoiceGui}'s "Offene Rechnungen": the viewer's own still-open invoices as creator,
  * click-to-retract. Retraction has no time limit and only the creator can trigger it — unlike
- * Stage 1 shop purchases' buyer-side 60s refund window.
+ * Stage 1 shop purchases' buyer-side 60s refund window. Rows 1–2 are both live content slots
+ * (18 invoices/page); see the "Dead/placeholder slots" convention in {@code docs/gui-library.md}
+ * for why this and {@link InvoiceGui} diverge from the reference build's unused rows.
  */
 public final class SentInvoiceGui {
 
@@ -59,15 +61,11 @@ public final class SentInvoiceGui {
 
         PagedGui<Item> gui = PagedGui.itemsBuilder()
                 .setStructure(
-                        "x x x x x x w w w",
-                        "w w w w w w w w w",
+                        "x x x x x x x x x",
+                        "x x x x x x x x x",
                         "g g g g g g g g g",
-                        "c g g g d g o g n",
-                        "r r r r r r r r r",
-                        "r r r r r r r r r")
-                .addIngredient('w', Item.simple(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName(Component.text(" "))))
+                        "c g g g d g o g n")
                 .addIngredient('g', Item.simple(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(Component.text(" "))))
-                .addIngredient('r', Item.simple(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(Component.text(" "))))
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('c', PaginationControls.closeOrPreviousPageItem())
                 .addIngredient('d', diamondItem)
