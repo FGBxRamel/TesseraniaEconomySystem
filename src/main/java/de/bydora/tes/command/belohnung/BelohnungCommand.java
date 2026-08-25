@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.Optional;
 
 /**
- * Implements {@code /tes belohnung} (spec §3.3.1.4): opens the caller's Belohnungsinventar.
+ * Implements {@code /belohnung} (spec §3.3.1.4): opens the caller's Belohnungsinventar.
  */
 public final class BelohnungCommand {
 
@@ -27,7 +27,7 @@ public final class BelohnungCommand {
                 .executes(ctx -> {
                     CommandSender sender = ctx.getSource().getSender();
                     if (!(sender instanceof Player player)) {
-                        sender.sendMessage(Messages.usage("/tes belohnung ist nur für Spieler verfügbar."));
+                        sender.sendMessage(Messages.usage("/belohnung ist nur für Spieler verfügbar."));
                         return Command.SINGLE_SUCCESS;
                     }
                     TesseraniaEconomySystem plugin = TesseraniaEconomySystem.getPlugin(TesseraniaEconomySystem.class);

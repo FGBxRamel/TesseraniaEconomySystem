@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The {@code /tes rechnung anzeigen} "Offene Rechnungen" screen (spec §3.1.1.3), laid out per
+ * The {@code /rechnung anzeigen} "Offene Rechnungen" screen (spec §3.1.1.3), laid out per
  * the reference build at -412 -12 -3392: a paginated list of the viewer's own open invoices (as
  * target), click-to-settle, plus a diamond icon to cash out their virtual balance into the
  * Belohnungsinventar and a link to the "Versendete Rechnungen" sub-screen ({@link SentInvoiceGui}).

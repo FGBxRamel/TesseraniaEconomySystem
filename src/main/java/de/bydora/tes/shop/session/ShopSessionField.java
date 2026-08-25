@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * One clickable attribute in the {@code /tes shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX
+ * One clickable attribute in the {@code /shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX
  * modeled on the BlueMap-Marker plugin). Unlike a sequential wizard step, fields carry no order —
  * a player may click any of them, in any sequence, as many times as they like, before confirming.
  *
- * @param key        the token used in the internal {@code /tes shop feld <key>} click command
+ * @param key        the token used in the internal {@code /shop feld <key>} click command
  * @param label      German display label shown in the menu
  * @param hoverText  German hover text explaining what the attribute is
- * @param mandatory  whether this attribute must be set before {@code /tes shop bestaetigen}
+ * @param mandatory  whether this attribute must be set before {@code /shop bestaetigen}
  *                   succeeds (spec's red/green/gray color rule, p.8)
  */
 public enum ShopSessionField {
@@ -21,7 +21,7 @@ public enum ShopSessionField {
     POSITION("position", "Position", "Truhe/Doppeltruhe/Redstone-Truhe/Fass/Shulkerbox, die zum Shop wird (Rechtsklick auf den Block).", true),
     ITEM("item", "Item", "Das im Shop verkaufte Item, oder \"alle\" für jedes Item außer Diamanten.", true),
     PRICE("price", "Preis", "Preis pro Slot in Talern.", true),
-    TELEPORT("teleport", "Teleportpunkt", "Optionaler Zielpunkt für \"/tes shop tp\".", false);
+    TELEPORT("teleport", "Teleportpunkt", "Optionaler Zielpunkt für \"/shop tp\".", false);
 
     private final String key;
     private final String label;

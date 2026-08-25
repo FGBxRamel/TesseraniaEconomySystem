@@ -1,7 +1,7 @@
 # Belohnungsinventar (reward inventory)
 
 Implements spec §1.3 / §3.3.1.4. This doc covers the implementation approach for future
-maintainers; see `docs/commands.md` for the player-facing `/tes belohnung` usage guide (German),
+maintainers; see `docs/commands.md` for the player-facing `/belohnung` usage guide (German),
 and `docs/gui-library.md` for the GUI framework it's built on.
 
 ## The contract
@@ -23,7 +23,7 @@ for UC5's notifications, which Stage 2's invoice notifications reused unchanged 
 `reward_inventory_items` is one row per stored `ItemStack` (`uuid`, `item` BLOB, `granted_at`),
 not a fixed-size slot table — so it never needs a "how many slots" migration, and pagination is
 just "however many rows exist, however many fit per page" rather than a capacity limit. `ON
-DELETE CASCADE` to `players(uuid)` means `/tes spieler remove` wipes a player's queued rewards
+DELETE CASCADE` to `players(uuid)` means `/spieler remove` wipes a player's queued rewards
 along with everything else, matching the removal confirmation prompt's promise ("virtuelle
 Inventare" are deleted).
 
@@ -47,7 +47,7 @@ close-doubles-as-previous-page pagination control) was reworked to match the ref
 
 ## Gating
 
-Both `/tes belohnung` and (once Stage 2's invoices ship) invoice cash-out require the player be
+Both `/belohnung` and (once Stage 2's invoices ship) invoice cash-out require the player be
 registered and not paused — the reward inventory is squarely part of the "Belohnungssystem" the
 spec gates behind registration (§1.4), unlike raw shop/invoice transactions which unregistered
 players can still perform.

@@ -2,7 +2,7 @@
 
 Implements spec §3.1.1.3 (Dienstleistungen/Trödelmarkt — services and the flea market, treated
 identically by the spec). This doc covers the implementation approach for future maintainers; see
-`docs/commands.md` for the player-facing `/tes rechnung` usage guide (German), and
+`docs/commands.md` for the player-facing `/rechnung` usage guide (German), and
 `docs/reward-inventory.md` for where cash-outs land.
 
 ## No time-limited refund window, unlike shops — but creator-side retraction
@@ -71,7 +71,7 @@ Two more spec v1.2 additions, alongside retraction above:
 |---|---|---|
 | Creating an invoice (creator side) | Yes | Yes |
 | Being invoiced (target side) | No | No |
-| Opening `/tes rechnung anzeigen`, settling an invoice | No | No |
+| Opening `/rechnung anzeigen`, settling an invoice | No | No |
 | Opening "Versendete Rechnungen", retracting an invoice | No | No |
 | Cashing out (diamond icon) | Yes | Yes |
 

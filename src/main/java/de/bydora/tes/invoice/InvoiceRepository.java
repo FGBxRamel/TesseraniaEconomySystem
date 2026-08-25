@@ -13,7 +13,7 @@ public interface InvoiceRepository {
 
     /**
      * All open invoices where {@code targetUuid} is the payer, oldest first — backs
-     * {@code /tes rechnung anzeigen}'s "Offene Rechnungen" list.
+     * {@code /rechnung anzeigen}'s "Offene Rechnungen" list.
      */
     List<InvoiceRecord> findOpenByTarget(UUID targetUuid);
 

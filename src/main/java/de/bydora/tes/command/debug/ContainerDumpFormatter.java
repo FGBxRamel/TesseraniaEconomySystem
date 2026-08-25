@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Formats a block's exact contents for {@code /tes debug dump} (see
+ * Formats a block's exact contents for {@code /debug dump} (see
  * {@code docs/gui-reference-capture.md}): containers get a per-slot listing using the spec's own
  * {@code <col>|<row>} position notation, signs get their text per side. Any other block is
  * unsupported (notably item frames, which are entities rather than blocks and aren't covered).

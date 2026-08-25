@@ -2,7 +2,7 @@
 
 Implements spec §3.1.1.1 (the default, non-Redstone item shop). This doc covers the
 implementation approach for future maintainers; see `docs/commands.md` for the player-facing
-`/tes shop` usage guide (German).
+`/shop` usage guide (German).
 
 ## No GUI, on purpose
 
@@ -29,7 +29,7 @@ at creation time; both halves get tagged and both are registered to the same `Sh
 
 ## The chat menu (order-independent, per the BlueMap-Marker reference)
 
-`/tes shop erstellen|bearbeiten` open a per-player `ShopSession` and immediately render a
+`/shop erstellen|bearbeiten` open a per-player `ShopSession` and immediately render a
 re-usable chat menu (`ShopChatListener.renderMenu` / `Messages.shopMenu`): one line per
 `ShopSessionField` visible for the session's mode (`CREATE` shows ID/Name/Besitzer/Position/
 Item/Preis/Teleport; `EDIT` omits ID and Position entirely, since both are immutable per UC2 —
@@ -39,7 +39,7 @@ if optional and unset, each clickable and hover-annotated, ending in `»» BEST�
 interface (§3.1.1.1) rather than a sequential wizard — attributes can be filled, and later
 changed, in any order.
 
-Clicking a menu line runs `/tes shop feld <key>`, which "arms" that field
+Clicking a menu line runs `/shop feld <key>`, which "arms" that field
 (`ShopSession.pendingField`); the next chat message is routed to that field's handler instead of
 being broadcast (`ShopChatListener.onChat`), and on success the field is cleared and the menu is
 re-rendered so the player can pick anything else next. `POSITION` is the one field never settable
@@ -49,7 +49,7 @@ since teleporting a player into a shop later would risk suffocation (the spec ca
 explicitly), and typing coordinates by hand is exactly the kind of friction the BlueMap-Marker-
 style flow avoids.
 
-`/tes shop bestaetigen`/`abbrechen` (clickable, or typed as `bestätigen`/`abbrechen` — both work)
+`/shop bestaetigen`/`abbrechen` (clickable, or typed as `bestätigen`/`abbrechen` — both work)
 finalize or discard the session. Confirming re-checks `ShopSession.missingMandatory()` and, if
 anything mandatory is still unset, reports what's missing and re-shows the menu rather than
 failing silently. There's no separate confirm/summary screen the way the old linear flow had one

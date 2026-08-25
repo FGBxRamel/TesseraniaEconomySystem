@@ -9,7 +9,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import java.util.List;
 
 /**
- * Centralized German, admin/player-facing chat messages for the {@code /tes} command family.
+ * Centralized German, admin/player-facing chat messages for TES's commands.
  */
 public final class Messages {
 
@@ -57,11 +57,11 @@ public final class Messages {
     }
 
     /**
-     * The clickable re-confirmation prompt shown before {@code /tes spieler remove} takes effect.
+     * The clickable re-confirmation prompt shown before {@code /spieler remove} takes effect.
      */
     public static Component removeConfirmPrompt(String name, String token, long ttlSeconds) {
         Component button = Component.text("»» BESTÄTIGEN ««", NamedTextColor.GOLD, TextDecoration.BOLD, TextDecoration.UNDERLINED)
-                .clickEvent(ClickEvent.runCommand("/tes spieler remove " + name + " " + token))
+                .clickEvent(ClickEvent.runCommand("/spieler remove " + name + " " + token))
                 .hoverEvent(HoverEvent.showText(Component.text(
                         "Löscht ALLE Daten von " + name + " unwiderruflich (Statistiken, virtuelle Inventare, TP/EP/Level). Läuft in " + ttlSeconds + " Sekunden ab.",
                         NamedTextColor.RED)));
@@ -90,7 +90,7 @@ public final class Messages {
         return Component.text("Dieses Objekt ist ein Shop und kann nicht zerstört werden.", NamedTextColor.RED);
     }
 
-    // ---- Shop session (chat-driven /tes shop erstellen|bearbeiten flow, spec §3.1.1.1) ----
+    // ---- Shop session (chat-driven /shop erstellen|bearbeiten flow, spec §3.1.1.1) ----
 
     private static Component shopHint(String text) {
         return Component.text(text, NamedTextColor.YELLOW)
@@ -140,7 +140,7 @@ public final class Messages {
     }
 
     /**
-     * One line of the {@code /tes shop erstellen|bearbeiten} attribute menu (spec §3.1.1.1, UX
+     * One line of the {@code /shop erstellen|bearbeiten} attribute menu (spec §3.1.1.1, UX
      * modeled on the BlueMap-Marker plugin): green once {@code set}, otherwise red if
      * {@code mandatory} or gray if optional.
      */
@@ -153,15 +153,15 @@ public final class Messages {
             NamedTextColor color = line.set() ? NamedTextColor.GREEN : line.mandatory() ? NamedTextColor.RED : NamedTextColor.GRAY;
             String value = line.valueDisplay() != null ? line.valueDisplay() : "Nicht gesetzt" + (line.mandatory() ? "" : " (optional)");
             Component entry = Component.text(line.label() + ": " + value, color)
-                    .clickEvent(ClickEvent.runCommand("/tes shop feld " + line.key()))
+                    .clickEvent(ClickEvent.runCommand("/shop feld " + line.key()))
                     .hoverEvent(HoverEvent.showText(Component.text(line.hoverText(), NamedTextColor.GRAY)));
             menu = menu.append(Component.newline()).append(entry);
         }
         Component confirm = Component.text("»» BESTÄTIGEN ««", NamedTextColor.GREEN, TextDecoration.BOLD)
-                .clickEvent(ClickEvent.runCommand("/tes shop bestaetigen"))
+                .clickEvent(ClickEvent.runCommand("/shop bestaetigen"))
                 .hoverEvent(HoverEvent.showText(Component.text("Shop speichern.", NamedTextColor.GRAY)));
         Component cancel = Component.text("»» ABBRECHEN ««", NamedTextColor.RED, TextDecoration.BOLD)
-                .clickEvent(ClickEvent.runCommand("/tes shop abbrechen"))
+                .clickEvent(ClickEvent.runCommand("/shop abbrechen"))
                 .hoverEvent(HoverEvent.showText(Component.text("Vorgang verwerfen.", NamedTextColor.GRAY)));
         return menu.append(Component.newline()).append(confirm).append(Component.text("   ")).append(cancel)
                 .append(Component.newline())
@@ -263,7 +263,7 @@ public final class Messages {
 
     public static Component shopListEntry(String id, String world, String name, String item, int price) {
         Component entry = Component.text(id + " — " + name + " (" + item + " | " + price + " Taler/Slot)", NamedTextColor.AQUA)
-                .clickEvent(ClickEvent.runCommand("/tes shop tp " + id))
+                .clickEvent(ClickEvent.runCommand("/shop tp " + id))
                 .hoverEvent(HoverEvent.showText(Component.text("Klicken zum Teleportieren (Welt: " + world + ")", NamedTextColor.GRAY)));
         return entry;
     }
@@ -272,11 +272,11 @@ public final class Messages {
         Component nav = Component.empty();
         if (page > 1) {
             nav = nav.append(Component.text("« Vorherige Seite ", NamedTextColor.GOLD)
-                    .clickEvent(ClickEvent.runCommand("/tes shop liste " + (page - 1))));
+                    .clickEvent(ClickEvent.runCommand("/shop liste " + (page - 1))));
         }
         if (page < totalPages) {
             nav = nav.append(Component.text("Nächste Seite »", NamedTextColor.GOLD)
-                    .clickEvent(ClickEvent.runCommand("/tes shop liste " + (page + 1))));
+                    .clickEvent(ClickEvent.runCommand("/shop liste " + (page + 1))));
         }
         return nav;
     }
@@ -322,7 +322,7 @@ public final class Messages {
         return Component.text(text, NamedTextColor.YELLOW);
     }
 
-    // ---- Belohnungsinventar (/tes belohnung, spec §1.3/§3.3.1.4) ----
+    // ---- Belohnungsinventar (/belohnung, spec §1.3/§3.3.1.4) ----
 
     public static Component rewardInventoryNotEligible() {
         return Component.text("Du musst im Belohnungssystem registriert und nicht pausiert sein, um dein "
@@ -337,7 +337,7 @@ public final class Messages {
         return Component.text("Dein Inventar ist voll. Das Item bleibt im Belohnungsinventar.", NamedTextColor.RED);
     }
 
-    // ---- Rechnungen / Dienstleistungen / Trödelmarkt (/tes rechnung, spec §3.1.1.3) ----
+    // ---- Rechnungen / Dienstleistungen / Trödelmarkt (/rechnung, spec §3.1.1.3) ----
 
     public static Component senderPaused() {
         return Component.text("Du bist im Belohnungssystem pausiert und kannst diese Aktion nicht ausführen.", NamedTextColor.RED);
@@ -361,7 +361,7 @@ public final class Messages {
 
     public static Component invoiceCreatedNotification(String creatorName, int price, String reason) {
         return Component.text(invoiceCreatedText(creatorName, price, reason), NamedTextColor.YELLOW)
-                .clickEvent(ClickEvent.runCommand("/tes rechnung anzeigen"))
+                .clickEvent(ClickEvent.runCommand("/rechnung anzeigen"))
                 .hoverEvent(HoverEvent.showText(Component.text("Klicken zum Öffnen deiner offenen Rechnungen.", NamedTextColor.GRAY)));
     }
 
@@ -371,7 +371,7 @@ public final class Messages {
      */
     public static String invoiceCreatedText(String creatorName, int price, String reason) {
         return creatorName + " hat dir eine Rechnung über " + price + " Taler gestellt (\"" + reason + "\"). "
-                + "Mit /tes rechnung anzeigen einsehen und bezahlen.";
+                + "Mit /rechnung anzeigen einsehen und bezahlen.";
     }
 
     public static Component invoiceSettled(String creatorName, int price) {
@@ -422,7 +422,7 @@ public final class Messages {
         return Component.text("Du hast keinen Kontostand zum Auszahlen.", NamedTextColor.RED);
     }
 
-    // ---- Debug (/tes debug dump, siehe docs/gui-reference-capture.md) ----
+    // ---- Debug (/debug dump, siehe docs/gui-reference-capture.md) ----
 
     public static Component debugDumpUnsupported() {
         return Component.text("An dieser Position befindet sich kein unterstützter Container oder Schild.", NamedTextColor.RED);

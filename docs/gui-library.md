@@ -1,8 +1,8 @@
 # GUI library (adopted in Stage 2)
 
 `ROADMAP.md` originally deferred choosing a GUI framework to Stage 3 ("the first GUI-heavy
-stage"). Stage 2 needed one first — both the Belohnungsinventar (`/tes belohnung`) and the
-invoice list (`/tes rechnung anzeigen`) are paginated virtual chest screens with per-item click
+stage"). Stage 2 needed one first — both the Belohnungsinventar (`/belohnung`) and the
+invoice list (`/rechnung anzeigen`) are paginated virtual chest screens with per-item click
 handlers — so the decision was pulled forward here instead.
 
 ## Chosen: InvUI

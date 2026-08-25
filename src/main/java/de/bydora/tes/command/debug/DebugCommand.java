@@ -17,7 +17,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Optional;
 
 /**
- * Implements {@code /tes debug dump <Position>}: an admin-only tool that reads a container's or
+ * Implements {@code /debug dump <Position>}: an admin-only tool that reads a container's or
  * sign's exact contents at a given block position and hands them to the tester as a single
  * clipboard-copyable chat message, for cross-referencing against the spec's in-world reference
  * GUIs. See {@code docs/gui-reference-capture.md} for the workflow this feeds.
@@ -30,7 +30,7 @@ public final class DebugCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("debug")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes debug dump <Position>"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/debug dump <Position>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("dump")

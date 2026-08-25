@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Drives the chat-driven {@code /tes shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX modeled
+ * Drives the chat-driven {@code /shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX modeled
  * on the BlueMap-Marker plugin): a persistent, re-rendered chat menu lists every attribute for
  * the session's mode, color-coded red/green/gray, clickable in any order via
- * {@code /tes shop feld <key>}. Clicking a field "arms" it ({@link ShopSession#pendingField()});
+ * {@code /shop feld <key>}. Clicking a field "arms" it ({@link ShopSession#pendingField()});
  * the next chat message (or, for {@link ShopSessionField#POSITION}, the next right-click) is fed
- * to that field's handler instead of being broadcast. {@code /tes shop bestaetigen}/
+ * to that field's handler instead of being broadcast. {@code /shop bestaetigen}/
  * {@code abbrechen} (or the typed equivalents) finalize or discard the session.
  */
 public final class ShopChatListener implements Listener {

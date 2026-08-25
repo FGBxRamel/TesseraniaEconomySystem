@@ -59,7 +59,7 @@ public final class TesConfig {
     }
 
     /**
-     * How close an owner must stand to their shop to close it via {@code /tes shop schließen}.
+     * How close an owner must stand to their shop to close it via {@code /shop schließen}.
      */
     public int shopProximityBlocks() {
         return plugin.getConfig().getInt(SHOP_PROXIMITY_BLOCKS_PATH, DEFAULT_SHOP_PROXIMITY_BLOCKS);

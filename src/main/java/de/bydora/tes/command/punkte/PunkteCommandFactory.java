@@ -19,8 +19,8 @@ import java.util.UUID;
 import java.util.function.ToIntFunction;
 
 /**
- * Builds the {@code add|remove|set <Name> <Anzahl>} subtree shared by {@code /tes treuepunkte}
- * and {@code /tes erfahrungspunkte} (spec §1.4) — the two commands differ only in which
+ * Builds the {@code add|remove|set <Name> <Anzahl>} subtree shared by {@code /treuepunkte}
+ * and {@code /erfahrungspunkte} (spec §1.4) — the two commands differ only in which
  * {@link PlayerRepository} counter they read/write and their permission/message labels.
  */
 final class PunkteCommandFactory {
@@ -44,7 +44,7 @@ final class PunkteCommandFactory {
     static LiteralArgumentBuilder<CommandSourceStack> build(String literal, String permissionPrefix, String label, Counter counter) {
         return Commands.literal(literal)
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes " + literal + " <add|remove|set> <Name> <Anzahl>"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/" + literal + " <add|remove|set> <Name> <Anzahl>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(action("add", literal, permissionPrefix, label, counter))

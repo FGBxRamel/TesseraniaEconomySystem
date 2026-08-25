@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Implements {@code /tes shop erstellen|bearbeiten|schließen|liste} (spec §3.1.1.1, UC1–UC3 plus
+ * Implements {@code /shop erstellen|bearbeiten|schließen|liste} (spec §3.1.1.1, UC1–UC3 plus
  * the shop list). Deviates from the literal spec syntax by dropping the {@code <world>} argument:
  * shop ids are enforced globally unique ({@link ShopRegistry}, {@code idx_shops_id_unique}), so
  * {@code erstellen} uses the player's current world and {@code bearbeiten}/{@code schließen}/
@@ -50,7 +50,7 @@ public final class ShopCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("shop")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes shop <erstellen|bearbeiten|schließen|liste>"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/shop <erstellen|bearbeiten|schließen|liste>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("erstellen")
@@ -111,7 +111,7 @@ public final class ShopCommand {
     private static int erstellen(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop erstellen ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop erstellen ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         World world = player.getWorld();
@@ -135,7 +135,7 @@ public final class ShopCommand {
     private static int bearbeiten(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop bearbeiten ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop bearbeiten ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         Optional<ShopRecord> maybeShop = resolveOwnedShop(ctx, player);
@@ -183,7 +183,7 @@ public final class ShopCommand {
     private static int schliessen(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop schließen ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop schließen ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         Optional<ShopRecord> maybeShop = resolveOwnedShop(ctx, player);
@@ -238,7 +238,7 @@ public final class ShopCommand {
     private static int liste(CommandContext<CommandSourceStack> ctx, int requestedPage) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop liste ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop liste ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         List<ShopRecord> shops = plugin().shopRegistry().allByOwner(player.getUniqueId()).stream()

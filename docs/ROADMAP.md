@@ -9,8 +9,8 @@ Development proceeds in stages. Each stage adds one or more significant features
 - **Permissions**: [LuckPerms](https://luckperms.net/) is a hard requirement on the target server. TES does not implement its own permission system — it only needs to define and check sufficient permission nodes (e.g. `tes.admin`, `tes.shop.create`, `tes.rechnung.erstellen`, ...). Granting/assigning nodes to players/groups is server-side LuckPerms configuration, out of scope for this plugin.
 - **Worlds**: a separate plugin already manages worlds on the server, using only standard Bukkit world APIs. Farm-world creation/reset (Stage 5) should stick to standard Bukkit world-management calls, which should coexist without conflict.
 - **GUI implementation**: originally slated to be decided at the start of Stage 3, but Stage 2's Belohnungsinventar and invoice list needed a GUI first, so the decision was pulled forward — [InvUI](https://github.com/NichtStudioCode/InvUI) was adopted there (see `docs/gui-library.md`) and Stage 3's multi-level chest interfaces should build on the same conventions.
-- **Reference GUI capture**: the spec points to fully-built reference GUIs in the creative world at exact coordinates for most GUI-heavy features. See `docs/gui-reference-capture.md` for the capture workflow (screenshot + `/tes debug dump`) used to get those reference builds in front of a session before it builds or revises the corresponding GUI.
-- **Commands**: `/tes` (and later `/bp`/`/backpack`) subcommands are real Brigadier command trees (`Commands.literal(...).then(...)`), registered via a `PluginBootstrap` (`TesBootstrap`, using `LifecycleEvents.COMMANDS`) during the bootstrap phase — not Paper's `BasicCommand` shim, and not legacy `plugin.yml`-style YAML command declarations (Paper plugins don't support those at all). This was decided in Stage 0 after `BasicCommand` shipped with broken tab-completion; follow the shape in `TesCommand`/`SpielerCommand` for new subcommands.
+- **Reference GUI capture**: the spec points to fully-built reference GUIs in the creative world at exact coordinates for most GUI-heavy features. See `docs/gui-reference-capture.md` for the capture workflow (screenshot + `/debug dump`) used to get those reference builds in front of a session before it builds or revises the corresponding GUI.
+- **Commands**: each subsystem (`/shop`, `/rechnung`, `/spieler`, and later `/bp`/`/backpack`, ...) is its own top-level Brigadier command tree (`Commands.literal(...).then(...)`), registered via a `PluginBootstrap` (`TesBootstrap`, using `LifecycleEvents.COMMANDS`) during the bootstrap phase — not Paper's `BasicCommand` shim, and not legacy `plugin.yml`-style YAML command declarations (Paper plugins don't support those at all). This was decided in Stage 0 after `BasicCommand` shipped with broken tab-completion; follow the shape in `ShopCommand`/`SpielerCommand` for new subcommands. Originally all subcommands nested under a shared `/tes` root — dropped in favor of independent top-level commands per subsystem (see Stage 1 note below).
 - **Local dev/test server**: `mvn run-paper:install verify exec:exec@download-luckperms run-paper:run-server` (or the shared IntelliJ "Run Test Server" config in `.run/`) boots a real Paper server with the plugin and LuckPerms auto-installed. See `docs/dev-server.md`.
 
 ## Branching & versioning convention
@@ -28,8 +28,8 @@ Implements: §1.2, §1.4 (partial)
 
 - Persistent player data layer (registration record, TP/EP/level counters, pause/sanction flag) — implemented via embedded SQLite (`org.xerial:sqlite-jdbc`, schema-versioned through `PRAGMA user_version` in `SchemaMigrator`), chosen over flat per-player YAML for the relational drill-down queries later stages need (Stage 4 income drill-down, Stage 1 shop/transaction records).
 - Central config system (ratios Taler:TP / Taler:EP, spec defaults 1:5 / 1:3).
-- `/tes` command with subcommand dispatch and a defined set of LuckPerms permission nodes per subcommand (admin vs. player-facing).
-- `/tes spieler add|remove|pause|unpause <Name>`, including the required re-confirmation step for `remove` and full data wipe on confirmed removal.
+- Command dispatch with a defined set of LuckPerms permission nodes per subcommand (admin vs. player-facing). Originally a single `/tes` root with nested subcommands; each subsystem was later split into its own top-level command (`/shop`, `/rechnung`, `/spieler`, ...) — see the Commands note above.
+- `/spieler add|remove|pause|unpause <Name>`, including the required re-confirmation step for `remove` and full data wipe on confirmed removal.
 - `.github/workflows/build.yml`: `mvn clean package` on push/PR to `main`.
 - `.github/workflows/release-please.yml`: release PR management (release-type `simple` + `extra-files` XML updater targeting `pom.xml`'s `<version>`). Note: branch protection may require a PAT instead of the default `GITHUB_TOKEN` for the action to push the release PR branch.
 - `.github/workflows/release-build.yml`: on tag/release creation — checkout tag, `mvn versions:set`, `mvn clean package`, upload shaded jar to the GitHub Release.
@@ -40,21 +40,21 @@ Status: `[x]` shipped (2026-08-22, release `v0.2.0`)
 Implements: §3.1.1.1
 
 - Shop container conversion (chest, double chest, redstone chest/double, barrel, shulker + colors) with required attributes (ID, name, owner(s), position, item, price/slot) and optional teleport point.
-- `/tes shop erstellen|bearbeiten|schließen|liste [id]`, chat-driven UX modeled on the BlueMap Marker plugin flow, including the >10-shops pagination behavior in `liste`. Deviates from the spec's literal `<world>` argument: shop ids are enforced globally unique, so `erstellen` uses the player's current world and `bearbeiten`/`schließen`/`tp` resolve by id alone.
+- `/shop erstellen|bearbeiten|schließen|liste [id]`, chat-driven UX modeled on the BlueMap Marker plugin flow, including the >10-shops pagination behavior in `liste`. Deviates from the spec's literal `<world>` argument: shop ids are enforced globally unique, so `erstellen` uses the player's current world and `bearbeiten`/`schließen`/`tp` resolve by id alone.
 - Purchase flow (UC4): slot click → diamond deduction/item exchange, 60s cancellable window with cooldown-overlay UX (ender-pearl-style), owner-only withdraw (post-cooldown) and restock.
 - Orphaned-shop-object cleanup + one-time player notification (UC5).
 - Transaction-completion event wired to TP/EP accrual using Stage 0's configured ratios.
-- `/tes treuepunkte add|remove|set` and `/tes erfahrungspunkte add|remove|set` admin commands (counters exist now; no spend UI yet).
+- `/treuepunkte add|remove|set` and `/erfahrungspunkte add|remove|set` admin commands (counters exist now; no spend UI yet).
 - Deliverable: players can trade through shops end-to-end; points silently accrue; nothing to spend them on yet.
 
 ### Stage 2 — Dienstleistungen / Trödelmarkt + Reward Inventory
 Status: `[ ]` not started
 Implements: §3.1.1.3, §1.3 (Belohnungsinventar)
 
-- Belohnungsinventar core: generic virtual per-player inventory + `/tes belohnung` command, pagination.
-- `/tes rechnung erstellen <Ziel> <Preis> <Grund>` with next-login/activity notification, spec v1.2's
+- Belohnungsinventar core: generic virtual per-player inventory + `/belohnung` command, pagination.
+- `/rechnung erstellen <Ziel> <Preis> <Grund>` with next-login/activity notification, spec v1.2's
   hard cap of **2304 Taler** on `<Preis>`, and creation restricted to **registered** players.
-- `/tes rechnung anzeigen` interface: open invoices list, click-to-settle (buyer → creator's
+- `/rechnung anzeigen` interface: open invoices list, click-to-settle (buyer → creator's
   virtual balance), creator cash-out (payout lands in reward inventory, hover-to-see-balance), and
   a short notification to the creator when their invoice is settled.
 - Invoice **retraction** (spec v1.2): the creator can withdraw a still-open invoice they sent, via
@@ -77,7 +77,7 @@ Implements: §3.2
 
 First GUI-heavy stage — decide hand-rolled vs. third-party GUI library here before building the interfaces below.
 
-- `/tes punkte` / `/tes treuepunkte` main interface (9x4, sunflower balance, back arrow, level-switch button) at the exact grid/costs from §3.2.1.1.
+- `/punkte` / `/treuepunkte` main interface (9x4, sunflower balance, back arrow, level-switch button) at the exact grid/costs from §3.2.1.1.
 - All ~12 top-level rewards and sub-interfaces (XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, spawner) per the reward table.
 - Effect implementations: Prozessverstärker (furnace/beehive boost), Segen der Zwerge (haste), Kraftelixier (potion bundle), Handelsbonus (2-player-max, staatskasse-funded, cooldown-replacement custom-model diamond), Erntewelt/Glutzone reward items (grant the teleport item now; full farm-world mechanics land in Stage 5 — known temporary gap).
 - Deliverable: loyalty shop fully spendable except for the farm-world destination itself.
@@ -88,9 +88,9 @@ Implements: §3.3
 
 - EP accrual (wired in Stage 1) → level-up processing via `f(x) = 30·sqrt(x/30000)`, max-level cutoff (configurable, default 30).
 - Level rewards config file (`#Level; Typ; Name; {attrs}` format per §3.3.1.1) covering the full §3.3.1.2 table for reward types 1 (item grant), 3 (backpack expansion), 4 (passive XP), 5 (death protection) now; type 2 (resource-world access) grants the item, teleport completed in Stage 5 (same documented gap as Stage 3).
-- `/tes level add|remove|set` admin command.
+- `/level add|remove|set` admin command.
 - Backpack: virtual, location-independent, unlocked level 3 (9 slots), expansions at 9/14/20/25/30 (second page), requires registered + unpaused, `/bp` and `/backpack`.
-- Level interface (`/tes level`): current level, total/remaining EP, total spend/income with drill-down (clickable barrels per shop, heads per player, sort toggle, >5-entry pagination), links to reward inventory/backpack/loyalty interface.
+- Level interface (`/level`): current level, total/remaining EP, total spend/income with drill-down (clickable barrels per shop, heads per player, sort toggle, >5-entry pagination), links to reward inventory/backpack/loyalty interface.
 - Deliverable: full level progression, backpack, and stats drill-down all work.
 
 ### Stage 5 — Farm Worlds
@@ -98,8 +98,8 @@ Status: `[ ]` not started
 Implements: §3.2.1.3
 
 - Erntewelt (Overworld-type) / Glutzone (Nether-type) world lifecycle: 48h reset+reseed, largest-possible biome size, `/locate biome` open to everyone in these worlds.
-- `/tes farmwelt <erntewelt|glutzone>` entry; `/world farmwelt-erntewelt` / `/world farmwelt-glutzone` self-return; 3h stay timer with in-world dashboard (remaining stay time + time to next reset), auto-return to last overworld position on expiry.
-- Per-block drop-rate multipliers: `/tes farmwelt multi <Item> <Droprate>`, persisted in config across resets, natural-generation-only (exclude player-placed blocks).
+- `/farmwelt <erntewelt|glutzone>` entry; `/world farmwelt-erntewelt` / `/world farmwelt-glutzone` self-return; 3h stay timer with in-world dashboard (remaining stay time + time to next reset), auto-return to last overworld position on expiry.
+- Per-block drop-rate multipliers: `/farmwelt multi <Item> <Droprate>`, persisted in config across resets, natural-generation-only (exclude player-placed blocks).
 - Wire up TP rewards 5/6 and Level reward type 2 to actually teleport now.
 - Deliverable: farm worlds fully functional; earlier "grants item only" gap closed.
 

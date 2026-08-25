@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import java.util.Optional;
 
 /**
- * Implements {@code /tes rechnung erstellen|anzeigen} (spec §3.1.1.3): the Dienstleistungen/
+ * Implements {@code /rechnung erstellen|anzeigen} (spec §3.1.1.3): the Dienstleistungen/
  * Trödelmarkt invoice flow.
  */
 public final class RechnungCommand {
@@ -33,7 +33,7 @@ public final class RechnungCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("rechnung")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes rechnung <erstellen|anzeigen>"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/rechnung <erstellen|anzeigen>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("erstellen")
@@ -51,7 +51,7 @@ public final class RechnungCommand {
     private static int erstellen(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player creator)) {
-            sender.sendMessage(Messages.usage("/tes rechnung erstellen ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/rechnung erstellen ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
 
@@ -105,7 +105,7 @@ public final class RechnungCommand {
     private static int anzeigen(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes rechnung anzeigen ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/rechnung anzeigen ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         InvoiceGui.open(plugin(), player);

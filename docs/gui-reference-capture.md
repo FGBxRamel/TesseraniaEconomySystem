@@ -35,11 +35,11 @@ volume (e.g. how many open invoices someone has), not layout — so a single cap
 is normally sufficient; no screen recording needed for click-flow, since which item opens which
 sub-GUI is already stated in the spec text.
 
-## The `/tes debug dump` command
+## The `/debug dump` command
 
 Implemented (`de.bydora.tes.command.debug`), landed alongside this doc.
 
-`/tes debug dump <Position>` (admin-only, permission `tes.admin.debug.dump`, following the
+`/debug dump <Position>` (admin-only, permission `tes.admin.debug.dump`, following the
 existing `tes.admin.<subcommand>.<action>` convention) takes a block position via Paper's
 `ArgumentTypes.blockPosition()` — same coordinate syntax as vanilla's `/data get block` (absolute
 or `~`-relative, tab-completed), resolved in whatever world the tester is standing in. It reads
@@ -82,7 +82,7 @@ assuming a plain vanilla player head.
 1. Identify the reference coordinates for the GUI in question from the PDF (see the § references
    above, or the specific coordinates cited inline in the relevant spec section).
 2. Ask the tester to stand at (or near, using `~` offsets) those coordinates in the creative
-   world, run `/tes debug dump <x> <y> <z>`, click the chat message to copy, and paste the result
+   world, run `/debug dump <x> <y> <z>`, click the chat message to copy, and paste the result
    here — alongside an overview screenshot of the same container opened in-game (per this
    session's workflow, screenshots are dropped into the git repo rather than sent directly).
 3. Treat the dump as the source of truth for exact text/costs/slot positions, and the screenshot
