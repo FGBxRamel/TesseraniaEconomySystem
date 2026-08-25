@@ -3,6 +3,7 @@ package de.bydora.tes.invoice;
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.gui.CustomHeads;
+import de.bydora.tes.gui.GuiBackgrounds;
 import de.bydora.tes.gui.PaginationControls;
 import de.bydora.tes.util.Messages;
 import net.kyori.adventure.text.Component;
@@ -70,6 +71,7 @@ public final class InvoiceGui {
                         "x x x x x x x x x",
                         "g g g g g g g g g",
                         "c g g g d g s g n")
+                .setBackground(GuiBackgrounds.emptyContentSlot())
                 .addIngredient('g', Item.simple(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(Component.text(" "))))
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('c', PaginationControls.closeOrPreviousPageItem())
