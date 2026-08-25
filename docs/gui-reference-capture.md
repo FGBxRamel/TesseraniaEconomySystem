@@ -67,6 +67,16 @@ use color/bold to distinguish reward tiers or highlight a cost.
 Anything else (including item frames — entities, not blocks, so out of scope for a
 position-based dump) gets `Messages.debugDumpUnsupported()`.
 
+### Reading `PLAYER_HEAD` entries in a dump
+
+A dump line reporting material `PLAYER_HEAD` is almost never a literal player's head — in these
+reference builds it's normally a custom-textured head used as a symbolic button/icon (the same
+role a dye-colored pane or a distinct material plays elsewhere in the same GUI). The dump only
+records the material, not the skull's texture, so it can't be told apart from a plain head by
+text alone. The user has the commands to generate these custom heads themselves; whenever a dump
+or screenshot shows a `PLAYER_HEAD`, ask them what it's meant to depict rather than guessing or
+assuming a plain vanilla player head.
+
 ### How a session uses it
 
 1. Identify the reference coordinates for the GUI in question from the PDF (see the § references

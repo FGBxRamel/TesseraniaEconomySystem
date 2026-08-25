@@ -50,3 +50,13 @@ any InvUI class is touched, which works out of the box once InvUI is shaded into
 - **Static vs. dynamic item content**: `Item.simple(...)` for content that never changes (filler
   panes); `Item.builder().setItemProvider(...)` (or the paged-bound variant) for anything that
   needs to be recomputed per render (e.g. a balance shown in an item's lore).
+- **Close button doubles as previous-page on page 2+**: confirmed against the in-game reference
+  builds (invoice interfaces at -414 -12 -3393 / -412 -12 -3392) — the same control-row slot that
+  shows the "Schließen" barrier on page 1 automatically swaps to a "Zurück" previous-page item
+  from page 2 onward, i.e. it's the mirror-image counterpart of the "➤ Weiter" next-page item, not
+  a separate always-present slot. A screen only ever needs one or the other in that slot (first
+  page → Close, later page → Back), never both. Apply this to any paginated GUI that has a close
+  button, not just the invoice interfaces. Not yet implemented: `InvoiceGui`'s close item is
+  currently static (always "Schließen", never becomes a previous-page control), and
+  `RewardInventoryGui` has no previous-page item or close item at all yet — both need updating to
+  follow this convention.
