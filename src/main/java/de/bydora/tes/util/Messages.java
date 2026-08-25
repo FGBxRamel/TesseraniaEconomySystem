@@ -386,4 +386,17 @@ public final class Messages {
         return Component.text("Du hast keinen Kontostand zum Auszahlen.", NamedTextColor.RED);
     }
 
+    // ---- Debug (/tes debug dump, siehe docs/gui-reference-capture.md) ----
+
+    public static Component debugDumpUnsupported() {
+        return Component.text("An dieser Position befindet sich kein unterstützter Container oder Schild.", NamedTextColor.RED);
+    }
+
+    public static Component debugDumpReady(String summary, String plainDump) {
+        return Component.text("Dump bereit (" + summary + "). ", NamedTextColor.GREEN)
+                .append(Component.text("» Klicke hier, um ihn zu kopieren «", NamedTextColor.AQUA, TextDecoration.UNDERLINED)
+                        .clickEvent(ClickEvent.copyToClipboard(plainDump))
+                        .hoverEvent(HoverEvent.showText(Component.text("Kopiert den vollständigen Dump in deine Zwischenablage.", NamedTextColor.GRAY))));
+    }
+
 }

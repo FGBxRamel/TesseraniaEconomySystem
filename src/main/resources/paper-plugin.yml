@@ -64,3 +64,6 @@ permissions:
   tes.rechnung.anzeigen:
     description: Erlaubt das Anzeigen und Bezahlen eigener offener Rechnungen
     default: true
+  tes.admin.debug.dump:
+    description: Erlaubt das Auslesen eines Containers oder Schilds als Text-Dump zu Debugzwecken
+    default: op

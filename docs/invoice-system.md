@@ -5,13 +5,21 @@ identically by the spec). This doc covers the implementation approach for future
 `docs/commands.md` for the player-facing `/tes rechnung` usage guide (German), and
 `docs/reward-inventory.md` for where cash-outs land.
 
-## No refund window, unlike shops
+## No time-limited refund window, unlike shops — but creator-side retraction is now spec'd (pending)
 
 Stage 1 item-shop purchases have an explicit 60-second cancellable window (§3.1.1.1's UC4). The
-spec's invoice section (§3.1.1.3) has no equivalent language at all — no cancellation, expiry, or
-dispute mechanism is described anywhere for invoices. This isn't an oversight to fix; it's
-respected as-is: once created, an invoice stays `OPEN` until its target settles it, with no
-built-in way to retract or contest it.
+original invoice section (§3.1.1.3, spec v1.0) had no equivalent language at all — no
+cancellation, expiry, or dispute mechanism was described anywhere for invoices, and that absence
+was treated as deliberate: once created, an invoice stayed `OPEN` until its target settled it,
+with no built-in way to retract or contest it.
+
+The spec's v1.2 refresh (23.08.2026 PDF) adds one: the **creator** can retract a still-`OPEN`
+invoice they sent, at any time, via a new "Versendete Rechnungen" interface reachable from "Offene
+Rechnungen" — clicking a sent invoice there withdraws it, notifying both creator and target. This
+is not a symmetric counterpart to Stage 1's 60s window (no time limit, target-side settlement is
+still final and irrevocable, only the creator can act) and is **not yet implemented**: `/tes
+rechnung anzeigen` (`InvoiceGui`) currently has no sent-invoices view or retract action. Reference
+layout for both interfaces is in the creative world at -409 -12 -3392.
 
 ## `invoice_balance`: a column, not a table
 
@@ -42,6 +50,16 @@ activity**"; the only implemented delivery trigger, both here and for Stage 1's 
 notice, is `PlayerJoinEvent`. This is a known, accepted gap rather than something worth new
 infrastructure for: the only players actually affected are ones offline at invoice-creation time
 who don't log out and back in again before wanting to know.
+
+## Other v1.2 gaps: amount cap and settle notification
+
+Two more spec v1.2 additions aren't in the code yet, alongside retraction above:
+
+- `<Preis>` has no upper bound — `RechnungCommand` only constrains it to `IntegerArgumentType.integer(1)`.
+  The spec now caps it at **2304 Taler**.
+- Settling an invoice (`InvoiceEconomy.settle()`) only messages the payer (`Messages.invoiceSettled`);
+  the spec now also wants the creator notified. This should reuse the same online/offline delivery
+  split already used for invoice creation (`PendingNotificationRepository`), not new infrastructure.
 
 ## Gating
 

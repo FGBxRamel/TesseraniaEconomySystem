@@ -193,3 +193,17 @@ die andere Spieler an dich bezahlt haben) und zahlt ihn per Klick vollständig a
 Auszahlung landet als Diamanten in deinem **Belohnungsinventar** (`/tes belohnung`), nicht direkt
 in deinem Inventar. Der Barriere-Block schließt das Interface, der gelbe Pfeil blättert zur
 nächsten Seite.
+
+## `/tes debug dump <Position>` (Admin/Dev)
+
+Kein Spielerbefehl, sondern ein Werkzeug für die Entwicklung: liest einen Container (Truhe,
+Doppeltruhe, Fass, Shulkerbox) oder ein Schild an der angegebenen Position aus (Koordinaten wie
+bei `/data get block`, auch relativ mit `~`) und schickt eine kurze Zusammenfassung in den Chat,
+mit einem anklickbaren Link, der den vollständigen Inhalt (Slot-Positionen, Items, Namen, Lore)
+in die Zwischenablage kopiert. Gedacht, um die in der Kreativwelt gebauten Referenz-GUIs aus der
+Spezifikation exakt an eine Entwicklungssession weiterzugeben – siehe
+`docs/gui-reference-capture.md`.
+
+| Berechtigung | Voraussetzung |
+|---|---|
+| `tes.admin.debug.dump` | Admin (`default: op`). |

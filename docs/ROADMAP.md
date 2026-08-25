@@ -9,6 +9,7 @@ Development proceeds in stages. Each stage adds one or more significant features
 - **Permissions**: [LuckPerms](https://luckperms.net/) is a hard requirement on the target server. TES does not implement its own permission system — it only needs to define and check sufficient permission nodes (e.g. `tes.admin`, `tes.shop.create`, `tes.rechnung.erstellen`, ...). Granting/assigning nodes to players/groups is server-side LuckPerms configuration, out of scope for this plugin.
 - **Worlds**: a separate plugin already manages worlds on the server, using only standard Bukkit world APIs. Farm-world creation/reset (Stage 5) should stick to standard Bukkit world-management calls, which should coexist without conflict.
 - **GUI implementation**: originally slated to be decided at the start of Stage 3, but Stage 2's Belohnungsinventar and invoice list needed a GUI first, so the decision was pulled forward — [InvUI](https://github.com/NichtStudioCode/InvUI) was adopted there (see `docs/gui-library.md`) and Stage 3's multi-level chest interfaces should build on the same conventions.
+- **Reference GUI capture**: the spec points to fully-built reference GUIs in the creative world at exact coordinates for most GUI-heavy features. See `docs/gui-reference-capture.md` for the capture workflow (screenshot + `/tes debug dump`) used to get those reference builds in front of a session before it builds or revises the corresponding GUI.
 - **Commands**: `/tes` (and later `/bp`/`/backpack`) subcommands are real Brigadier command trees (`Commands.literal(...).then(...)`), registered via a `PluginBootstrap` (`TesBootstrap`, using `LifecycleEvents.COMMANDS`) during the bootstrap phase — not Paper's `BasicCommand` shim, and not legacy `plugin.yml`-style YAML command declarations (Paper plugins don't support those at all). This was decided in Stage 0 after `BasicCommand` shipped with broken tab-completion; follow the shape in `TesCommand`/`SpielerCommand` for new subcommands.
 - **Local dev/test server**: `mvn run-paper:install verify exec:exec@download-luckperms run-paper:run-server` (or the shared IntelliJ "Run Test Server" config in `.run/`) boots a real Paper server with the plugin and LuckPerms auto-installed. See `docs/dev-server.md`.
 
@@ -51,8 +52,21 @@ Status: `[ ]` not started
 Implements: §3.1.1.3, §1.3 (Belohnungsinventar)
 
 - Belohnungsinventar core: generic virtual per-player inventory + `/tes belohnung` command, pagination.
-- `/tes rechnung erstellen <Ziel> <Preis> <Grund>` with next-login/activity notification.
-- `/tes rechnung anzeigen` interface: open invoices list, click-to-settle (buyer → creator's virtual balance), creator cash-out (payout lands in reward inventory, hover-to-see-balance).
+- `/tes rechnung erstellen <Ziel> <Preis> <Grund>` with next-login/activity notification. Spec v1.2
+  (23.08.2026 PDF refresh) adds two constraints not yet enforced in code: a hard cap of **2304
+  Taler** on `<Preis>`, and creation restricted to **registered** players (the latter already
+  matches the current implementation's gating, see `docs/invoice-system.md`).
+- `/tes rechnung anzeigen` interface: open invoices list, click-to-settle (buyer → creator's virtual balance), creator cash-out (payout lands in reward inventory, hover-to-see-balance). Spec v1.2
+  additionally specifies a short notification to the creator when their invoice is settled — not
+  yet implemented (currently only the payer gets a confirmation message).
+- New in spec v1.2, not yet implemented: invoice **retraction**. The creator can withdraw a still-
+  open invoice they sent, via a new "Versendete Rechnungen" interface reachable from "Offene
+  Rechnungen" (clicking a sent invoice there retracts it; both creator and target get notified).
+  This is distinct from Stage 1's buyer-side 60s cancellation window — there's no time limit, and
+  only the creator can trigger it. See `docs/invoice-system.md` for the previous (now outdated)
+  "no refund window" rationale that needs revisiting once this lands.
+- Reference GUIs for both invoice interfaces ("Offene Rechnungen" / "Versendete Rechnungen") now
+  live in the creative world at **-409 -12 -3392** (new in spec v1.2; not present in v1.0).
 - Deliverable: full invoice/flea-market flow works; reward inventory exists and is reusable by later stages.
 
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
