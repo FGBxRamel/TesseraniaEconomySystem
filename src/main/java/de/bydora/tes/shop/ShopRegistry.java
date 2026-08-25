@@ -10,13 +10,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * In-memory index of every open shop, warmed from {@link ShopRepository} on enable. This is the
  * hot-path source of truth for block-position and id lookups (block-protection listeners,
  * purchase handling, command resolution) — the database is only consulted to persist changes,
- * never queried on those paths.
+ * never queried on those paths. Shop ids are unique across all worlds, so {@link #byId} is a flat
+ * index; {@link #byPosition} stays per-world since block positions naturally collide across
+ * worlds.
  */
 public final class ShopRegistry {
 
     private final ShopRepository repository;
     private final Map<String, Map<BlockPos, ShopRecord>> byPosition = new ConcurrentHashMap<>();
-    private final Map<String, Map<String, ShopRecord>> byId = new ConcurrentHashMap<>();
+    private final Map<String, ShopRecord> byId = new ConcurrentHashMap<>();
 
     public ShopRegistry(ShopRepository repository) {
         this.repository = repository;
@@ -35,7 +37,7 @@ public final class ShopRegistry {
     }
 
     public void register(ShopRecord shop) {
-        byId.computeIfAbsent(shop.world(), w -> new ConcurrentHashMap<>()).put(shop.id(), shop);
+        byId.put(shop.id(), shop);
         Map<BlockPos, ShopRecord> positions = byPosition.computeIfAbsent(shop.world(), w -> new ConcurrentHashMap<>());
         positions.put(shop.position(), shop);
         if (shop.secondaryPosition() != null) {
@@ -43,16 +45,12 @@ public final class ShopRegistry {
         }
     }
 
-    public void unregister(String world, String id) {
-        Map<String, ShopRecord> ids = byId.get(world);
-        if (ids == null) {
-            return;
-        }
-        ShopRecord shop = ids.remove(id);
+    public void unregister(String id) {
+        ShopRecord shop = byId.remove(id);
         if (shop == null) {
             return;
         }
-        Map<BlockPos, ShopRecord> positions = byPosition.get(world);
+        Map<BlockPos, ShopRecord> positions = byPosition.get(shop.world());
         if (positions != null) {
             positions.remove(shop.position());
             if (shop.secondaryPosition() != null) {
@@ -66,20 +64,19 @@ public final class ShopRegistry {
         return positions == null ? Optional.empty() : Optional.ofNullable(positions.get(position));
     }
 
-    public Optional<ShopRecord> findById(String world, String id) {
-        Map<String, ShopRecord> ids = byId.get(world);
-        return ids == null ? Optional.empty() : Optional.ofNullable(ids.get(id));
+    public Optional<ShopRecord> findById(String id) {
+        return Optional.ofNullable(byId.get(id));
     }
 
-    public boolean existsId(String world, String id) {
-        return findById(world, id).isPresent();
+    public boolean existsId(String id) {
+        return byId.containsKey(id);
     }
 
     /**
      * Every currently registered shop, across all worlds — used by {@link ShopMaintenanceTask}.
      */
     public Collection<ShopRecord> all() {
-        return byId.values().stream().flatMap(m -> m.values().stream()).toList();
+        return byId.values();
     }
 
     public List<ShopRecord> allByOwner(java.util.UUID owner) {

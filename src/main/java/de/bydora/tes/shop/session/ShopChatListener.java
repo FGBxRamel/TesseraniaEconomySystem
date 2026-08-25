@@ -168,7 +168,7 @@ public final class ShopChatListener implements Listener {
             player.sendMessage(Messages.shopIdInvalid());
             return;
         }
-        if (shopRepository.existsId(session.world(), text) || shopRegistry.existsId(session.world(), text)) {
+        if (shopRepository.existsId(text) || shopRegistry.existsId(text)) {
             player.sendMessage(Messages.shopIdTaken(text));
             return;
         }
@@ -334,7 +334,7 @@ public final class ShopChatListener implements Listener {
             ShopConversion.applyToShop(plugin, record);
             player.sendMessage(Messages.shopCreated(record.id(), record.name()));
         } else {
-            ShopRecord existing = shopRegistry.findById(session.world(), session.editingId()).orElseThrow();
+            ShopRecord existing = shopRegistry.findById(session.editingId()).orElseThrow();
             ShopRecord updated = new ShopRecord(
                     existing.id(), existing.world(), session.name(), session.item(), session.price(),
                     existing.containerType(), existing.position(), existing.secondaryPosition(),

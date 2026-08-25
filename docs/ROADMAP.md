@@ -40,7 +40,7 @@ Status: `[x]` shipped (2026-08-22, release `v0.2.0`)
 Implements: §3.1.1.1
 
 - Shop container conversion (chest, double chest, redstone chest/double, barrel, shulker + colors) with required attributes (ID, name, owner(s), position, item, price/slot) and optional teleport point.
-- `/tes shop erstellen|bearbeiten|schließen|liste <world> [id]`, chat-driven UX modeled on the BlueMap Marker plugin flow, including the >10-shops pagination behavior in `liste`.
+- `/tes shop erstellen|bearbeiten|schließen|liste [id]`, chat-driven UX modeled on the BlueMap Marker plugin flow, including the >10-shops pagination behavior in `liste`. Deviates from the spec's literal `<world>` argument: shop ids are enforced globally unique, so `erstellen` uses the player's current world and `bearbeiten`/`schließen`/`tp` resolve by id alone.
 - Purchase flow (UC4): slot click → diamond deduction/item exchange, 60s cancellable window with cooldown-overlay UX (ender-pearl-style), owner-only withdraw (post-cooldown) and restock.
 - Orphaned-shop-object cleanup + one-time player notification (UC5).
 - Transaction-completion event wired to TP/EP accrual using Stage 0's configured ratios.

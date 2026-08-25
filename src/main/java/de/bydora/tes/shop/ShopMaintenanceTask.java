@@ -100,8 +100,8 @@ public final class ShopMaintenanceTask extends BukkitRunnable {
 
     private void handleOrphan(World world, ShopRecord shop) {
         ShopEconomy.forceRefundPending(transactionRepository, shop, world);
-        shopRepository.delete(shop.world(), shop.id());
-        shopRegistry.unregister(shop.world(), shop.id());
+        shopRepository.delete(shop.id());
+        shopRegistry.unregister(shop.id());
         notifyOwners(shop);
     }
 

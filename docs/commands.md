@@ -71,9 +71,10 @@ Verwaltet eigene Item-Shops: umgewandelte Truhen, Doppeltruhen, Redstone-Truhen,
 Shulkerboxen (alle Farben), die andere Spieler direkt aus dem Container heraus bedienen können.
 Jeder Spieler darf eigene Shops verwalten – dafür ist keine Admin-Berechtigung nötig.
 
-### Shop erstellen – `/tes shop erstellen <Welt>`
+### Shop erstellen – `/tes shop erstellen`
 
-Startet eine Chat-geführte Einrichtung, angelehnt an das BlueMap-Marker-Plugin: der Server zeigt
+Der Shop wird in der Welt erstellt, in der der Spieler gerade steht. Startet eine Chat-geführte
+Einrichtung, angelehnt an das BlueMap-Marker-Plugin: der Server zeigt
 ein Menü mit allen Attributen (ID, Name, Besitzer, Position, Item, Preis, optional
 Teleportpunkt) – jede Zeile ist anklickbar und kann in **beliebiger Reihenfolge** ausgefüllt
 werden. Rote Zeilen sind noch offene Pflichtattribute, grüne Zeilen sind bereits gesetzt, graue
@@ -99,13 +100,14 @@ Shops können nicht in der Kreativwelt oder (sobald verfügbar) in Farmwelten er
 
 Erlaubte Container: Truhe, Redstone-Truhe (Trapped Chest), Fass, alle Shulkerbox-Farben.
 
-### Shop bearbeiten – `/tes shop bearbeiten <Welt> <ID>`
+### Shop bearbeiten – `/tes shop bearbeiten <ID>`
 
 Nur für Besitzer. Startet dasselbe Menü, aber nur für die veränderbaren Attribute (Name,
 Besitzer, Item, Preis, Teleportpunkt) – ID und Position werden gar nicht erst angezeigt, da sie
-nach der Erstellung feststehen.
+nach der Erstellung feststehen. Shop-IDs sind weltweit eindeutig, daher genügt die ID allein zur
+Identifikation.
 
-### Shop schließen – `/tes shop schließen <Welt> <ID>`
+### Shop schließen – `/tes shop schließen <ID>`
 
 Nur für Besitzer, die sich in der Nähe des Shops befinden. Wandelt den Container zurück in einen
 normalen Block um. Noch offene (innerhalb der 60-Sekunden-Frist stornierbare) Käufe werden dabei
@@ -118,7 +120,7 @@ und teleportiert zum jeweiligen Shop (zum gesetzten Teleportpunkt, sonst auf den
 Bei mehr als einer Seite erscheinen anklickbare Navigationsbuttons; eine Seite kann auch direkt
 per `/tes shop liste <Seite>` angesprungen werden.
 
-### Zu einem Shop teleportieren – `/tes shop tp <Welt> <ID>`
+### Zu einem Shop teleportieren – `/tes shop tp <ID>`
 
 Nur für Besitzer. Teleportiert direkt zum angegebenen Shop (zum gesetzten Teleportpunkt, sonst
 sicher oberhalb des Containers, um ein Ersticken im Block zu vermeiden) – derselbe Sprung, den

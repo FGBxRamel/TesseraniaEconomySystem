@@ -128,7 +128,7 @@ public final class Messages {
     }
 
     public static Component shopIdTaken(String id) {
-        return Component.text("Die ID \"" + id + "\" ist in dieser Welt bereits vergeben.", NamedTextColor.RED);
+        return Component.text("Die ID \"" + id + "\" ist bereits vergeben.", NamedTextColor.RED);
     }
 
     public static Component shopNoFieldArmed() {
@@ -238,7 +238,7 @@ public final class Messages {
     }
 
     public static Component shopNotFound(String id) {
-        return Component.text("Kein Shop mit der ID \"" + id + "\" in dieser Welt gefunden.", NamedTextColor.RED);
+        return Component.text("Kein Shop mit der ID \"" + id + "\" gefunden.", NamedTextColor.RED);
     }
 
     public static Component shopNotOwner() {
@@ -263,7 +263,7 @@ public final class Messages {
 
     public static Component shopListEntry(String id, String world, String name, String item, int price) {
         Component entry = Component.text(id + " — " + name + " (" + item + " | " + price + " Taler/Slot)", NamedTextColor.AQUA)
-                .clickEvent(ClickEvent.runCommand("/tes shop tp " + world + " " + id))
+                .clickEvent(ClickEvent.runCommand("/tes shop tp " + id))
                 .hoverEvent(HoverEvent.showText(Component.text("Klicken zum Teleportieren (Welt: " + world + ")", NamedTextColor.GRAY)));
         return entry;
     }

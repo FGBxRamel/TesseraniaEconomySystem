@@ -228,7 +228,14 @@ final class SchemaMigrator {
             "CREATE INDEX IF NOT EXISTS idx_invoices_open_target ON invoices(target_uuid, state, created_at)",
             // Stage 2 v1.2: invoice retraction backs a symmetric "Versendete Rechnungen" list
             // (open invoices by creator), same access pattern as the target-side index above.
-            "CREATE INDEX IF NOT EXISTS idx_invoices_open_creator ON invoices(creator_uuid, state, created_at)"
+            "CREATE INDEX IF NOT EXISTS idx_invoices_open_creator ON invoices(creator_uuid, state, created_at)",
+            // Stage 2 v1.3: shop IDs are now globally unique rather than unique-per-world, so
+            // /tes shop bearbeiten|schließen|tp no longer need a <world> argument to disambiguate.
+            // The (world, id) primary key is left as-is (already covered by this index anyway,
+            // and reworking it would mean rebuilding shop_owners/shop_transactions' composite
+            // foreign keys for no benefit) — this index is what actually enforces the new
+            // invariant.
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_shops_id_unique ON shops(id)"
     );
 
     private SchemaMigrator() {
