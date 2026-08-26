@@ -3,6 +3,7 @@ package de.bydora.tes;
 import de.bydora.tes.command.belohnung.BelohnungCommand;
 import de.bydora.tes.command.debug.DebugCommand;
 import de.bydora.tes.command.punkte.ErfahrungspunkteCommand;
+import de.bydora.tes.command.punkte.PunkteAliasCommand;
 import de.bydora.tes.command.punkte.TreuepunkteCommand;
 import de.bydora.tes.command.rechnung.RechnungCommand;
 import de.bydora.tes.command.shop.ShopCommand;
@@ -28,6 +29,7 @@ public final class TesBootstrap implements PluginBootstrap {
             commands.registrar().register(SpielerCommand.build().build(), "Spielerverwaltung des Tesserania Economy Systems");
             commands.registrar().register(ShopCommand.build().build(), "Item-Shop-Verwaltung des Tesserania Economy Systems");
             commands.registrar().register(TreuepunkteCommand.build().build(), "Treuepunkteverwaltung des Tesserania Economy Systems");
+            commands.registrar().register(PunkteAliasCommand.build().build(), "Treuepunkteshop des Tesserania Economy Systems");
             commands.registrar().register(ErfahrungspunkteCommand.build().build(), "Erfahrungspunkteverwaltung des Tesserania Economy Systems");
             commands.registrar().register(BelohnungCommand.build().build(), "Belohnungsinventar des Tesserania Economy Systems");
             commands.registrar().register(RechnungCommand.build().build(), "Rechnungsverwaltung des Tesserania Economy Systems");

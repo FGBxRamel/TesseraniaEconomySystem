@@ -21,7 +21,9 @@ import java.util.function.ToIntFunction;
 /**
  * Builds the {@code add|remove|set <Name> <Anzahl>} subtree shared by {@code /treuepunkte}
  * and {@code /erfahrungspunkte} (spec §1.4) — the two commands differ only in which
- * {@link PlayerRepository} counter they read/write and their permission/message labels.
+ * {@link PlayerRepository} counter they read/write and their permission/message labels. Each
+ * command's bare (no-args) behavior is its own concern, attached separately by the caller
+ * ({@code /treuepunkte} opens the Treuepunkteshop, {@code /erfahrungspunkte} prints a usage hint).
  */
 final class PunkteCommandFactory {
 
@@ -41,18 +43,15 @@ final class PunkteCommandFactory {
         void accept(PlayerRepository repository, UUID uuid, int amount);
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> build(String literal, String permissionPrefix, String label, Counter counter) {
-        return Commands.literal(literal)
-                .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/" + literal + " <add|remove|set> <Name> <Anzahl>"));
-                    return Command.SINGLE_SUCCESS;
-                })
-                .then(action("add", literal, permissionPrefix, label, counter))
-                .then(action("remove", literal, permissionPrefix, label, counter))
-                .then(action("set", literal, permissionPrefix, label, counter));
+    static LiteralArgumentBuilder<CommandSourceStack> attachAdminActions(
+            LiteralArgumentBuilder<CommandSourceStack> root, String permissionPrefix, String label, Counter counter) {
+        return root
+                .then(action("add", permissionPrefix, label, counter))
+                .then(action("remove", permissionPrefix, label, counter))
+                .then(action("set", permissionPrefix, label, counter));
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> action(String action, String literal, String permissionPrefix, String label, Counter counter) {
+    private static LiteralArgumentBuilder<CommandSourceStack> action(String action, String permissionPrefix, String label, Counter counter) {
         int minAmount = action.equals("set") ? 0 : 1;
         return Commands.literal(action)
                 .requires(source -> source.getSender().hasPermission(permissionPrefix + "." + action))
@@ -83,7 +82,7 @@ final class PunkteCommandFactory {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static PlayerRepository repository() {
+    static PlayerRepository repository() {
         return TesseraniaEconomySystem.getPlugin(TesseraniaEconomySystem.class).playerRepository();
     }
 }

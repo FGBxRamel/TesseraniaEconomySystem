@@ -57,4 +57,28 @@ public interface PlayerRepository {
      * pre-reset value — the amount to hand out as diamonds on cash-out.
      */
     int cashOutInvoiceBalance(UUID uuid);
+
+    enum SpendResult {
+        SPENT,
+        INSUFFICIENT
+    }
+
+    /**
+     * Atomically deducts {@code cost} Treuepunkte from {@code uuid} if they have enough,
+     * otherwise leaves their balance untouched (spec §3.2: every loyalty-shop reward purchase
+     * must go through this rather than {@link #addTreuepunkte} with a negative delta, which
+     * would let two concurrent purchases both succeed against the same balance).
+     */
+    SpendResult spendTreuepunkte(UUID uuid, int cost);
+
+    enum TransferResult {
+        TRANSFERRED,
+        INSUFFICIENT
+    }
+
+    /**
+     * Atomically moves {@code amount} Treuepunkte from {@code from} to {@code to} if {@code from}
+     * has enough, otherwise leaves both balances untouched ({@code /treuepunkte übertragen}).
+     */
+    TransferResult transferTreuepunkte(UUID from, UUID to, int amount);
 }

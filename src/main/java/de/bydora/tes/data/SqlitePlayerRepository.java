@@ -159,6 +159,82 @@ public final class SqlitePlayerRepository implements PlayerRepository {
         });
     }
 
+    @Override
+    public SpendResult spendTreuepunkte(UUID uuid, int cost) {
+        return database.execute(() -> {
+            var connection = database.connection();
+            connection.setAutoCommit(false);
+            try {
+                int balance = currentTreuepunkte(connection, uuid);
+                if (balance < cost) {
+                    connection.rollback();
+                    return SpendResult.INSUFFICIENT;
+                }
+                try (PreparedStatement update = connection.prepareStatement(
+                        "UPDATE players SET treuepunkte = treuepunkte - ?, updated_at = ? WHERE uuid = ?")) {
+                    update.setInt(1, cost);
+                    update.setLong(2, System.currentTimeMillis());
+                    update.setString(3, uuid.toString());
+                    update.executeUpdate();
+                }
+                connection.commit();
+                return SpendResult.SPENT;
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        });
+    }
+
+    @Override
+    public TransferResult transferTreuepunkte(UUID from, UUID to, int amount) {
+        return database.execute(() -> {
+            var connection = database.connection();
+            connection.setAutoCommit(false);
+            try {
+                int balance = currentTreuepunkte(connection, from);
+                if (balance < amount) {
+                    connection.rollback();
+                    return TransferResult.INSUFFICIENT;
+                }
+                long now = System.currentTimeMillis();
+                try (PreparedStatement debit = connection.prepareStatement(
+                        "UPDATE players SET treuepunkte = treuepunkte - ?, updated_at = ? WHERE uuid = ?")) {
+                    debit.setInt(1, amount);
+                    debit.setLong(2, now);
+                    debit.setString(3, from.toString());
+                    debit.executeUpdate();
+                }
+                try (PreparedStatement credit = connection.prepareStatement(
+                        "UPDATE players SET treuepunkte = treuepunkte + ?, updated_at = ? WHERE uuid = ?")) {
+                    credit.setInt(1, amount);
+                    credit.setLong(2, now);
+                    credit.setString(3, to.toString());
+                    credit.executeUpdate();
+                }
+                connection.commit();
+                return TransferResult.TRANSFERRED;
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        });
+    }
+
+    private static int currentTreuepunkte(java.sql.Connection connection, UUID uuid) throws SQLException {
+        try (PreparedStatement select = connection.prepareStatement(
+                "SELECT treuepunkte FROM players WHERE uuid = ?")) {
+            select.setString(1, uuid.toString());
+            try (ResultSet resultSet = select.executeQuery()) {
+                return resultSet.next() ? resultSet.getInt("treuepunkte") : 0;
+            }
+        }
+    }
+
     private static PlayerRecord toRecord(ResultSet resultSet) throws SQLException {
         return new PlayerRecord(
                 UUID.fromString(resultSet.getString("uuid")),

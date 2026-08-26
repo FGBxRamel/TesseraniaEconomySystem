@@ -431,6 +431,30 @@ public final class Messages {
         return Component.text("Du hast keinen Kontostand zum Auszahlen.", NamedTextColor.RED);
     }
 
+    // ---- Treueshop (/punkte, /treuepunkte, spec §3.2) ----
+
+    public static Component treueshopNotEligible() {
+        return Component.text("Du musst im Belohnungssystem registriert und nicht pausiert sein, um den "
+                + "Treuepunkteshop zu nutzen.", NamedTextColor.RED);
+    }
+
+    public static Component treueshopInsufficientTp() {
+        return Component.text("Du hast nicht genügend Treuepunkte für diese Aktion.", NamedTextColor.RED);
+    }
+
+    public static Component treueshopTransferSelfTarget() {
+        return Component.text("Du kannst Treuepunkte nicht an dich selbst übertragen.", NamedTextColor.RED);
+    }
+
+    public static Component treueshopTransferSent(String targetName, int amount, int newBalance) {
+        return Component.text("Du hast " + amount + " Treuepunkte an " + targetName + " übertragen. "
+                + "Neuer Kontostand: " + newBalance, NamedTextColor.GREEN);
+    }
+
+    public static Component treueshopTransferReceived(String senderName, int amount) {
+        return Component.text(senderName + " hat dir " + amount + " Treuepunkte übertragen.", NamedTextColor.YELLOW);
+    }
+
     // ---- Debug (/debug dump, siehe docs/gui-reference-capture.md) ----
 
     public static Component debugDumpUnsupported() {
