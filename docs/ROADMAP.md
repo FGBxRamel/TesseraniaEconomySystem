@@ -48,7 +48,7 @@ Implements: §3.1.1.1
 - Deliverable: players can trade through shops end-to-end; points silently accrue; nothing to spend them on yet.
 
 ### Stage 2 — Dienstleistungen / Trödelmarkt + Reward Inventory
-Status: `[ ]` not started
+Status: `[x]` shipped (2026-08-26, release `v0.3.0`)
 Implements: §3.1.1.3, §1.3 (Belohnungsinventar)
 
 - Belohnungsinventar core: generic virtual per-player inventory + `/belohnung` command, pagination.
@@ -68,8 +68,7 @@ Implements: §3.1.1.3, §1.3 (Belohnungsinventar)
 - Reference GUIs for both invoice interfaces ("Offene Rechnungen" / "Versendete Rechnungen") live
   in the creative world at **-409 -12 -3392** (new in spec v1.2; not present in v1.0).
 - Deliverable: full invoice/flea-market flow works; reward inventory exists and is reusable by later stages.
-  Implementation and local build are done; still needs the user's in-game testing pass before this
-  stage is ticked off.
+  In-game testing pass completed and approved.
 
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
 Status: `[ ]` not started
