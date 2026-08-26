@@ -125,6 +125,7 @@ public final class TreueshopGui {
             case "spawner" -> Optional.of(TreueshopItemGrants::grantSpawner);
             case "erntewelt" -> Optional.of(TreueshopItemGrants::grantErntewelt);
             case "glutzone" -> Optional.of(TreueshopItemGrants::grantGlutzone);
+            case "prozessverstaerker" -> Optional.of(TreueshopItemGrants::grantProzessverstaerker);
             default -> Optional.empty();
         };
     }

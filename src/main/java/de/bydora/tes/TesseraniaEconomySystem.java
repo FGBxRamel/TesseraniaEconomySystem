@@ -7,6 +7,10 @@ import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.data.SqlitePlayerRepository;
 import de.bydora.tes.invoice.InvoiceRepository;
 import de.bydora.tes.invoice.SqliteInvoiceRepository;
+import de.bydora.tes.prozessverstaerker.ProzessverstaerkerBoostRepository;
+import de.bydora.tes.prozessverstaerker.ProzessverstaerkerListener;
+import de.bydora.tes.prozessverstaerker.ProzessverstaerkerSweepTask;
+import de.bydora.tes.prozessverstaerker.SqliteProzessverstaerkerBoostRepository;
 import de.bydora.tes.reward.RewardInventoryRepository;
 import de.bydora.tes.reward.RewardInventoryService;
 import de.bydora.tes.reward.SqliteRewardInventoryRepository;
@@ -43,10 +47,12 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private RewardInventoryRepository rewardInventoryRepository;
     private RewardInventoryService rewardInventoryService;
     private InvoiceRepository invoiceRepository;
+    private ProzessverstaerkerBoostRepository prozessverstaerkerBoostRepository;
     private ShopRegistry shopRegistry;
     private ShopSessionManager shopSessionManager;
     private ShopChatListener shopChatListener;
     private BukkitTask shopMaintenanceTask;
+    private BukkitTask prozessverstaerkerSweepTask;
 
     @Override
     public void onEnable() {
@@ -62,6 +68,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         rewardInventoryRepository = new SqliteRewardInventoryRepository(database);
         rewardInventoryService = new RewardInventoryService(rewardInventoryRepository);
         invoiceRepository = new SqliteInvoiceRepository(database);
+        prozessverstaerkerBoostRepository = new SqliteProzessverstaerkerBoostRepository(database);
 
         shopRegistry = new ShopRegistry(shopRepository);
         shopRegistry.load();
@@ -73,16 +80,23 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(shopChatListener, this);
         Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository, playerRepository), this);
         Bukkit.getPluginManager().registerEvents(new PendingNotificationListener(pendingNotificationRepository), this);
+        Bukkit.getPluginManager().registerEvents(new ProzessverstaerkerListener(this, prozessverstaerkerBoostRepository), this);
 
         ShopMaintenanceTask maintenanceTask = new ShopMaintenanceTask(this, shopRegistry, shopRepository,
                 shopTransactionRepository, playerRepository, pendingNotificationRepository, tesConfig);
         shopMaintenanceTask = maintenanceTask.runTaskTimer(this, 100L, 100L);
+
+        ProzessverstaerkerSweepTask sweepTask = new ProzessverstaerkerSweepTask(prozessverstaerkerBoostRepository);
+        prozessverstaerkerSweepTask = sweepTask.runTaskTimer(this, 100L, 100L);
     }
 
     @Override
     public void onDisable() {
         if (shopMaintenanceTask != null) {
             shopMaintenanceTask.cancel();
+        }
+        if (prozessverstaerkerSweepTask != null) {
+            prozessverstaerkerSweepTask.cancel();
         }
         if (database != null) {
             database.close();
@@ -119,6 +133,10 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
     public InvoiceRepository invoiceRepository() {
         return invoiceRepository;
+    }
+
+    public ProzessverstaerkerBoostRepository prozessverstaerkerBoostRepository() {
+        return prozessverstaerkerBoostRepository;
     }
 
     public ShopRegistry shopRegistry() {

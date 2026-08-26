@@ -235,7 +235,21 @@ final class SchemaMigrator {
             // and reworking it would mean rebuilding shop_owners/shop_transactions' composite
             // foreign keys for no benefit) — this index is what actually enforces the new
             // invariant.
-            "CREATE UNIQUE INDEX IF NOT EXISTS idx_shops_id_unique ON shops(id)"
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_shops_id_unique ON shops(id)",
+            // Stage 3: Prozessverstärker (spec §3.2.1.1, Belohnung 1) — one row per boosted
+            // furnace/beehive block, natural-keyed on its position since a block only ever has
+            // one active boost (re-use extends expires_at rather than adding a second row).
+            """
+            CREATE TABLE IF NOT EXISTS prozessverstaerker_boosts (
+                world      TEXT NOT NULL,
+                x          INTEGER NOT NULL,
+                y          INTEGER NOT NULL,
+                z          INTEGER NOT NULL,
+                kind       TEXT NOT NULL,
+                expires_at INTEGER NOT NULL,
+                PRIMARY KEY (world, x, y, z)
+            )
+            """
     );
 
     private SchemaMigrator() {
