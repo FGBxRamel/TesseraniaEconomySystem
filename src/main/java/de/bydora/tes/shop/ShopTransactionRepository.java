@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public interface ShopTransactionRepository {
 
-    ShopTransactionRecord insertPending(String shopWorld, String shopId, int slot, UUID buyer, ItemStack item, int price, long purchasedAt);
+    ShopTransactionRecord insertPending(String shopWorld, String shopId, int slot, UUID buyer, ItemStack item, int price, int staatskasseFunded, long purchasedAt);
 
     /**
      * The buyer's own still-{@code PENDING} transaction occupying {@code slot}, if any — used to

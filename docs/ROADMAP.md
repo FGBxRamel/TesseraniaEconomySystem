@@ -83,7 +83,7 @@ the other way around. Apply the same registered/paused distinction when building
 (e.g. loyalty-shop redemptions).
 
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
-Status: `[ ]` in progress — main interface, TP transfer, and 11 of 12 rewards shipped (2026-08-27, not yet released as a version bump)
+Status: `[x]` shipped (2026-08-27, not yet released as a version bump)
 Implements: §3.2
 
 GUI library decision (InvUI) was made in Stage 2, not here — see the "GUI implementation" note
@@ -97,10 +97,11 @@ reference build.
 - [x] Segen der Zwerge (haste) and Kraftelixier (potion bundle) — merged (PR #15).
 - [x] XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, Erntewelt/Glutzone item stubs, Spawner.
 - [x] Prozessverstärker (furnace/beehive boost).
-- [ ] Handelsbonus (2-player-max, staatskasse-funded discount; its "on cooldown" state is a
+- [x] Handelsbonus (2-player-max, staatskasse-funded discount; its "on cooldown" state is a
       plain re-lored `DIAMOND`, not a custom-model-data swap as originally assumed — confirmed
       against the reference build).
-- Deliverable: loyalty shop fully spendable except for the farm-world destination itself.
+- Deliverable: loyalty shop fully spendable except for the farm-world destination itself
+  (Erntewelt/Glutzone grant items but don't teleport yet — Stage 5).
 - **Resolved spec gap** (was: unspecified): §2's requirements overview names a
   `/(treue)punkte übertragen` command with no syntax/cost/constraints given anywhere else in the
   document. The user supplied the missing semantics out-of-band (2026-08-26):

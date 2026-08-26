@@ -91,6 +91,10 @@ public final class TreueshopGui {
     }
 
     private static Item rewardItem(TesseraniaEconomySystem plugin, TreueshopReward reward) {
+        if ("handelsbonus".equals(reward.costConfigId())) {
+            return TreueshopHandelsbonus.item(plugin, reward);
+        }
+
         Item.Builder<?> builder = Item.builder().setItemProvider(TreueshopComponents.rewardIcon(plugin, reward));
 
         if (reward.opensSubInterface()) {

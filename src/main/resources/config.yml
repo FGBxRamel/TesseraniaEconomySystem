@@ -41,3 +41,16 @@ treueshop:
     # Dauer eines einzelnen Boosts (Ofen 2x Geschwindigkeit / Bienenstock 2x Honigproduktion).
     # Mehrfache Nutzung auf demselben Block addiert diese Dauer zur verbleibenden Zeit.
     boost-minutes: 15
+  handelsbonus:
+    # Wie viele Diamanten Rabatt eine Aktivierung insgesamt gewährt.
+    discount-diamonds: 5
+    # Zufällige Cooldown-Spanne (in Tagen) bis dieselbe Belohnung erneut ausgelöst werden kann.
+    cooldown-min-days: 21
+    cooldown-max-days: 28
+    staatskasse:
+      # Truhe, aus der die Rabatt-Diamanten entnommen werden. Leer/unkonfiguriert lassen bedeutet:
+      # Handelsbonus ist kaufbar, gewährt aber noch keinen Rabatt, bis eine Welt gesetzt ist.
+      world: ""
+      x: 0
+      y: 0
+      z: 0

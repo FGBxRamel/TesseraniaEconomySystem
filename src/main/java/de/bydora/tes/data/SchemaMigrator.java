@@ -249,6 +249,23 @@ final class SchemaMigrator {
                 expires_at INTEGER NOT NULL,
                 PRIMARY KEY (world, x, y, z)
             )
+            """,
+            // Stage 3: Handelsbonus (spec §3.2.1.1, Belohnung 4). staatskasse_funded tracks how
+            // much of a shop purchase's price was covered by the Staatskasse rather than the
+            // buyer, so completion (TP/EP) and a within-window refund can both exclude it -
+            // existing rows default to 0 (never discounted).
+            "ALTER TABLE shop_transactions ADD COLUMN staatskasse_funded INTEGER NOT NULL DEFAULT 0",
+            // One row per player who has ever triggered Handelsbonus and is still within its
+            // post-trigger cooldown (spec: max 2 concurrent holders) or still has unused discount
+            // (spec: "Nicht verbrauchte Werte bleiben erhalten" - discount balance itself never
+            // expires, only re-triggering is cooldown-gated) - see docs/treueshop-system.md.
+            """
+            CREATE TABLE IF NOT EXISTS handelsbonus_holders (
+                uuid               TEXT PRIMARY KEY,
+                discount_remaining INTEGER NOT NULL,
+                cooldown_until     INTEGER NOT NULL,
+                FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
+            )
             """
     );
 

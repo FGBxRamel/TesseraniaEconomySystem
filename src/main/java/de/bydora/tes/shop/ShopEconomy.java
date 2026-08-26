@@ -49,7 +49,7 @@ public final class ShopEconomy {
             });
             Player buyer = Bukkit.getPlayer(transaction.buyerUuid());
             if (buyer != null) {
-                buyer.getInventory().addItem(new ItemStack(Material.DIAMOND, transaction.price()));
+                buyer.getInventory().addItem(new ItemStack(Material.DIAMOND, transaction.buyerPaid()));
             }
             transactionRepository.markRefunded(transaction.id(), System.currentTimeMillis());
         }

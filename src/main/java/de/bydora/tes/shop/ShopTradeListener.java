@@ -1,7 +1,11 @@
 package de.bydora.tes.shop;
 
+import de.bydora.tes.config.TesConfig;
 import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.data.PlayerRepository;
+import de.bydora.tes.handelsbonus.HandelsbonusHolderRecord;
+import de.bydora.tes.handelsbonus.HandelsbonusRepository;
+import de.bydora.tes.handelsbonus.Staatskasse;
 import de.bydora.tes.util.DiamondEconomy;
 import de.bydora.tes.util.Messages;
 import io.papermc.paper.datacomponent.DataComponentTypes;
@@ -45,13 +49,17 @@ public final class ShopTradeListener implements Listener {
     private final ShopRegistry shopRegistry;
     private final ShopTransactionRepository transactionRepository;
     private final PlayerRepository playerRepository;
+    private final HandelsbonusRepository handelsbonusRepository;
+    private final TesConfig config;
 
     public ShopTradeListener(Plugin plugin, ShopRegistry shopRegistry, ShopTransactionRepository transactionRepository,
-                              PlayerRepository playerRepository) {
+                              PlayerRepository playerRepository, HandelsbonusRepository handelsbonusRepository, TesConfig config) {
         this.plugin = plugin;
         this.shopRegistry = shopRegistry;
         this.transactionRepository = transactionRepository;
         this.playerRepository = playerRepository;
+        this.handelsbonusRepository = handelsbonusRepository;
+        this.config = config;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -124,20 +132,51 @@ public final class ShopTradeListener implements Listener {
             return;
         }
         int price = shop.price();
-        if (DiamondEconomy.countDiamonds(buyer) < price) {
+        int discount = withdrawHandelsbonusDiscount(buyer.getUniqueId(), price);
+        int amountToPay = price - discount;
+        if (DiamondEconomy.countDiamonds(buyer) < amountToPay) {
             buyer.sendMessage(Messages.notEnoughTaler());
             return;
         }
 
         ItemStack sold = clicked.clone();
-        DiamondEconomy.removeDiamonds(buyer, price);
+        DiamondEconomy.removeDiamonds(buyer, amountToPay);
+        if (discount > 0) {
+            notifyHandelsbonusUsed(buyer, discount);
+        }
         NamespacedKey cooldownGroup = cooldownGroup(shop, slot);
         ItemStack pendingDiamonds = new ItemStack(Material.DIAMOND, price);
         pendingDiamonds.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(REFUND_WINDOW_TICKS / 20f).cooldownGroup(cooldownGroup));
         shopInventory.setItem(slot, pendingDiamonds);
         giveItem(buyer, sold.clone());
-        transactionRepository.insertPending(shop.world(), shop.id(), slot, buyer.getUniqueId(), sold, price, System.currentTimeMillis());
+        transactionRepository.insertPending(shop.world(), shop.id(), slot, buyer.getUniqueId(), sold, price, discount, System.currentTimeMillis());
         buyer.setCooldown(cooldownGroup, REFUND_WINDOW_TICKS);
+    }
+
+    /**
+     * Applies the buyer's Handelsbonus (spec §3.2.1.1, Belohnung 4), if any: withdraws up to
+     * their remaining discount from the configured Staatskasse chest (capped at what's actually
+     * in there — see {@link Staatskasse#withdraw}) and debits exactly that much from their
+     * tracked balance, so the two always stay in sync.
+     */
+    private int withdrawHandelsbonusDiscount(UUID buyerUuid, int price) {
+        Optional<HandelsbonusHolderRecord> holder = handelsbonusRepository.find(buyerUuid);
+        if (holder.isEmpty() || holder.get().discountRemaining() <= 0) {
+            return 0;
+        }
+        int wanted = Math.min(price, holder.get().discountRemaining());
+        int funded = Staatskasse.withdraw(config, wanted);
+        if (funded > 0) {
+            handelsbonusRepository.consumeDiscount(buyerUuid, funded);
+        }
+        return funded;
+    }
+
+    private void notifyHandelsbonusUsed(Player buyer, int discount) {
+        int remaining = handelsbonusRepository.find(buyer.getUniqueId()).map(HandelsbonusHolderRecord::discountRemaining).orElse(0);
+        buyer.sendMessage(remaining > 0
+                ? Messages.handelsbonusDiscountApplied(discount, remaining)
+                : Messages.handelsbonusDiscountExhausted(discount));
     }
 
     private boolean isPaused(UUID uuid) {
@@ -235,7 +274,7 @@ public final class ShopTradeListener implements Listener {
         }
         removeMatching(buyer, stack -> stack.isSimilar(item), item.getAmount());
         shopInventory.setItem(transaction.slot(), item.clone());
-        giveItem(buyer, new ItemStack(Material.DIAMOND, transaction.price()));
+        giveItem(buyer, new ItemStack(Material.DIAMOND, transaction.buyerPaid()));
         transactionRepository.markRefunded(transaction.id(), System.currentTimeMillis());
     }
 
