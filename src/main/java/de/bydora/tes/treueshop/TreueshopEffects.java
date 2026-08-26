@@ -33,4 +33,13 @@ public final class TreueshopEffects {
         player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, durationTicks, 0));
         player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, durationTicks, 0));
     }
+
+    /**
+     * Belohnung 2.1-2.4, the XP-Terminal boosts: grants raw vanilla Minecraft experience points
+     * (not TES's own Erfahrungspunkte counter — see {@link TreueshopRewardCatalog}'s Javadoc on
+     * {@code XP_TERMINAL_REWARDS} for why).
+     */
+    public static void applyXpBoost(Player player, int amount) {
+        player.giveExp(amount);
+    }
 }

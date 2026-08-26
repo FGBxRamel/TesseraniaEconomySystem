@@ -1,7 +1,6 @@
 package de.bydora.tes.treueshop;
 
 import de.bydora.tes.TesseraniaEconomySystem;
-import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.gui.CustomHeads;
 import de.bydora.tes.util.Messages;
 import net.kyori.adventure.text.Component;
@@ -15,10 +14,8 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.window.Window;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -28,9 +25,9 @@ import java.util.function.BiConsumer;
  * -406 -11 -3390: a 9x4 grid of the 12 top-level rewards from {@link TreueshopRewardCatalog}, a
  * sunflower showing the caller's Treuepunkte balance, and a "Levelinterface" button. That button
  * is a documented no-op until Stage 4 builds the level interface — same pattern as
- * {@link de.bydora.tes.reward.RewardInventoryGui}'s "⮜ Levelinterface" item. Only the direct-effect
- * rewards (Segen der Zwerge, Kraftelixier) are purchasable so far; the rest render with real
- * name/lore/cost but no click handler yet, pending later Stage 3 branches.
+ * {@link de.bydora.tes.reward.RewardInventoryGui}'s "⮜ Levelinterface" item. Rewards with no cost
+ * of their own open a sub-interface ({@link #openSubInterface}); the rest purchase directly via
+ * {@link #directEffect}. Only Prozessverstärker and Handelsbonus aren't wired up yet.
  */
 public final class TreueshopGui {
 
@@ -66,8 +63,8 @@ public final class TreueshopGui {
 
         Gui.Builder<?, ?> builder = Gui.builder()
                 .setStructure(structure)
-                .addIngredient(FILLER, Item.simple(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(Component.text(" "))))
-                .addIngredient(BALANCE, balanceItem(plugin))
+                .addIngredient(FILLER, TreueshopComponents.filler(Material.GRAY_STAINED_GLASS_PANE))
+                .addIngredient(BALANCE, TreueshopComponents.balanceItem(plugin))
                 .addIngredient(LEVEL_INTERFACE, levelInterfaceItem());
         for (Map.Entry<Character, TreueshopReward> entry : rewardsByKey.entrySet()) {
             builder.addIngredient(entry.getKey(), rewardItem(plugin, entry.getValue()));
@@ -79,22 +76,6 @@ public final class TreueshopGui {
                 .setUpperGui(builder.build())
                 .build()
                 .open();
-    }
-
-    private static Item balanceItem(TesseraniaEconomySystem plugin) {
-        return Item.builder()
-                .setItemProvider(viewer -> new ItemBuilder(Material.SUNFLOWER)
-                        .setName(Component.text("Treuepunkte (TP)", NamedTextColor.YELLOW, TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false))
-                        .addLoreLines(
-                                Component.text(currentTreuepunkte(plugin, viewer) + " Punkte", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false),
-                                Component.empty(),
-                                Component.text("'Treuepunkte können passiv beim Einkauf", NamedTextColor.GRAY, TextDecoration.ITALIC),
-                                Component.text("in anderen Spieler-Shops generiert werden.'", NamedTextColor.GRAY, TextDecoration.ITALIC)))
-                .build();
-    }
-
-    private static int currentTreuepunkte(TesseraniaEconomySystem plugin, Player viewer) {
-        return plugin.playerRepository().findByUuid(viewer.getUniqueId()).map(PlayerRecord::treuepunkte).orElse(0);
     }
 
     private static Item levelInterfaceItem() {
@@ -110,23 +91,28 @@ public final class TreueshopGui {
     }
 
     private static Item rewardItem(TesseraniaEconomySystem plugin, TreueshopReward reward) {
-        List<Component> lore = new ArrayList<>();
-        if (reward.hasCost()) {
-            int cost = plugin.tesConfig().treueshopRewardCost(reward.costConfigId(), reward.defaultCost());
-            lore.add(Component.text("Kosten: " + cost + " TP", NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false));
-            lore.add(Component.empty());
+        Item.Builder<?> builder = Item.builder().setItemProvider(TreueshopComponents.rewardIcon(plugin, reward));
+
+        if (reward.opensSubInterface()) {
+            builder.addClickHandler((item, click) -> openSubInterface(plugin, click.player(), reward.subInterfaceId()));
+        } else {
+            directEffect(reward).ifPresent(effect ->
+                    builder.addClickHandler((item, click) -> purchase(plugin, click.player(), reward, effect,
+                            () -> open(plugin, click.player()))));
         }
-        lore.addAll(reward.flavorLore());
-
-        Item.Builder<?> builder = Item.builder()
-                .setItemProvider(new ItemBuilder(reward.icon())
-                        .setName(reward.title())
-                        .addLoreLines(lore));
-
-        directEffect(reward).ifPresent(effect ->
-                builder.addClickHandler((item, click) -> purchase(plugin, click.player(), reward, effect)));
 
         return builder.build();
+    }
+
+    private static void openSubInterface(TesseraniaEconomySystem plugin, Player player, String subInterfaceId) {
+        switch (subInterfaceId) {
+            case "xp-terminal" -> TreueshopXpTerminalGui.open(plugin, player);
+            case "mo1" -> TreueshopMobBundleGui.open(plugin, player, TreueshopMobBundleCatalog.FREUNDLICHE_MOBS_I);
+            case "mo2" -> TreueshopMobBundleGui.open(plugin, player, TreueshopMobBundleCatalog.FREUNDLICHE_MOBS_II);
+            case "mo3" -> TreueshopMobBundleGui.open(plugin, player, TreueshopMobBundleCatalog.FEINDLICHE_MOBS_I);
+            case "mo4" -> TreueshopMobBundleGui.open(plugin, player, TreueshopMobBundleCatalog.FEINDLICHE_MOBS_II);
+            default -> throw new IllegalStateException("Unknown Treueshop sub-interface: " + subInterfaceId);
+        }
     }
 
     private static Optional<BiConsumer<TesseraniaEconomySystem, Player>> directEffect(TreueshopReward reward) {
@@ -136,12 +122,20 @@ public final class TreueshopGui {
         return switch (reward.costConfigId()) {
             case "segen-der-zwerge" -> Optional.of(TreueshopEffects::applySegenDerZwerge);
             case "kraftelixier" -> Optional.of(TreueshopEffects::applyKraftelixier);
+            case "spawner" -> Optional.of(TreueshopItemGrants::grantSpawner);
+            case "erntewelt" -> Optional.of(TreueshopItemGrants::grantErntewelt);
+            case "glutzone" -> Optional.of(TreueshopItemGrants::grantGlutzone);
             default -> Optional.empty();
         };
     }
 
-    private static void purchase(TesseraniaEconomySystem plugin, Player player, TreueshopReward reward,
-            BiConsumer<TesseraniaEconomySystem, Player> effect) {
+    /**
+     * Spends {@code reward}'s cost and applies its effect, notifying the player either way.
+     * {@code onSuccess} lets each Treueshop screen decide what to reopen (itself, or the main
+     * interface) to refresh the balance display.
+     */
+    static void purchase(TesseraniaEconomySystem plugin, Player player, TreueshopReward reward,
+            BiConsumer<TesseraniaEconomySystem, Player> effect, Runnable onSuccess) {
         int cost = plugin.tesConfig().treueshopRewardCost(reward.costConfigId(), reward.defaultCost());
         TreueshopRewardService.PurchaseResult result = TreueshopRewardService.purchase(
                 plugin, player, cost, () -> effect.accept(plugin, player));
@@ -151,6 +145,6 @@ public final class TreueshopGui {
         }
         String rewardName = PlainTextComponentSerializer.plainText().serialize(reward.title());
         player.sendMessage(Messages.treueshopRewardPurchased(rewardName));
-        open(plugin, player);
+        onSuccess.run();
     }
 }

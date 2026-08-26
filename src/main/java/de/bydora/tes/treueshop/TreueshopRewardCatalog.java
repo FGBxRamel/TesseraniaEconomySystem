@@ -30,7 +30,7 @@ public final class TreueshopRewardCatalog {
                     flavor("Grundlegende freundliche Kreaturen."),
                     blank(),
                     flavor("„Alles beginnt mit etwas Fedrigem.“")
-            )),
+            ), "mo1"),
             new TreueshopReward("spawner", 1000, 9, 1, Material.TRIAL_SPAWNER, title("Spawner"), List.of(
                     flavor("Du erhältst einen Spawner."),
                     flavor("Kann mit Spawneiern bestückt werden."),
@@ -44,7 +44,7 @@ public final class TreueshopRewardCatalog {
                     blank(),
                     flavor("Wähle aus verschiedenen XP-Boosts"),
                     flavor("und Erfahrungs-Upgrades.")
-            )),
+            ), "xp-terminal"),
             new TreueshopReward("segen-der-zwerge", 100, 3, 2, Material.GOLDEN_PICKAXE, title("Segen der Zwerge"), List.of(
                     flavor("„Die Erde gehört denen, die"),
                     flavor("schneller graben als sie denkt.“"),
@@ -57,7 +57,7 @@ public final class TreueshopRewardCatalog {
                     flavor("Erweiterte freundliche Kreaturen."),
                     blank(),
                     flavor("„Mehr Leben. Mehr Chaos. Mehr Farbe.“")
-            )),
+            ), "mo2"),
             new TreueshopReward("erntewelt", 160, 7, 2, Material.GRASS_BLOCK, title("Erntewelt", NamedTextColor.GREEN), List.of(
                     flavor("3 Stunden Zugang zu einer"),
                     flavor("speziellen Ressourcenwelt."),
@@ -104,7 +104,7 @@ public final class TreueshopRewardCatalog {
                     flavor("Einfache gefährliche Kreaturen."),
                     blank(),
                     flavor("„Explosiv. Direkt. Ehrlich.“")
-            )),
+            ), "mo3"),
             new TreueshopReward("glutzone", 160, 7, 3, Material.NETHERRACK, title("Glutzone", NamedTextColor.GOLD), List.of(
                     flavor("3 Stunden Zugang zu einer"),
                     flavor("speziellen Nether-Ressourcenwelt."),
@@ -122,6 +122,36 @@ public final class TreueshopRewardCatalog {
                     flavor("Elite & Bossartige Kreaturen."),
                     blank(),
                     flavor("„Du hörst es, bevor du es bereust.“")
+            ), "mo4")
+    );
+
+    /**
+     * The four XP-Terminal boosts (spec §3.2.1.1, Belohnung 2.1-2.4), transcribed verbatim from
+     * the reference build's Subinterface-(XP) dump at -412 -12 -3387 — {@link Material#EXPERIENCE_BOTTLE}
+     * icons, not the PDF's "Kopf mit 1/2/3/4" text (same reference-build-wins rule as the main
+     * catalog). Each grants real vanilla Minecraft experience points via
+     * {@link TreueshopEffects#applyXpBoost}, not TES's own Erfahrungspunkte counter — the PDF's
+     * "(~ 50 Level)" etc. subtitles line up with the vanilla XP curve, not the level-system's
+     * {@code f(x) = 30·sqrt(x/30000)} formula, and its dev-facing text says "(points)" to
+     * disambiguate vanilla XP points from vanilla XP levels, a distinction that only exists for
+     * the vanilla currency.
+     */
+    private static final List<TreueshopReward> XP_TERMINAL_REWARDS = List.of(
+            new TreueshopReward("xp-boost-1", 50, 2, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe I)"), List.of(
+                    flavor("Du erhältst 6.000 XP"),
+                    flavor("Dies entspricht etwa 50 Leveln")
+            )),
+            new TreueshopReward("xp-boost-2", 75, 4, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe II)"), List.of(
+                    flavor("Du erhältst 12.500 XP"),
+                    flavor("Dies entspricht etwa 69 Leveln")
+            )),
+            new TreueshopReward("xp-boost-3", 100, 6, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe III)"), List.of(
+                    flavor("Du erhältst 30.000 XP"),
+                    flavor("Dies entspricht etwa 100 Leveln")
+            )),
+            new TreueshopReward("xp-boost-4", 125, 8, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe IV)"), List.of(
+                    flavor("Du erhältst 50.000 XP"),
+                    flavor("Dies entspricht etwa 120 Leveln")
             ))
     );
 
@@ -130,6 +160,10 @@ public final class TreueshopRewardCatalog {
 
     public static List<TreueshopReward> mainInterfaceRewards() {
         return MAIN_INTERFACE_REWARDS;
+    }
+
+    public static List<TreueshopReward> xpTerminalRewards() {
+        return XP_TERMINAL_REWARDS;
     }
 
     private static Component title(String text) {
