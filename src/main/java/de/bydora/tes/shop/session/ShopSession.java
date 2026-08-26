@@ -14,10 +14,10 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Mutable, per-player state for one in-progress {@code /tes shop erstellen|bearbeiten}
- * conversation. Attributes are filled in via the menu-driven {@code /tes shop feld <key>} click
+ * Mutable, per-player state for one in-progress {@code /shop erstellen|bearbeiten}
+ * conversation. Attributes are filled in via the menu-driven {@code /shop feld <key>} click
  * flow, in any order; the session is only turned into a {@link ShopRecord} once
- * {@code /tes shop bestaetigen} is accepted with all mandatory fields set.
+ * {@code /shop bestaetigen} is accepted with all mandatory fields set.
  */
 public final class ShopSession {
 
@@ -120,7 +120,7 @@ public final class ShopSession {
 
     /**
      * Mandatory fields (for this session's mode) that still have no value — what
-     * {@code /tes shop bestaetigen} checks before finalizing.
+     * {@code /shop bestaetigen} checks before finalizing.
      */
     public List<ShopSessionField> missingMandatory() {
         return ShopSessionField.visibleFor(mode).stream()

@@ -103,7 +103,7 @@ public final class ShopConversion {
 
     /**
      * Reverts the shop's block(s) back to a plain vanilla container, used by
-     * {@code /tes shop schließen} and orphan cleanup.
+     * {@code /shop schließen} and orphan cleanup.
      */
     public static void removeFromShop(Plugin plugin, World world, BlockPos position) {
         Block block = world.getBlockAt(position.x(), position.y(), position.z());

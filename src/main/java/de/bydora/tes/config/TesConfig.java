@@ -15,13 +15,11 @@ public final class TesConfig {
     private static final String SHOP_RESTRICTED_WORLDS_PATH = "shops.restricted-worlds";
     private static final String SHOP_PROXIMITY_BLOCKS_PATH = "shops.proximity-blocks";
     private static final String SHOP_SESSION_TIMEOUT_SECONDS_PATH = "shops.session-timeout-seconds";
-    private static final String REWARD_INVENTORY_ITEMS_PER_PAGE_PATH = "gui.reward-inventory-items-per-page";
 
     private static final int DEFAULT_TALER_TO_TP = 5;
     private static final int DEFAULT_TALER_TO_EP = 3;
     private static final int DEFAULT_SHOP_PROXIMITY_BLOCKS = 10;
     private static final int DEFAULT_SHOP_SESSION_TIMEOUT_SECONDS = 120;
-    private static final int DEFAULT_GUI_ITEMS_PER_PAGE = 45;
 
     private final JavaPlugin plugin;
 
@@ -61,7 +59,7 @@ public final class TesConfig {
     }
 
     /**
-     * How close an owner must stand to their shop to close it via {@code /tes shop schließen}.
+     * How close an owner must stand to their shop to close it via {@code /shop schließen}.
      */
     public int shopProximityBlocks() {
         return plugin.getConfig().getInt(SHOP_PROXIMITY_BLOCKS_PATH, DEFAULT_SHOP_PROXIMITY_BLOCKS);
@@ -72,13 +70,5 @@ public final class TesConfig {
      */
     public int shopSessionTimeoutSeconds() {
         return plugin.getConfig().getInt(SHOP_SESSION_TIMEOUT_SECONDS_PATH, DEFAULT_SHOP_SESSION_TIMEOUT_SECONDS);
-    }
-
-    /**
-     * How many items the Belohnungsinventar ({@code /tes belohnung}) shows per page. The spec
-     * (§3.3.1.4) leaves this number unspecified.
-     */
-    public int rewardInventoryItemsPerPage() {
-        return plugin.getConfig().getInt(REWARD_INVENTORY_ITEMS_PER_PAGE_PATH, DEFAULT_GUI_ITEMS_PER_PAGE);
     }
 }

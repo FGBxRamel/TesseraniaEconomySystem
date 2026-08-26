@@ -1,5 +1,8 @@
 package de.bydora.tes.shop;
 
+import de.bydora.tes.data.PlayerRecord;
+import de.bydora.tes.data.PlayerRepository;
+import de.bydora.tes.util.DiamondEconomy;
 import de.bydora.tes.util.Messages;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.UseCooldown;
@@ -18,6 +21,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
@@ -28,6 +32,10 @@ import java.util.function.Predicate;
  * restock with the configured item — or, for a {@link ShopRecord#sellsAllItems() sell-all-items}
  * shop, with anything except diamonds; everything else on the shop's side of the inventory is
  * blocked to keep the interaction to the single-slot-click model the spec describes.
+ *
+ * <p>A purchase is also blocked if the buyer is paused, or if every one of the shop's owners is
+ * paused (a shop with at least one active owner keeps selling normally). A paused owner may not
+ * withdraw their own earned diamonds, even from a shop that keeps selling via a co-owner.
  */
 public final class ShopTradeListener implements Listener {
 
@@ -36,11 +44,14 @@ public final class ShopTradeListener implements Listener {
     private final Plugin plugin;
     private final ShopRegistry shopRegistry;
     private final ShopTransactionRepository transactionRepository;
+    private final PlayerRepository playerRepository;
 
-    public ShopTradeListener(Plugin plugin, ShopRegistry shopRegistry, ShopTransactionRepository transactionRepository) {
+    public ShopTradeListener(Plugin plugin, ShopRegistry shopRegistry, ShopTransactionRepository transactionRepository,
+                              PlayerRepository playerRepository) {
         this.plugin = plugin;
         this.shopRegistry = shopRegistry;
         this.transactionRepository = transactionRepository;
+        this.playerRepository = playerRepository;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -104,14 +115,22 @@ public final class ShopTradeListener implements Listener {
         if (!shop.sellsAllItems() && !clicked.isSimilar(shop.item())) {
             return;
         }
+        if (allOwnersPaused(shop)) {
+            buyer.sendMessage(Messages.shopOutOfOrder());
+            return;
+        }
+        if (isPaused(buyer.getUniqueId())) {
+            buyer.sendMessage(Messages.senderPaused());
+            return;
+        }
         int price = shop.price();
-        if (countDiamonds(buyer) < price) {
+        if (DiamondEconomy.countDiamonds(buyer) < price) {
             buyer.sendMessage(Messages.notEnoughTaler());
             return;
         }
 
         ItemStack sold = clicked.clone();
-        removeDiamonds(buyer, price);
+        DiamondEconomy.removeDiamonds(buyer, price);
         NamespacedKey cooldownGroup = cooldownGroup(shop, slot);
         ItemStack pendingDiamonds = new ItemStack(Material.DIAMOND, price);
         pendingDiamonds.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(REFUND_WINDOW_TICKS / 20f).cooldownGroup(cooldownGroup));
@@ -119,6 +138,18 @@ public final class ShopTradeListener implements Listener {
         giveItem(buyer, sold.clone());
         transactionRepository.insertPending(shop.world(), shop.id(), slot, buyer.getUniqueId(), sold, price, System.currentTimeMillis());
         buyer.setCooldown(cooldownGroup, REFUND_WINDOW_TICKS);
+    }
+
+    private boolean isPaused(UUID uuid) {
+        return playerRepository.findByUuid(uuid).map(PlayerRecord::paused).orElse(false);
+    }
+
+    /**
+     * A shop with several co-owners only counts as out of order once every one of them is
+     * paused; as long as at least one owner remains active, buyers may still purchase from it.
+     */
+    private boolean allOwnersPaused(ShopRecord shop) {
+        return shop.owners().stream().allMatch(this::isPaused);
     }
 
     private void handleOwnerClick(InventoryClickEvent event, ShopRecord shop, Player owner) {
@@ -129,6 +160,9 @@ public final class ShopTradeListener implements Listener {
             if (transactionRepository.findPendingBySlot(shop.world(), shop.id(), slot).isPresent()) {
                 event.setCancelled(true);
                 owner.sendMessage(Messages.shopWithdrawCooldownActive());
+            } else if (isPaused(owner.getUniqueId())) {
+                event.setCancelled(true);
+                owner.sendMessage(Messages.senderPaused());
             } else if (clicked.hasData(DataComponentTypes.USE_COOLDOWN)) {
                 event.getClickedInventory().setItem(slot, withoutCooldown(clicked));
             }
@@ -171,6 +205,11 @@ public final class ShopTradeListener implements Listener {
             owner.sendMessage(Messages.shopWithdrawCooldownActive());
             return;
         }
+        if (isPaused(owner.getUniqueId())) {
+            event.setCancelled(true);
+            owner.sendMessage(Messages.senderPaused());
+            return;
+        }
         if (clicked.hasData(DataComponentTypes.USE_COOLDOWN)) {
             event.getClickedInventory().setItem(slot, withoutCooldown(clicked));
         }
@@ -209,10 +248,6 @@ public final class ShopTradeListener implements Listener {
         return new NamespacedKey(plugin, ("shop-pending-" + shop.id() + "-" + slot).toLowerCase(Locale.ROOT));
     }
 
-    private static int countDiamonds(Player player) {
-        return countMatching(player, stack -> stack.getType() == Material.DIAMOND);
-    }
-
     private static int countMatching(Player player, Predicate<ItemStack> matcher) {
         int total = 0;
         for (ItemStack stack : player.getInventory().getStorageContents()) {
@@ -221,10 +256,6 @@ public final class ShopTradeListener implements Listener {
             }
         }
         return total;
-    }
-
-    private static void removeDiamonds(Player player, int amount) {
-        removeMatching(player, stack -> stack.getType() == Material.DIAMOND, amount);
     }
 
     /**

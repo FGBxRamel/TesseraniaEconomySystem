@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 /**
- * Implements {@code /tes treuepunkte add|remove|set <Name> <Anzahl>} (spec §1.4).
+ * Implements {@code /treuepunkte add|remove|set <Name> <Anzahl>} (spec §1.4).
  */
 public final class TreuepunkteCommand {
 

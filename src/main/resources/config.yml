@@ -10,7 +10,3 @@ shops:
   proximity-blocks: 10
   # Wie lange eine Shop-Erstellung/-Bearbeitung im Chat auf Eingaben wartet, bevor sie verfällt.
   session-timeout-seconds: 120
-
-gui:
-  # Anzahl der Einträge pro Seite im Belohnungsinventar (/tes belohnung).
-  reward-inventory-items-per-page: 45

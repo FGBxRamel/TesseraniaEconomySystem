@@ -62,7 +62,7 @@ public final class SqlitePlayerRepository implements PlayerRepository {
                 statement.setLong(4, now);
                 statement.executeUpdate();
             }
-            return new PlayerRecord(uuid, username, 0, 0, 0, false, now, now);
+            return new PlayerRecord(uuid, username, 0, 0, 0, false, now, now, 0);
         });
     }
 
@@ -121,6 +121,44 @@ public final class SqlitePlayerRepository implements PlayerRepository {
         });
     }
 
+    @Override
+    public void addInvoiceBalance(UUID uuid, int delta) {
+        applyCounterUpdate("UPDATE players SET invoice_balance = MAX(0, invoice_balance + ?), updated_at = ? WHERE uuid = ?", delta, uuid);
+    }
+
+    @Override
+    public int cashOutInvoiceBalance(UUID uuid) {
+        return database.execute(() -> {
+            var connection = database.connection();
+            connection.setAutoCommit(false);
+            try {
+                int balance;
+                try (PreparedStatement select = connection.prepareStatement(
+                        "SELECT invoice_balance FROM players WHERE uuid = ?")) {
+                    select.setString(1, uuid.toString());
+                    try (ResultSet resultSet = select.executeQuery()) {
+                        balance = resultSet.next() ? resultSet.getInt("invoice_balance") : 0;
+                    }
+                }
+                if (balance > 0) {
+                    try (PreparedStatement update = connection.prepareStatement(
+                            "UPDATE players SET invoice_balance = 0, updated_at = ? WHERE uuid = ?")) {
+                        update.setLong(1, System.currentTimeMillis());
+                        update.setString(2, uuid.toString());
+                        update.executeUpdate();
+                    }
+                }
+                connection.commit();
+                return balance;
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        });
+    }
+
     private static PlayerRecord toRecord(ResultSet resultSet) throws SQLException {
         return new PlayerRecord(
                 UUID.fromString(resultSet.getString("uuid")),
@@ -130,7 +168,8 @@ public final class SqlitePlayerRepository implements PlayerRepository {
                 resultSet.getInt("level"),
                 resultSet.getInt("paused") != 0,
                 resultSet.getLong("registered_at"),
-                resultSet.getLong("updated_at")
+                resultSet.getLong("updated_at"),
+                resultSet.getInt("invoice_balance")
         );
     }
 }

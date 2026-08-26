@@ -5,6 +5,8 @@ import de.bydora.tes.config.TesConfig;
 import de.bydora.tes.data.Database;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.data.SqlitePlayerRepository;
+import de.bydora.tes.invoice.InvoiceRepository;
+import de.bydora.tes.invoice.SqliteInvoiceRepository;
 import de.bydora.tes.reward.RewardInventoryRepository;
 import de.bydora.tes.reward.RewardInventoryService;
 import de.bydora.tes.reward.SqliteRewardInventoryRepository;
@@ -40,6 +42,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private PendingNotificationRepository pendingNotificationRepository;
     private RewardInventoryRepository rewardInventoryRepository;
     private RewardInventoryService rewardInventoryService;
+    private InvoiceRepository invoiceRepository;
     private ShopRegistry shopRegistry;
     private ShopSessionManager shopSessionManager;
     private ShopChatListener shopChatListener;
@@ -58,6 +61,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         pendingNotificationRepository = new SqlitePendingNotificationRepository(database);
         rewardInventoryRepository = new SqliteRewardInventoryRepository(database);
         rewardInventoryService = new RewardInventoryService(rewardInventoryRepository);
+        invoiceRepository = new SqliteInvoiceRepository(database);
 
         shopRegistry = new ShopRegistry(shopRepository);
         shopRegistry.load();
@@ -67,7 +71,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
         Bukkit.getPluginManager().registerEvents(shopChatListener, this);
-        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository), this);
+        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository, playerRepository), this);
         Bukkit.getPluginManager().registerEvents(new PendingNotificationListener(pendingNotificationRepository), this);
 
         ShopMaintenanceTask maintenanceTask = new ShopMaintenanceTask(this, shopRegistry, shopRepository,
@@ -111,6 +115,10 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
     public RewardInventoryService rewardInventoryService() {
         return rewardInventoryService;
+    }
+
+    public InvoiceRepository invoiceRepository() {
+        return invoiceRepository;
     }
 
     public ShopRegistry shopRegistry() {

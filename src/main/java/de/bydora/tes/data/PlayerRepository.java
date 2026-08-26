@@ -45,4 +45,16 @@ public interface PlayerRepository {
      * Permanently and irrecoverably deletes the player's record and all associated TES data.
      */
     void delete(UUID uuid);
+
+    /**
+     * Adds {@code delta} (which may be negative) to the player's invoice balance (spec §3.1.1.3
+     * — diamonds owed from settled invoices they created), clamped at 0.
+     */
+    void addInvoiceBalance(UUID uuid, int delta);
+
+    /**
+     * Atomically reads the player's current invoice balance and resets it to 0, returning the
+     * pre-reset value — the amount to hand out as diamonds on cash-out.
+     */
+    int cashOutInvoiceBalance(UUID uuid);
 }

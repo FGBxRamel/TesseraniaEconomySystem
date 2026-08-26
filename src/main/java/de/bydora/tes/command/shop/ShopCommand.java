@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.config.TesConfig;
+import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.shop.ShopConversion;
 import de.bydora.tes.shop.ShopEconomy;
 import de.bydora.tes.shop.ShopRecord;
@@ -31,11 +32,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Implements {@code /tes shop erstellen|bearbeiten|schließen|liste} (spec §3.1.1.1, UC1–UC3 plus
- * the shop list).
+ * Implements {@code /shop erstellen|bearbeiten|schließen|liste} (spec §3.1.1.1, UC1–UC3 plus
+ * the shop list). Deviates from the literal spec syntax by dropping the {@code <world>} argument:
+ * shop ids are enforced globally unique ({@link ShopRegistry}, {@code idx_shops_id_unique}), so
+ * {@code erstellen} uses the player's current world and {@code bearbeiten}/{@code schließen}/
+ * {@code tp} resolve a shop by id alone.
  */
 public final class ShopCommand {
 
@@ -47,26 +52,22 @@ public final class ShopCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("shop")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes shop <erstellen|bearbeiten|schließen|liste>"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/shop <erstellen|bearbeiten|schließen|liste>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("erstellen")
                         .requires(source -> source.getSender().hasPermission("tes.shop.create"))
-                        .then(Commands.argument("world", StringArgumentType.word())
-                                .suggests(ShopCommand::suggestWorlds)
-                                .executes(ShopCommand::erstellen)))
+                        .executes(ShopCommand::erstellen))
                 .then(Commands.literal("bearbeiten")
                         .requires(source -> source.getSender().hasPermission("tes.shop.edit"))
-                        .then(Commands.argument("world", StringArgumentType.word())
-                                .suggests(ShopCommand::suggestWorlds)
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .executes(ShopCommand::bearbeiten))))
+                        .then(Commands.argument("id", StringArgumentType.word())
+                                .suggests(ShopCommand::suggestOwnShopIds)
+                                .executes(ShopCommand::bearbeiten)))
                 .then(Commands.literal("schließen")
                         .requires(source -> source.getSender().hasPermission("tes.shop.close"))
-                        .then(Commands.argument("world", StringArgumentType.word())
-                                .suggests(ShopCommand::suggestWorlds)
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .executes(ShopCommand::schliessen))))
+                        .then(Commands.argument("id", StringArgumentType.word())
+                                .suggests(ShopCommand::suggestOwnShopIds)
+                                .executes(ShopCommand::schliessen)))
                 .then(Commands.literal("liste")
                         .requires(source -> source.getSender().hasPermission("tes.shop.list"))
                         .executes(ctx -> liste(ctx, 1))
@@ -74,10 +75,9 @@ public final class ShopCommand {
                                 .executes(ctx -> liste(ctx, IntegerArgumentType.getInteger(ctx, "seite")))))
                 .then(Commands.literal("tp")
                         .requires(source -> source.getSender().hasPermission("tes.shop.list"))
-                        .then(Commands.argument("world", StringArgumentType.word())
-                                .suggests(ShopCommand::suggestWorlds)
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .executes(ShopCommand::teleport))))
+                        .then(Commands.argument("id", StringArgumentType.word())
+                                .suggests(ShopCommand::suggestOwnShopIds)
+                                .executes(ShopCommand::teleport)))
                 .then(Commands.literal("feld")
                         .then(Commands.argument("key", StringArgumentType.word())
                                 .suggests(ShopCommand::suggestFieldKeys)
@@ -86,12 +86,14 @@ public final class ShopCommand {
                 .then(Commands.literal("abbrechen").executes(ShopCommand::abbrechen));
     }
 
-    private static CompletableFuture<Suggestions> suggestWorlds(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
+    private static CompletableFuture<Suggestions> suggestOwnShopIds(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
-        Bukkit.getWorlds().stream()
-                .map(World::getName)
-                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
-                .forEach(builder::suggest);
+        if (ctx.getSource().getSender() instanceof Player player) {
+            plugin().shopRegistry().allByOwner(player.getUniqueId()).stream()
+                    .map(ShopRecord::id)
+                    .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
+                    .forEach(builder::suggest);
+        }
         return builder.buildFuture();
     }
 
@@ -111,15 +113,10 @@ public final class ShopCommand {
     private static int erstellen(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop erstellen ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop erstellen ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
-        String worldName = StringArgumentType.getString(ctx, "world");
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) {
-            sender.sendMessage(Messages.shopUnknownWorld(worldName));
-            return Command.SINGLE_SUCCESS;
-        }
+        World world = player.getWorld();
         TesConfig config = plugin().tesConfig();
         String lowerName = world.getName().toLowerCase(Locale.ROOT);
         if (config.shopRestrictedWorlds().contains(lowerName) || lowerName.startsWith("farmwelt-")) {
@@ -140,11 +137,15 @@ public final class ShopCommand {
     private static int bearbeiten(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop bearbeiten ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop bearbeiten ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         Optional<ShopRecord> maybeShop = resolveOwnedShop(ctx, player);
         if (maybeShop.isEmpty()) {
+            return Command.SINGLE_SUCCESS;
+        }
+        if (isPaused(player.getUniqueId())) {
+            sender.sendMessage(Messages.senderPaused());
             return Command.SINGLE_SUCCESS;
         }
         ShopRecord shop = maybeShop.get();
@@ -188,7 +189,7 @@ public final class ShopCommand {
     private static int schliessen(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop schließen ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop schließen ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         Optional<ShopRecord> maybeShop = resolveOwnedShop(ctx, player);
@@ -206,8 +207,8 @@ public final class ShopCommand {
         ShopEconomy.forceRefundPending(transactionRepository, shop, world);
 
         ShopRepository shopRepository = plugin().shopRepository();
-        shopRepository.delete(shop.world(), shop.id());
-        plugin().shopRegistry().unregister(shop.world(), shop.id());
+        shopRepository.delete(shop.id());
+        plugin().shopRegistry().unregister(shop.id());
         ShopConversion.removeFromShop(plugin(), world, shop.position());
         if (shop.secondaryPosition() != null) {
             ShopConversion.removeFromShop(plugin(), world, shop.secondaryPosition());
@@ -226,10 +227,9 @@ public final class ShopCommand {
 
     private static Optional<ShopRecord> resolveOwnedShop(CommandContext<CommandSourceStack> ctx, Player player) {
         CommandSender sender = ctx.getSource().getSender();
-        String worldName = StringArgumentType.getString(ctx, "world");
         String id = StringArgumentType.getString(ctx, "id");
         ShopRegistry registry = plugin().shopRegistry();
-        Optional<ShopRecord> shop = registry.findById(worldName, id);
+        Optional<ShopRecord> shop = registry.findById(id);
         if (shop.isEmpty()) {
             sender.sendMessage(Messages.shopNotFound(id));
             return Optional.empty();
@@ -244,7 +244,7 @@ public final class ShopCommand {
     private static int liste(CommandContext<CommandSourceStack> ctx, int requestedPage) {
         CommandSender sender = ctx.getSource().getSender();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Messages.usage("/tes shop liste ist nur für Spieler verfügbar."));
+            sender.sendMessage(Messages.usage("/shop liste ist nur für Spieler verfügbar."));
             return Command.SINGLE_SUCCESS;
         }
         List<ShopRecord> shops = plugin().shopRegistry().allByOwner(player.getUniqueId()).stream()
@@ -302,6 +302,10 @@ public final class ShopCommand {
             return null;
         }
         return new Location(world, shop.position().x() + 0.5, shop.position().y() + 1, shop.position().z() + 0.5);
+    }
+
+    private static boolean isPaused(UUID uuid) {
+        return plugin().playerRepository().findByUuid(uuid).map(PlayerRecord::paused).orElse(false);
     }
 
     private static TesseraniaEconomySystem plugin() {

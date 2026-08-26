@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Shared economics helpers used both by {@code /tes shop schließen} and by
+ * Shared economics helpers used both by {@code /shop schließen} and by
  * {@link ShopMaintenanceTask}'s orphan cleanup — both need to force-refund any purchase still
  * within its 60-second window when a shop unexpectedly stops existing.
  */

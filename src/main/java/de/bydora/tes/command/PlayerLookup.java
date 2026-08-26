@@ -17,8 +17,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Shared player-name resolution used by every {@code /tes} subcommand that takes a target player
- * name (spieler, treuepunkte, erfahrungspunkte, and shop owner assignment).
+ * Shared player-name resolution used by every TES command that takes a target player name
+ * (spieler, treuepunkte, erfahrungspunkte, and shop owner assignment).
  */
 public final class PlayerLookup {
 

@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 /**
- * Implements {@code /tes erfahrungspunkte add|remove|set <Name> <Anzahl>} (spec §1.4).
+ * Implements {@code /erfahrungspunkte add|remove|set <Name> <Anzahl>} (spec §1.4).
  */
 public final class ErfahrungspunkteCommand {
 

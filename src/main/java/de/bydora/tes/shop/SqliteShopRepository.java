@@ -27,14 +27,16 @@ public final class SqliteShopRepository implements ShopRepository {
     }
 
     @Override
-    public Optional<ShopRecord> findByWorldAndId(String world, String id) {
+    public Optional<ShopRecord> findById(String id) {
         return database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement(
-                    "SELECT * FROM shops WHERE world = ? AND id = ?")) {
-                statement.setString(1, world);
-                statement.setString(2, id);
+                    "SELECT * FROM shops WHERE id = ?")) {
+                statement.setString(1, id);
                 try (ResultSet resultSet = statement.executeQuery()) {
-                    return resultSet.next() ? Optional.of(toRecord(resultSet, loadOwners(world, id))) : Optional.empty();
+                    if (!resultSet.next()) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(toRecord(resultSet, loadOwners(resultSet.getString("world"), id)));
                 }
             }
         });
@@ -74,12 +76,11 @@ public final class SqliteShopRepository implements ShopRepository {
     }
 
     @Override
-    public boolean existsId(String world, String id) {
+    public boolean existsId(String id) {
         return database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement(
-                    "SELECT 1 FROM shops WHERE world = ? AND id = ?")) {
-                statement.setString(1, world);
-                statement.setString(2, id);
+                    "SELECT 1 FROM shops WHERE id = ?")) {
+                statement.setString(1, id);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     return resultSet.next();
                 }
@@ -172,12 +173,11 @@ public final class SqliteShopRepository implements ShopRepository {
     }
 
     @Override
-    public void delete(String world, String id) {
+    public void delete(String id) {
         database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement(
-                    "DELETE FROM shops WHERE world = ? AND id = ?")) {
-                statement.setString(1, world);
-                statement.setString(2, id);
+                    "DELETE FROM shops WHERE id = ?")) {
+                statement.setString(1, id);
                 return statement.executeUpdate();
             }
         });

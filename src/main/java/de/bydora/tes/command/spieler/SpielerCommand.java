@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Implements {@code /tes spieler add|remove|pause|unpause <Name>} (spec §1.4).
+ * Implements {@code /spieler add|remove|pause|unpause <Name>} (spec §1.4).
  */
 public final class SpielerCommand {
 
@@ -33,7 +33,7 @@ public final class SpielerCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("spieler")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes spieler <add|remove|pause|unpause> <Name>"));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/spieler <add|remove|pause|unpause> <Name>"));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("add")

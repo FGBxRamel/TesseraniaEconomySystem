@@ -10,11 +10,11 @@ import java.util.UUID;
  */
 public interface ShopRepository {
 
-    Optional<ShopRecord> findByWorldAndId(String world, String id);
+    Optional<ShopRecord> findById(String id);
 
     /**
      * All shops owned by {@code owner}, across every world, ordered by creation time — backs
-     * {@code /tes shop liste}.
+     * {@code /shop liste}.
      */
     List<ShopRecord> findAllByOwner(UUID owner);
 
@@ -23,7 +23,7 @@ public interface ShopRepository {
      */
     List<ShopRecord> findAllActive();
 
-    boolean existsId(String world, String id);
+    boolean existsId(String id);
 
     void insert(ShopRecord shop);
 
@@ -37,8 +37,8 @@ public interface ShopRepository {
 
     /**
      * Hard-deletes a shop, cascading to its owner and transaction rows, so its ID becomes
-     * reusable. Used both for owner-initiated close ({@code /tes shop schließen}) and orphan
+     * reusable. Used both for owner-initiated close ({@code /shop schließen}) and orphan
      * cleanup (UC5).
      */
-    void delete(String world, String id);
+    void delete(String id);
 }

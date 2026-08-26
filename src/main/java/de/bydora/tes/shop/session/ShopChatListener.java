@@ -30,14 +30,15 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
- * Drives the chat-driven {@code /tes shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX modeled
+ * Drives the chat-driven {@code /shop erstellen|bearbeiten} menu (spec §3.1.1.1, UX modeled
  * on the BlueMap-Marker plugin): a persistent, re-rendered chat menu lists every attribute for
  * the session's mode, color-coded red/green/gray, clickable in any order via
- * {@code /tes shop feld <key>}. Clicking a field "arms" it ({@link ShopSession#pendingField()});
+ * {@code /shop feld <key>}. Clicking a field "arms" it ({@link ShopSession#pendingField()});
  * the next chat message (or, for {@link ShopSessionField#POSITION}, the next right-click) is fed
- * to that field's handler instead of being broadcast. {@code /tes shop bestaetigen}/
+ * to that field's handler instead of being broadcast. {@code /shop bestaetigen}/
  * {@code abbrechen} (or the typed equivalents) finalize or discard the session.
  */
 public final class ShopChatListener implements Listener {
@@ -168,7 +169,7 @@ public final class ShopChatListener implements Listener {
             player.sendMessage(Messages.shopIdInvalid());
             return;
         }
-        if (shopRepository.existsId(session.world(), text) || shopRegistry.existsId(session.world(), text)) {
+        if (shopRepository.existsId(text) || shopRegistry.existsId(text)) {
             player.sendMessage(Messages.shopIdTaken(text));
             return;
         }
@@ -194,7 +195,16 @@ public final class ShopChatListener implements Listener {
                 if (resolved.isEmpty()) {
                     return;
                 }
-                session.owners().add(resolved.get().getUniqueId());
+                UUID uuid = resolved.get().getUniqueId();
+                if (session.owners().contains(uuid)) {
+                    if (session.owners().size() <= 1) {
+                        player.sendMessage(Messages.shopOwnerCannotRemoveLast(resolved.get().getName()));
+                        continue;
+                    }
+                    session.owners().remove(uuid);
+                } else {
+                    session.owners().add(uuid);
+                }
             }
         }
         session.pendingField(null);
@@ -334,7 +344,7 @@ public final class ShopChatListener implements Listener {
             ShopConversion.applyToShop(plugin, record);
             player.sendMessage(Messages.shopCreated(record.id(), record.name()));
         } else {
-            ShopRecord existing = shopRegistry.findById(session.world(), session.editingId()).orElseThrow();
+            ShopRecord existing = shopRegistry.findById(session.editingId()).orElseThrow();
             ShopRecord updated = new ShopRecord(
                     existing.id(), existing.world(), session.name(), session.item(), session.price(),
                     existing.containerType(), existing.position(), existing.secondaryPosition(),
