@@ -83,16 +83,29 @@ the other way around. Apply the same registered/paused distinction when building
 (e.g. loyalty-shop redemptions).
 
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
-Status: `[ ]` not started
+Status: `[ ]` in progress — main interface, TP transfer, and 2 of 12 rewards shipped (2026-08-27, not yet released as a version bump)
 Implements: §3.2
 
-First GUI-heavy stage — decide hand-rolled vs. third-party GUI library here before building the interfaces below.
+GUI library decision (InvUI) was made in Stage 2, not here — see the "GUI implementation" note
+above. Split into incremental branches/PRs (main interface → direct-effect rewards → item-grant
+rewards → Prozessverstärker → Handelsbonus), each merged to `main` before the next starts; see
+`docs/treueshop-system.md` for implementation notes and reconciliation decisions against the
+reference build.
 
-- `/punkte` / `/treuepunkte` main interface (9x4, sunflower balance, back arrow, level-switch button) at the exact grid/costs from §3.2.1.1.
-- All ~12 top-level rewards and sub-interfaces (XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, spawner) per the reward table.
-- Effect implementations: Prozessverstärker (furnace/beehive boost), Segen der Zwerge (haste), Kraftelixier (potion bundle), Handelsbonus (2-player-max, staatskasse-funded, cooldown-replacement custom-model diamond), Erntewelt/Glutzone reward items (grant the teleport item now; full farm-world mechanics land in Stage 5 — known temporary gap).
+- [x] `/punkte` / `/treuepunkte` main interface (9x4, sunflower balance, level-switch button) at the exact grid/costs confirmed against the reference build (`GUI_References/`) — merged (PR #13).
+- [x] `/treuepunkte übertragen <Spieler> <Anzahl>` (see resolved spec gap below) — merged (PR #13).
+- [x] Segen der Zwerge (haste) and Kraftelixier (potion bundle) — merged (PR #15).
+- [ ] XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, Erntewelt/Glutzone item stubs, Spawner.
+- [ ] Prozessverstärker (furnace/beehive boost).
+- [ ] Handelsbonus (2-player-max, staatskasse-funded discount; its "on cooldown" state is a
+      plain re-lored `DIAMOND`, not a custom-model-data swap as originally assumed — confirmed
+      against the reference build).
 - Deliverable: loyalty shop fully spendable except for the farm-world destination itself.
-- **Known spec gap**: §2's requirements overview lists a `/(treue)punkte übertragen` command ("Treuepunkte übertragen" — transferring loyalty points between players) alongside `/punkte`, but no other section in the 32-page v1.3 spec details its syntax, cost, or constraints (no cooldown, no fee, no target-registration requirement specified anywhere). Ask for clarification before implementing; don't invent the semantics. Not required for "loyalty shop fully spendable" — safe to exclude from Stage 3 scope until specified.
+- **Resolved spec gap** (was: unspecified): §2's requirements overview names a
+  `/(treue)punkte übertragen` command with no syntax/cost/constraints given anywhere else in the
+  document. The user supplied the missing semantics out-of-band (2026-08-26):
+  `/treuepunkte übertragen <Zielspieler> <Anzahl>`, capped at the sender's own balance, no fee or
+  cooldown. Implemented in PR #13.
 
 ### Stage 4 — Levelsystem + Backpack
 Status: `[ ]` not started

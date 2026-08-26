@@ -81,4 +81,23 @@ public final class TesConfig {
     public int treueshopRewardCost(String rewardId, int fallback) {
         return plugin.getConfig().getInt("treueshop.rewards." + rewardId + ".cost", fallback);
     }
+
+    private static final String TREUESHOP_HASTE_MINUTES_PATH = "treueshop.segen-der-zwerge.haste-minutes";
+    private static final String TREUESHOP_KRAFTELIXIER_MINUTES_PATH = "treueshop.kraftelixier.effect-minutes";
+    private static final int DEFAULT_TREUESHOP_HASTE_MINUTES = 30;
+    private static final int DEFAULT_TREUESHOP_KRAFTELIXIER_MINUTES = 30;
+
+    /**
+     * How long Segen der Zwerge's Haste II effect lasts (spec §3.2.1.1, Belohnung 3).
+     */
+    public int treueshopHasteMinutes() {
+        return plugin.getConfig().getInt(TREUESHOP_HASTE_MINUTES_PATH, DEFAULT_TREUESHOP_HASTE_MINUTES);
+    }
+
+    /**
+     * How long Kraftelixier's effect bundle lasts (spec §3.2.1.1, Belohnung 7).
+     */
+    public int treueshopKraftelixierMinutes() {
+        return plugin.getConfig().getInt(TREUESHOP_KRAFTELIXIER_MINUTES_PATH, DEFAULT_TREUESHOP_KRAFTELIXIER_MINUTES);
+    }
 }

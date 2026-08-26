@@ -64,8 +64,31 @@ registriert sein (siehe `/spieler add`).
 > (`/treuepunkte add/remove/set <Anzahl>`). Da das nur für den ausführenden Admin selbst
 > Sinn ergäbe, wurde – analog zu `/spieler` und Vanilla `/xp` – ein Namensargument ergänzt.
 
-Im Stage-1-Umfang gibt es noch keine Möglichkeit, Treuepunkte auszugeben (Treuepunkteshop folgt
-in Stage 3) – Spieler sammeln TP/EP beim Bezahlen in Item-Shops bereits im Hintergrund.
+## `/punkte` bzw. `/treuepunkte` (Spieler)
+
+Ohne weitere Argumente öffnet `/punkte` (oder gleichbedeutend `/treuepunkte`) den
+**Treuepunkteshop**: die Sonnenblume oben links zeigt deinen aktuellen Treuepunktestand, die
+übrigen Felder sind die einzelnen Belohnungen mit ihren TP-Kosten und Beschreibungen.
+
+| Berechtigung | Voraussetzung |
+|---|---|
+| `tes.punkte` | Du musst im Belohnungssystem registriert (`/spieler add`) und nicht pausiert sein. |
+
+Aktuell einlösbar sind **Segen der Zwerge** (Eile II für 30 Minuten) und **Kraftelixier**
+(Regeneration II, Resistenz II, Stärke und Held des Dorfes für 30 Minuten) – ein Linksklick zieht
+die angezeigten Treuepunkte ab und wendet den Effekt sofort an. Die übrigen Belohnungen sind
+bereits sichtbar (Name, Kosten, Beschreibung), aber noch nicht einlösbar; das folgt in weiteren
+Ausbaustufen von Stage 3.
+
+### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>`
+
+| Berechtigung | Voraussetzung |
+|---|---|
+| `tes.treuepunkte.uebertragen` | Du musst im Belohnungssystem registriert und nicht pausiert sein; das Ziel muss ebenfalls registriert sein. |
+
+Überträgt `<Anzahl>` deiner eigenen Treuepunkte an `<Spieler>` – du kannst nicht mehr übertragen,
+als du besitzt, und nicht an dich selbst. Es fällt keine Gebühr an und es gibt keine Wartezeit.
+Ist das Ziel online, erhält es sofort eine Chat-Benachrichtigung.
 
 ## `/shop` (Spieler)
 
