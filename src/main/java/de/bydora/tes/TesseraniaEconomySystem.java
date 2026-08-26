@@ -5,6 +5,9 @@ import de.bydora.tes.config.TesConfig;
 import de.bydora.tes.data.Database;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.data.SqlitePlayerRepository;
+import de.bydora.tes.reward.RewardInventoryRepository;
+import de.bydora.tes.reward.RewardInventoryService;
+import de.bydora.tes.reward.SqliteRewardInventoryRepository;
 import de.bydora.tes.shop.PendingNotificationListener;
 import de.bydora.tes.shop.PendingNotificationRepository;
 import de.bydora.tes.shop.ShopMaintenanceTask;
@@ -35,6 +38,8 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private ShopRepository shopRepository;
     private ShopTransactionRepository shopTransactionRepository;
     private PendingNotificationRepository pendingNotificationRepository;
+    private RewardInventoryRepository rewardInventoryRepository;
+    private RewardInventoryService rewardInventoryService;
     private ShopRegistry shopRegistry;
     private ShopSessionManager shopSessionManager;
     private ShopChatListener shopChatListener;
@@ -51,6 +56,8 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         shopRepository = new SqliteShopRepository(database);
         shopTransactionRepository = new SqliteShopTransactionRepository(database);
         pendingNotificationRepository = new SqlitePendingNotificationRepository(database);
+        rewardInventoryRepository = new SqliteRewardInventoryRepository(database);
+        rewardInventoryService = new RewardInventoryService(rewardInventoryRepository);
 
         shopRegistry = new ShopRegistry(shopRepository);
         shopRegistry.load();
@@ -96,6 +103,14 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
     public PendingNotificationRepository pendingNotificationRepository() {
         return pendingNotificationRepository;
+    }
+
+    public RewardInventoryRepository rewardInventoryRepository() {
+        return rewardInventoryRepository;
+    }
+
+    public RewardInventoryService rewardInventoryService() {
+        return rewardInventoryService;
     }
 
     public ShopRegistry shopRegistry() {

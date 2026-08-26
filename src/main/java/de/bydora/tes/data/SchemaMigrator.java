@@ -192,7 +192,20 @@ final class SchemaMigrator {
                 FOREIGN KEY (shop_world, shop_id) REFERENCES shops(world, id) ON DELETE CASCADE
             )
             """,
-            "CREATE INDEX IF NOT EXISTS idx_shop_transactions_pending ON shop_transactions(state, purchased_at)"
+            "CREATE INDEX IF NOT EXISTS idx_shop_transactions_pending ON shop_transactions(state, purchased_at)",
+            // Stage 2: the Belohnungsinventar (spec §1.3) — a generic, queue-style store of items
+            // owed to a player by the loyalty-point/level/invoice systems. One row per stored
+            // ItemStack rather than fixed slots, so it never needs a "how many slots" migration.
+            """
+            CREATE TABLE IF NOT EXISTS reward_inventory_items (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                uuid       TEXT NOT NULL,
+                item       BLOB NOT NULL,
+                granted_at INTEGER NOT NULL,
+                FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_reward_inventory_items_uuid ON reward_inventory_items(uuid, granted_at)"
     );
 
     private SchemaMigrator() {

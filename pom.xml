@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -43,7 +43,17 @@
                                 (see xerial/sqlite-jdbc#145). This leaves a small, accepted risk of
                                 classpath clashes with another plugin bundling a different sqlite-jdbc
                                 version on the same server.
+
+                                InvUI has no such constraint, so it IS relocated below — standard
+                                practice to avoid classpath clashes with another plugin on the same
+                                server bundling a different InvUI version.
                             -->
+                            <relocations>
+                                <relocation>
+                                    <pattern>xyz.xenondevs.invui</pattern>
+                                    <shadedPattern>de.bydora.tes.libs.invui</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
@@ -107,6 +117,11 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>xenondevs</id>
+            <name>xenondevs Releases</name>
+            <url>https://repo.xenondevs.xyz/releases</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -128,6 +143,24 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.49.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>xyz.xenondevs.invui</groupId>
+            <artifactId>invui</artifactId>
+            <version>2.3.0</version>
+            <exclusions>
+                <!--
+                    paper-api already brings org.jetbrains:annotations transitively at "provided"
+                    scope; invui redeclaring it at "runtime" scope confuses Maven's scope
+                    mediation and drops it off the compile classpath entirely (breaks existing
+                    @NotNull usages, e.g. in TesBootstrap). Excluding it here leaves paper-api's
+                    own transitive resolution as the sole source of truth.
+                -->
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

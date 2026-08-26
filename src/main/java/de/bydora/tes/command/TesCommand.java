@@ -2,6 +2,7 @@ package de.bydora.tes.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import de.bydora.tes.command.belohnung.BelohnungCommand;
 import de.bydora.tes.command.punkte.ErfahrungspunkteCommand;
 import de.bydora.tes.command.punkte.TreuepunkteCommand;
 import de.bydora.tes.command.shop.ShopCommand;
@@ -22,12 +23,13 @@ public final class TesCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("tes")
                 .executes(ctx -> {
-                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes <spieler|shop|treuepunkte|erfahrungspunkte> ..."));
+                    ctx.getSource().getSender().sendMessage(Messages.usage("/tes <spieler|shop|treuepunkte|erfahrungspunkte|belohnung> ..."));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(SpielerCommand.build())
                 .then(ShopCommand.build())
                 .then(TreuepunkteCommand.build())
-                .then(ErfahrungspunkteCommand.build());
+                .then(ErfahrungspunkteCommand.build())
+                .then(BelohnungCommand.build());
     }
 }
