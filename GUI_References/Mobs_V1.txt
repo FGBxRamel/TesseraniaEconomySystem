@@ -1,0 +1,56 @@
+Welt: kreativ | Pos: -412 -12 -3389 | Titel: "CHEST" | Größe: 9x6
+1|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+2|1 — 1x ARMADILLO_SPAWN_EGG "<!italic><bold><white>Gürteltier-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Rollt sich ein, wenn es Probleme / <italic><gray>sieht. Also sehr oft.]
+3|1 — 1x FOX_SPAWN_EGG "<!italic><bold><white>Fuchs-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Sieht süß aus, plant aber definitiv / <italic><gray>irgendwas gegen dich.]
+4|1 — 1x ALLAY_SPAWN_EGG "<!italic><bold><white>Hilfsgeist-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Bringt dir deine Items zurück und / <italic><gray>ist sozial kompetenter als du.]
+5|1 — 1x PANDA_SPAWN_EGG "<!italic><bold><white>Panda-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Isst Bambus und bewertet dein Leben / <italic><gray>still und enttäuscht.]
+6|1 — 1x POLAR_BEAR_SPAWN_EGG "<!italic><bold><white>Eisbär-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Sieht freundlich aus, bis du / <italic><gray>zu nah an seine Fischbox kommst.]
+7|1 — 1x CAT_SPAWN_EGG "<!italic><bold><white>Katze-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Ignoriert dich aktiv, aber liebt / <italic><gray>dein Eigentum trotzdem.]
+8|1 — 1x WOLF_SPAWN_EGG "<!italic><bold><white>Wolf-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Treu bis zum Tod. Oder bis ein / <italic><gray>Skelett in der Nähe ist.]
+9|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+1|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+2|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+3|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+4|2 — 1x OCELOT_SPAWN_EGG "<!italic><bold><white>Ozelot-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Extrem scheu und verschwunden / <italic><gray>bevor du ‚Hallo‘ sagen kannst.]
+5|2 — 1x CAMEL_SPAWN_EGG "<!italic><bold><white>Kamel-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Trägt dich durch die Wüste und / <italic><gray>urteilt still über deine Ausdauer.]
+6|2 — 1x BEE_SPAWN_EGG "<!italic><bold><white>Bienen-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Produziert Honig und Chaos im / <italic><gray>gleichen unklaren Verhältnis.]
+7|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+8|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+9|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+1|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+2|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+3|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+4|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+5|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+6|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+7|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+8|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+9|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+1|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+2|4 — 1x COW_SPAWN_EGG "<!italic><bold><white>Kuh-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Gibt Milch und existiert einfach / <italic><gray>so vor sich hin. Sehr entspannt.]
+3|4 — 1x HORSE_SPAWN_EGG "<!italic><bold><white>Pferd-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Schnell, stolz und ignoriert dich / <italic><gray>bis du es sattelst.]
+4|4 — 1x DONKEY_SPAWN_EGG "<!italic><bold><white>Esel-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Trägt alles, meckert aber innerlich / <italic><gray>die ganze Zeit.]
+5|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+6|4 — 1x CHICKEN_SPAWN_EGG "<!italic><bold><white>Huhn-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Rennt panisch herum und tut so / <italic><gray>als hätte es einen Plan.]
+7|4 — 1x PIG_SPAWN_EGG "<!italic><bold><white>Schwein-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Einfach ein Schwein. Sehr ehrlich. / <italic><gray>Kein Drama, nur Geräusche.]
+8|4 — 1x RABBIT_SPAWN_EGG "<!italic><bold><white>Hase-Spawnei" [Lore: <!italic><yellow>Kosten: 200 TP /  / <italic><gray>Süß, schnell und verschwindet / <italic><gray>immer genau dann, wenn du schaust.]
+9|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+1|5 — 1x SUNFLOWER "<!italic><bold><yellow>Treuepunkte (TP)" [Lore: <!italic><!bold><white>69 Punkte /  / <italic><gray>'Treuepunkte können passiv beim Einkauf / <italic><gray>in anderen Spieler-Shops generiert werden.']
+2|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+3|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+4|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+5|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+6|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+7|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+8|5 — 1x PURPLE_STAINED_GLASS_PANE " "
+9|5 — 1x SPECTRAL_ARROW "<!italic><bold><white>⮜ Zurück"
+1|6 — 1x RED_STAINED_GLASS_PANE " "
+2|6 — 1x RED_STAINED_GLASS_PANE " "
+3|6 — 1x RED_STAINED_GLASS_PANE " "
+4|6 — 1x RED_STAINED_GLASS_PANE " "
+5|6 — 1x RED_STAINED_GLASS_PANE " "
+6|6 — 1x RED_STAINED_GLASS_PANE " "
+7|6 — 1x RED_STAINED_GLASS_PANE " "
+8|6 — 1x RED_STAINED_GLASS_PANE " "
+9|6 — 1x RED_STAINED_GLASS_PANE " "
+
