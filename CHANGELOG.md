@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.3.0](https://github.com/FGBxRamel/TesseraniaEconomySystem/compare/v0.2.0...v0.3.0) (2026-08-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **command:** drop /tes prefix, promote each subsystem to a top-level command
+
+### Features
+
+* Add debug command for dumping chest contents ([af0d69c](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/af0d69c38041190c1a2cedb97cf98e85c7040592))
+* **command:** drop /tes prefix, promote each subsystem to a top-level command ([b56fd00](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/b56fd00121d298fe58f156d6dc7c990cca0a3d7a))
+* **gui:** rework Stage 2 GUIs to match reference builds, finish invoice retraction ([0af71a5](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/0af71a535fb692cd6597061f56ebe4c12cef02bd))
+* **gui:** trim dead-zone rows, promote placeholder panes to content slots ([5974ac8](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/5974ac862181e7690a3e7aff5d10b2238de31d2b))
+* **rechnung:** add invoice creation, settlement and cash-out ([ac27827](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/ac27827bdf99388271699a672c3829543b504141))
+* **rechnung:** add invoice creation, settlement and cash-out ([fb5fc55](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/fb5fc55efdb2e7ba45bea59542c9c3cb3b6331bb))
+* **reward:** add Belohnungsinventar core and /tes belohnung ([8ccbe88](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/8ccbe88dcb68f8f3fdbd878b2225ad54d6d4a4f9))
+* **reward:** add Belohnungsinventar core and /tes belohnung ([1975f9f](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/1975f9fb65e9986bcbcf1863c261350cc176eecb))
+* **shop:** toggle owner off when re-typed while editing shop owners ([4f8940a](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/4f8940a37e22e5de9e8edb338a3d107135d306d6))
+
+
+### Bug Fixes
+
+* **gui:** fix custom head buttons showing "'s Head" instead of their label ([ad8e38b](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/ad8e38b8aeb09153ce136d4d45218e6aaec73987))
+* **gui:** restore white glass fillers for empty invoice content slots ([799878a](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/799878a835a15d8a76d74a52ebd4670b4c2203d0))
+* **gui:** use Adventure components and add filler panes in Stage 2 GUIs ([5211469](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/5211469938a752132fd32de7e907631200108acb))
+* **shop,invoice:** enforce paused-player restrictions on buy/sell/cash-out ([0c3f121](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/0c3f1211309dddc6368bbc55af25503fb50f79fe))
+* **shop:** block paused owners from withdrawing diamonds or editing shops ([176421a](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/176421a7578e3ef6889a8c8bb6c42bd9acd7822e))
+* **shop:** make shop ids globally unique, drop &lt;world&gt; argument ([441627e](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/441627e548ffb8634390c4a477d88b9e404857e6))
+
 ## [0.2.0](https://github.com/FGBxRamel/TesseraniaEconomySystem/compare/v0.1.0...v0.2.0) (2026-08-22)
 
 
