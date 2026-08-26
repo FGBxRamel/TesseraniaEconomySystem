@@ -112,4 +112,57 @@ public final class TesConfig {
     public int treueshopProzessverstaerkerBoostMinutes() {
         return plugin.getConfig().getInt(TREUESHOP_PROZESSVERSTAERKER_BOOST_MINUTES_PATH, DEFAULT_TREUESHOP_PROZESSVERSTAERKER_BOOST_MINUTES);
     }
+
+    private static final String HANDELSBONUS_DISCOUNT_DIAMONDS_PATH = "treueshop.handelsbonus.discount-diamonds";
+    private static final String HANDELSBONUS_COOLDOWN_MIN_DAYS_PATH = "treueshop.handelsbonus.cooldown-min-days";
+    private static final String HANDELSBONUS_COOLDOWN_MAX_DAYS_PATH = "treueshop.handelsbonus.cooldown-max-days";
+    private static final String HANDELSBONUS_STAATSKASSE_WORLD_PATH = "treueshop.handelsbonus.staatskasse.world";
+    private static final String HANDELSBONUS_STAATSKASSE_X_PATH = "treueshop.handelsbonus.staatskasse.x";
+    private static final String HANDELSBONUS_STAATSKASSE_Y_PATH = "treueshop.handelsbonus.staatskasse.y";
+    private static final String HANDELSBONUS_STAATSKASSE_Z_PATH = "treueshop.handelsbonus.staatskasse.z";
+    private static final int DEFAULT_HANDELSBONUS_DISCOUNT_DIAMONDS = 5;
+    private static final int DEFAULT_HANDELSBONUS_COOLDOWN_MIN_DAYS = 21;
+    private static final int DEFAULT_HANDELSBONUS_COOLDOWN_MAX_DAYS = 28;
+
+    /**
+     * How many diamonds a triggered Handelsbonus discounts, in total, off future shop purchases
+     * (spec §3.2.1.1, Belohnung 4).
+     */
+    public int treueshopHandelsbonusDiscountDiamonds() {
+        return plugin.getConfig().getInt(HANDELSBONUS_DISCOUNT_DIAMONDS_PATH, DEFAULT_HANDELSBONUS_DISCOUNT_DIAMONDS);
+    }
+
+    /**
+     * The random post-trigger cooldown range (days) before a player can trigger Handelsbonus
+     * again — spec: "einem zufälligen Zeitraum zwischen 3 und 4 Wochen".
+     */
+    public int treueshopHandelsbonusCooldownMinDays() {
+        return plugin.getConfig().getInt(HANDELSBONUS_COOLDOWN_MIN_DAYS_PATH, DEFAULT_HANDELSBONUS_COOLDOWN_MIN_DAYS);
+    }
+
+    public int treueshopHandelsbonusCooldownMaxDays() {
+        return plugin.getConfig().getInt(HANDELSBONUS_COOLDOWN_MAX_DAYS_PATH, DEFAULT_HANDELSBONUS_COOLDOWN_MAX_DAYS);
+    }
+
+    /**
+     * The world name of the Staatskasse chest funding Handelsbonus discounts (spec: "Truhe dessen
+     * Koordinaten in der Configdatei... angegeben werden müssen"). Blank/unset means no chest is
+     * configured yet — Handelsbonus purchases still work, but discounts nothing until an admin
+     * sets one.
+     */
+    public String treueshopHandelsbonusStaatskasseWorld() {
+        return plugin.getConfig().getString(HANDELSBONUS_STAATSKASSE_WORLD_PATH, "");
+    }
+
+    public int treueshopHandelsbonusStaatskasseX() {
+        return plugin.getConfig().getInt(HANDELSBONUS_STAATSKASSE_X_PATH, 0);
+    }
+
+    public int treueshopHandelsbonusStaatskasseY() {
+        return plugin.getConfig().getInt(HANDELSBONUS_STAATSKASSE_Y_PATH, 0);
+    }
+
+    public int treueshopHandelsbonusStaatskasseZ() {
+        return plugin.getConfig().getInt(HANDELSBONUS_STAATSKASSE_Z_PATH, 0);
+    }
 }

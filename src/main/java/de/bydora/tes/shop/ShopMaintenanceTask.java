@@ -68,8 +68,10 @@ public final class ShopMaintenanceTask extends BukkitRunnable {
         if (buyer.isEmpty() || buyer.get().paused()) {
             return;
         }
-        playerRepository.addTreuepunkte(transaction.buyerUuid(), transaction.price() * config.talerToTpRatio());
-        playerRepository.addErfahrungspunkte(transaction.buyerUuid(), transaction.price() * config.talerToEpRatio());
+        // Handelsbonus-funded diamonds don't earn TP/EP (spec: "Für die 5 Dias gibt es keine EP / TP!").
+        int creditablePrice = transaction.buyerPaid();
+        playerRepository.addTreuepunkte(transaction.buyerUuid(), creditablePrice * config.talerToTpRatio());
+        playerRepository.addErfahrungspunkte(transaction.buyerUuid(), creditablePrice * config.talerToEpRatio());
     }
 
     private void scanForOrphans() {

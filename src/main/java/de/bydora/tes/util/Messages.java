@@ -463,6 +463,26 @@ public final class Messages {
         return Component.text("Boost aktiv! Verbleibende Zeit: " + remainingMinutes + " Minuten.", NamedTextColor.GREEN);
     }
 
+    public static Component handelsbonusDiscountApplied(int discount, int remaining) {
+        return Component.text("Handelsbonus aktiv: " + discount + " Diamanten Rabatt erhalten. "
+                + remaining + " Diamanten Rabatt verbleiben.", NamedTextColor.GREEN);
+    }
+
+    public static Component handelsbonusDiscountExhausted(int discount) {
+        return Component.text("Handelsbonus aktiv: " + discount + " Diamanten Rabatt erhalten. "
+                + "Dein Rabatt ist jetzt aufgebraucht.", NamedTextColor.YELLOW);
+    }
+
+    public static Component handelsbonusAlreadyActive() {
+        return Component.text("Dein Handelsbonus läuft noch — du kannst ihn erst nach Ablauf der "
+                + "Cooldown-Zeit erneut erwerben.", NamedTextColor.RED);
+    }
+
+    public static Component handelsbonusSlotsFull() {
+        return Component.text("Der Handelsbonus wird aktuell von 2 Spielern genutzt. Schau später "
+                + "wieder vorbei.", NamedTextColor.RED);
+    }
+
     // ---- Debug (/debug dump, siehe docs/gui-reference-capture.md) ----
 
     public static Component debugDumpUnsupported() {

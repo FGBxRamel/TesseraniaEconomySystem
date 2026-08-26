@@ -160,6 +160,75 @@ item has been granted.
   a beehive never exceeds +2 per increment), which the spec's flat "15min doppelt so schnell"
   wording (not "up to Nx") supports.
 
+## Handelsbonus (`de.bydora.tes.handelsbonus`)
+
+Belohnung 4 is the last Stage 3 reward and the one that reaches back into already-shipped Stage 1
+purchase code (`ShopTradeListener`, `ShopEconomy`, `ShopMaintenanceTask`) rather than staying
+self-contained — the discount has to apply to every future shop purchase the holder makes, not to
+anything granted at Treueshop-purchase time.
+
+### Model
+
+- **At most 2 players may hold an active Handelsbonus at once** ("maximal durch 2 Spieler
+  gleichzeitig auslösen"). A player already holding one (cooldown still running) can't trigger it
+  again; once 2 *different* players are both on cooldown, a third can't trigger it either — the
+  Treueshop button swaps to the "ausgegrauter Diamant" (transcribed from
+  `GUI_References/Greyed_Diamond.txt`: plain re-lored `DIAMOND`, not custom-model-data, same
+  reconciliation as branch 1) until a slot frees up.
+- **The cooldown and the discount balance are tracked independently**, both in one
+  `handelsbonus_holders` row per player. Triggering sets a random 3-4-week `cooldown_until` (spec:
+  "einem zufälligen Zeitraum zwischen 3 und 4 Wochen") *and* a fresh 5-diamond
+  `discount_remaining` — but the spec's own lore ("Nicht verbrauchte Werte bleiben erhalten") says
+  the discount balance itself never expires on a timer, only re-triggering is cooldown-gated. So
+  `countOnCooldown` (the concurrency/greying check) filters on `cooldown_until`, while discount
+  application (`consumeDiscount`) only cares whether `discount_remaining > 0` — a player whose
+  cooldown already lapsed can still have leftover discount sitting unused, and it still applies.
+- **The Staatskasse is a real chest**, not a virtual balance — `Staatskasse.withdraw` resolves it
+  from `config.yml` coordinates (mirroring `ShopEconomy.resolveInventory`'s pattern) and caps the
+  discount at whatever's actually in there. Unconfigured (blank world) or an emptied chest just
+  means Handelsbonus purchases still succeed but discount nothing until an admin funds it — no
+  error, no blocked purchase.
+
+### Wiring into `ShopTradeListener`
+
+`handleBuyerClick` now computes `discount = withdrawHandelsbonusDiscount(buyer, price)` before the
+affordability check (so a buyer only needs `price - discount` diamonds on hand), and the shop
+slot's earned diamonds stay at the full nominal `price` regardless — the owner is never aware a
+discount happened; only the buyer's own out-of-pocket diamonds and the Staatskasse's stock change.
+`ShopTransactionRecord` gained a `staatskasseFunded` field (new `shop_transactions` column,
+default 0 for all pre-existing rows) so the rest of the purchase lifecycle can tell how much of a
+given sale was state-funded:
+
+- **TP/EP accrual** (`ShopMaintenanceTask.creditBuyer`) uses `transaction.buyerPaid()`
+  (`price - staatskasseFunded`), not `price` — spec: "Für die 5 Dias gibt es keine EP / TP!".
+- **A within-window refund** (`ShopTradeListener.refund`, and `ShopEconomy.forceRefundPending` for
+  a closed/orphaned shop) also gives back only `buyerPaid()`, not the full price — otherwise a
+  refunded purchase would hand the buyer free diamonds they never actually spent.
+- **Deliberately not unwound on refund**: the Staatskasse's contribution and the holder's consumed
+  discount balance. The spec doesn't describe refund semantics for Handelsbonus at all; treating
+  the state's spend as sunk once applied is the simpler, lower-risk reading (and arguably the more
+  realistic one — a cancelled purchase doesn't reverse the state's own bookkeeping). This kept the
+  change from needing to thread `HandelsbonusRepository`/`TesConfig` through both
+  `forceRefundPending` call sites (`ShopCommand`, `ShopMaintenanceTask`) on top of the purchase
+  path that already needed it.
+
+### Admin setup
+
+The Staatskasse chest doesn't exist by default — an admin must place a real container (chest,
+barrel, etc.) somewhere and set `treueshop.handelsbonus.staatskasse.world/x/y/z` in `config.yml`
+to its coordinates, then keep it stocked with diamonds. Nothing in-game points an admin at this
+requirement yet; it's config-only, matching the spec's own "Koordinaten... in der Configdatei...
+angegeben werden müssen".
+
+### Package layout
+
+`de.bydora.tes.handelsbonus`: `HandelsbonusHolderRecord`/`HandelsbonusRepository`/
+`SqliteHandelsbonusRepository` (the holder table) and `Staatskasse` (chest resolution/withdrawal).
+`TreueshopHandelsbonus` (in `de.bydora.tes.treueshop`, package-private) owns the Treueshop button's
+purchase gating and its two icon states — special-cased directly in `TreueshopGui.rewardItem`
+rather than fitting the generic cost-then-effect dispatch every other reward uses, since this is
+the only reward whose purchase can be blocked by something other than insufficient TP.
+
 ## Erntewelt / Glutzone item stub
 
 Both grant a custom-named, custom-lored `CHORUS_FRUIT` (`TreueshopItemGrants.grantErntewelt` /

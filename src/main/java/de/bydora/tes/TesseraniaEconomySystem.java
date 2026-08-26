@@ -5,6 +5,8 @@ import de.bydora.tes.config.TesConfig;
 import de.bydora.tes.data.Database;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.data.SqlitePlayerRepository;
+import de.bydora.tes.handelsbonus.HandelsbonusRepository;
+import de.bydora.tes.handelsbonus.SqliteHandelsbonusRepository;
 import de.bydora.tes.invoice.InvoiceRepository;
 import de.bydora.tes.invoice.SqliteInvoiceRepository;
 import de.bydora.tes.prozessverstaerker.ProzessverstaerkerBoostRepository;
@@ -48,6 +50,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
     private RewardInventoryService rewardInventoryService;
     private InvoiceRepository invoiceRepository;
     private ProzessverstaerkerBoostRepository prozessverstaerkerBoostRepository;
+    private HandelsbonusRepository handelsbonusRepository;
     private ShopRegistry shopRegistry;
     private ShopSessionManager shopSessionManager;
     private ShopChatListener shopChatListener;
@@ -69,6 +72,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
         rewardInventoryService = new RewardInventoryService(rewardInventoryRepository);
         invoiceRepository = new SqliteInvoiceRepository(database);
         prozessverstaerkerBoostRepository = new SqliteProzessverstaerkerBoostRepository(database);
+        handelsbonusRepository = new SqliteHandelsbonusRepository(database);
 
         shopRegistry = new ShopRegistry(shopRepository);
         shopRegistry.load();
@@ -78,7 +82,7 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new ShopProtectionListener(shopRegistry), this);
         Bukkit.getPluginManager().registerEvents(shopChatListener, this);
-        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository, playerRepository), this);
+        Bukkit.getPluginManager().registerEvents(new ShopTradeListener(this, shopRegistry, shopTransactionRepository, playerRepository, handelsbonusRepository, tesConfig), this);
         Bukkit.getPluginManager().registerEvents(new PendingNotificationListener(pendingNotificationRepository), this);
         Bukkit.getPluginManager().registerEvents(new ProzessverstaerkerListener(this, prozessverstaerkerBoostRepository), this);
 
@@ -137,6 +141,10 @@ public final class TesseraniaEconomySystem extends JavaPlugin {
 
     public ProzessverstaerkerBoostRepository prozessverstaerkerBoostRepository() {
         return prozessverstaerkerBoostRepository;
+    }
+
+    public HandelsbonusRepository handelsbonusRepository() {
+        return handelsbonusRepository;
     }
 
     public ShopRegistry shopRegistry() {
