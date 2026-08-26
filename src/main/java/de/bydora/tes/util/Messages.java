@@ -442,6 +442,10 @@ public final class Messages {
         return Component.text("Du hast nicht genügend Treuepunkte für diese Aktion.", NamedTextColor.RED);
     }
 
+    public static Component treueshopRewardPurchased(String rewardName) {
+        return Component.text("Du hast \"" + rewardName + "\" erworben.", NamedTextColor.GREEN);
+    }
+
     public static Component treueshopTransferSelfTarget() {
         return Component.text("Du kannst Treuepunkte nicht an dich selbst übertragen.", NamedTextColor.RED);
     }

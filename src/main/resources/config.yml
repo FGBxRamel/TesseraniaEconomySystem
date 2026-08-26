@@ -23,3 +23,9 @@ treueshop:
     glutzone: { cost: 160 }
     kraftelixier: { cost: 175 }
     spawner: { cost: 1000 }
+  segen-der-zwerge:
+    # Dauer des Eile-II-Effekts nach Kauf.
+    haste-minutes: 30
+  kraftelixier:
+    # Dauer des Effektbündels (Regeneration II, Resistenz II, Stärke, Held des Dorfes) nach Kauf.
+    effect-minutes: 30

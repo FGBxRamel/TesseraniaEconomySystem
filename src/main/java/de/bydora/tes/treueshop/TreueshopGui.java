@@ -3,9 +3,11 @@ package de.bydora.tes.treueshop;
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.gui.CustomHeads;
+import de.bydora.tes.util.Messages;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.Gui;
@@ -14,17 +16,21 @@ import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * The Treuepunkteshop main interface (spec §3.2, "Ebene 1"), laid out per the reference build at
  * -406 -11 -3390: a 9x4 grid of the 12 top-level rewards from {@link TreueshopRewardCatalog}, a
  * sunflower showing the caller's Treuepunkte balance, and a "Levelinterface" button. That button
  * is a documented no-op until Stage 4 builds the level interface — same pattern as
- * {@link de.bydora.tes.reward.RewardInventoryGui}'s "⮜ Levelinterface" item. None of the 12
- * reward slots are purchasable yet; that lands in later Stage 3 branches.
+ * {@link de.bydora.tes.reward.RewardInventoryGui}'s "⮜ Levelinterface" item. Only the direct-effect
+ * rewards (Segen der Zwerge, Kraftelixier) are purchasable so far; the rest render with real
+ * name/lore/cost but no click handler yet, pending later Stage 3 branches.
  */
 public final class TreueshopGui {
 
@@ -40,7 +46,7 @@ public final class TreueshopGui {
     public static void open(TesseraniaEconomySystem plugin, Player player) {
         char[][] grid = new char[ROWS][COLUMNS];
         for (char[] row : grid) {
-            java.util.Arrays.fill(row, FILLER);
+            Arrays.fill(row, FILLER);
         }
 
         Map<Character, TreueshopReward> rewardsByKey = new LinkedHashMap<>();
@@ -112,10 +118,39 @@ public final class TreueshopGui {
         }
         lore.addAll(reward.flavorLore());
 
-        return Item.builder()
+        Item.Builder<?> builder = Item.builder()
                 .setItemProvider(new ItemBuilder(reward.icon())
                         .setName(reward.title())
-                        .addLoreLines(lore))
-                .build();
+                        .addLoreLines(lore));
+
+        directEffect(reward).ifPresent(effect ->
+                builder.addClickHandler((item, click) -> purchase(plugin, click.player(), reward, effect)));
+
+        return builder.build();
+    }
+
+    private static Optional<BiConsumer<TesseraniaEconomySystem, Player>> directEffect(TreueshopReward reward) {
+        if (!reward.hasCost()) {
+            return Optional.empty();
+        }
+        return switch (reward.costConfigId()) {
+            case "segen-der-zwerge" -> Optional.of(TreueshopEffects::applySegenDerZwerge);
+            case "kraftelixier" -> Optional.of(TreueshopEffects::applyKraftelixier);
+            default -> Optional.empty();
+        };
+    }
+
+    private static void purchase(TesseraniaEconomySystem plugin, Player player, TreueshopReward reward,
+            BiConsumer<TesseraniaEconomySystem, Player> effect) {
+        int cost = plugin.tesConfig().treueshopRewardCost(reward.costConfigId(), reward.defaultCost());
+        TreueshopRewardService.PurchaseResult result = TreueshopRewardService.purchase(
+                plugin, player, cost, () -> effect.accept(plugin, player));
+        if (result == TreueshopRewardService.PurchaseResult.INSUFFICIENT_TP) {
+            player.sendMessage(Messages.treueshopInsufficientTp());
+            return;
+        }
+        String rewardName = PlainTextComponentSerializer.plainText().serialize(reward.title());
+        player.sendMessage(Messages.treueshopRewardPurchased(rewardName));
+        open(plugin, player);
     }
 }
