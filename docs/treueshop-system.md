@@ -75,8 +75,8 @@ resolved with the user rather than assumed — treat them as final, not open TOD
   now `applyXpBoost`'s `Player#giveExp`) — nothing persisted, matching how these don't survive a
   server restart anyway.
 - `TreueshopItemGrants` — item-grant rewards (Spawner, the Erntewelt/Glutzone stub Chorus Fruits,
-  mob-egg bundles), all routed through `RewardInventoryService#grant`, never a live inventory
-  placement.
+  mob-egg bundles, Prozessverstärker), all routed through `RewardInventoryService#grant`, never a
+  live inventory placement.
 
 ## Purchase flow
 
@@ -121,6 +121,44 @@ amounts (6000/12500/30000/50000) and each bundle's egg list, by contrast, are **
 changed independently via config (same tradeoff the existing haste/Kraftelixier duration lore
 already accepts: config governs the actual effect, but the lore shows the shipped default as a
 static string).
+
+## Prozessverstärker (`de.bydora.tes.prozessverstaerker`)
+
+Belohnung 1 is the only Treueshop reward that isn't a shop-menu interaction at all past the
+purchase itself — it grants a physical item (a re-lored, tag-identified `GLOWSTONE_DUST`,
+`ProzessverstaerkerItems.create`) that the player then right-clicks onto a furnace (any of
+`FURNACE`/`BLAST_FURNACE`/`SMOKER`) or beehive (`BEEHIVE`/`BEE_NEST`) to consume it and apply a
+boost. Kept as its own top-level package rather than folded into `treueshop` — it has its own
+persistence, listener and background task, and nothing about it is Treueshop-GUI-shaped once the
+item has been granted.
+
+- **Item identification is a PDC tag** (`ProzessverstaerkerItems`), not name/lore matching — same
+  convention as `ShopConversion`'s block-side shop tag — so a player can't make their own Glowstone
+  Dust act as one by renaming it.
+- **`prozessverstaerker_boosts`** (new table) is natural-keyed on `(world, x, y, z)`: a block only
+  ever has one active boost, so re-use extends `expires_at` rather than inserting a second row —
+  `SqliteProzessverstaerkerBoostRepository#extend` does a read-then-upsert (`MAX(remaining, now) +
+  duration`), safe without extra locking since `Database#execute` already serializes all access to
+  the single connection.
+- **Furnace boost** is a one-shot `Furnace#setCookSpeedMultiplier(2.0)` (a Paper API) applied
+  immediately in `ProzessverstaerkerListener`, not something the sweep task drives — the multiplier
+  is a genuine block property that persists on its own once set.
+- **Beehive boost** has no such single "apply once" hook: honey level increases deep inside a bee's
+  return-to-hive tick, with no matching Bukkit event. `ProzessverstaerkerSweepTask` instead tracks
+  each boosted beehive's last-observed `Beehive#getHoneyLevel()` (in memory, rebuilt from the live
+  block the first time a boost is seen) and adds one more whenever vanilla's own +1 already landed
+  — turning every natural increment into +2, capped at `getMaximumHoneyLevel()`.
+- **The sweep task** (`ProzessverstaerkerSweepTask`, every 100 ticks, same cadence as
+  `ShopMaintenanceTask`) is also what expires boosts (resets the furnace multiplier to `1.0`,
+  forgets the beehive's tracked level, deletes the row) and self-heals if a boosted block was
+  destroyed/changed outside the plugin, mirroring `ShopMaintenanceTask`'s orphan handling.
+- Both furnace and beehive boosts share one duration (`treueshop.prozessverstaerker.boost-minutes`,
+  default 15) — the PDF ties the beehive doubling to "die Zeit des Boosts" (the same window a
+  furnace boost would run), not a separate value. "Effekt lässt sich addieren, sollte ein Block
+  mehrfach geboostet werden" is implemented as duration stacking (each re-use adds the full
+  duration on top of any remaining time) — not multiplier stacking (a furnace never exceeds 2x,
+  a beehive never exceeds +2 per increment), which the spec's flat "15min doppelt so schnell"
+  wording (not "up to Nx") supports.
 
 ## Erntewelt / Glutzone item stub
 

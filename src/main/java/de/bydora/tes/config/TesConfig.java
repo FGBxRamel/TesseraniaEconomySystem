@@ -100,4 +100,16 @@ public final class TesConfig {
     public int treueshopKraftelixierMinutes() {
         return plugin.getConfig().getInt(TREUESHOP_KRAFTELIXIER_MINUTES_PATH, DEFAULT_TREUESHOP_KRAFTELIXIER_MINUTES);
     }
+
+    private static final String TREUESHOP_PROZESSVERSTAERKER_BOOST_MINUTES_PATH = "treueshop.prozessverstaerker.boost-minutes";
+    private static final int DEFAULT_TREUESHOP_PROZESSVERSTAERKER_BOOST_MINUTES = 15;
+
+    /**
+     * How long a Prozessverstärker boost lasts on a single use (spec §3.2.1.1, Belohnung 1) —
+     * governs both the furnace 2x-speed window and the beehive honey-doubling window; re-using
+     * the item on an already-boosted block adds this on top of its remaining time.
+     */
+    public int treueshopProzessverstaerkerBoostMinutes() {
+        return plugin.getConfig().getInt(TREUESHOP_PROZESSVERSTAERKER_BOOST_MINUTES_PATH, DEFAULT_TREUESHOP_PROZESSVERSTAERKER_BOOST_MINUTES);
+    }
 }

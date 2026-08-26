@@ -83,7 +83,7 @@ the other way around. Apply the same registered/paused distinction when building
 (e.g. loyalty-shop redemptions).
 
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
-Status: `[ ]` in progress — main interface, TP transfer, and 10 of 12 rewards shipped (2026-08-27, not yet released as a version bump)
+Status: `[ ]` in progress — main interface, TP transfer, and 11 of 12 rewards shipped (2026-08-27, not yet released as a version bump)
 Implements: §3.2
 
 GUI library decision (InvUI) was made in Stage 2, not here — see the "GUI implementation" note
@@ -96,7 +96,7 @@ reference build.
 - [x] `/treuepunkte übertragen <Spieler> <Anzahl>` (see resolved spec gap below) — merged (PR #13).
 - [x] Segen der Zwerge (haste) and Kraftelixier (potion bundle) — merged (PR #15).
 - [x] XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, Erntewelt/Glutzone item stubs, Spawner.
-- [ ] Prozessverstärker (furnace/beehive boost).
+- [x] Prozessverstärker (furnace/beehive boost).
 - [ ] Handelsbonus (2-player-max, staatskasse-funded discount; its "on cooldown" state is a
       plain re-lored `DIAMOND`, not a custom-model-data swap as originally assumed — confirmed
       against the reference build).

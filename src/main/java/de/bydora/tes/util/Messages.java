@@ -459,6 +459,10 @@ public final class Messages {
         return Component.text(senderName + " hat dir " + amount + " Treuepunkte übertragen.", NamedTextColor.YELLOW);
     }
 
+    public static Component prozessverstaerkerApplied(long remainingMinutes) {
+        return Component.text("Boost aktiv! Verbleibende Zeit: " + remainingMinutes + " Minuten.", NamedTextColor.GREEN);
+    }
+
     // ---- Debug (/debug dump, siehe docs/gui-reference-capture.md) ----
 
     public static Component debugDumpUnsupported() {

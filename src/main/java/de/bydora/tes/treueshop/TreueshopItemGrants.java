@@ -1,6 +1,7 @@
 package de.bydora.tes.treueshop;
 
 import de.bydora.tes.TesseraniaEconomySystem;
+import de.bydora.tes.prozessverstaerker.ProzessverstaerkerItems;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -48,6 +49,15 @@ public final class TreueshopItemGrants {
      */
     public static void grantGlutzone(TesseraniaEconomySystem plugin, Player player) {
         plugin.rewardInventoryService().grant(player.getUniqueId(), chorusFruit("Glutzone-Zugang", NamedTextColor.GOLD));
+    }
+
+    /**
+     * Belohnung 1, "Prozessverstärker": the tagged Glowstone Dust
+     * {@link ProzessverstaerkerItems#create} builds — see
+     * {@code de.bydora.tes.prozessverstaerker} for what using it actually does.
+     */
+    public static void grantProzessverstaerker(TesseraniaEconomySystem plugin, Player player) {
+        plugin.rewardInventoryService().grant(player.getUniqueId(), ProzessverstaerkerItems.create(plugin));
     }
 
     /**

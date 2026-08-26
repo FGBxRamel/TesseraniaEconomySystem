@@ -82,6 +82,7 @@ Direkt im Hauptinterface einlösbar sind:
 - **Erntewelt** / **Glutzone** (schaltet die jeweilige Farmwelt frei – landet als Chorusfrucht in
   deinem Belohnungsinventar; das Essen der Frucht funktioniert erst, sobald die Farmwelten selbst
   fertig sind)
+- **Prozessverstärker** (ein Glowstone-Staub, der in dein Belohnungsinventar wandert – siehe unten)
 
 Ein Linksklick zieht die angezeigten Treuepunkte ab und wendet den Effekt sofort an bzw. legt das
 Item in dein Belohnungsinventar (`/belohnung`).
@@ -96,8 +97,16 @@ Vier weitere Felder öffnen ein Untermenü statt direkt etwas zu verkaufen:
   Kuh/Esel/Huhn/Schwein/Pferd/Kaninchen).
 
 Ein Pfeil ("⮜ Zurück") führt aus jedem Untermenü zurück zum Hauptinterface. Nur
-**Prozessverstärker** und **Handelsbonus** sind noch nicht einlösbar; das folgt in weiteren
-Ausbaustufen von Stage 3.
+**Handelsbonus** ist noch nicht einlösbar; das folgt in einer weiteren Ausbaustufe von Stage 3.
+
+### Prozessverstärker benutzen
+
+Der Prozessverstärker landet als Item in deinem Belohnungsinventar (`/belohnung`). Rechtsklicke
+damit auf einen **Ofen** (Ofen, Hochofen oder Räucherofen) oder einen **Bienenstock**
+(Bienenstock oder Bienennest), um ihn für 15 Minuten zu boosten – der Ofen brennt danach doppelt
+so schnell, der Bienenstock produziert doppelt so viel Honig. Das Item wird dabei verbraucht.
+Boostest du denselben Block erneut, während der Boost noch läuft, addiert sich die Dauer auf die
+verbleibende Zeit.
 
 ### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>`
 

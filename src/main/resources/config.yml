@@ -37,3 +37,7 @@ treueshop:
   kraftelixier:
     # Dauer des Effektbündels (Regeneration II, Resistenz II, Stärke, Held des Dorfes) nach Kauf.
     effect-minutes: 30
+  prozessverstaerker:
+    # Dauer eines einzelnen Boosts (Ofen 2x Geschwindigkeit / Bienenstock 2x Honigproduktion).
+    # Mehrfache Nutzung auf demselben Block addiert diese Dauer zur verbleibenden Zeit.
+    boost-minutes: 15
