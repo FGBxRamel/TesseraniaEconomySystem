@@ -74,6 +74,19 @@ any InvUI class is touched, which works out of the box once InvUI is shaded into
 - **Static vs. dynamic item content**: `Item.simple(...)` for content that never changes (filler
   panes); `Item.builder().setItemProvider(...)` (or the paged-bound variant) for anything that
   needs to be recomputed per render (e.g. a balance shown in an item's lore).
+- **Non-paginated screens use `Gui.builder()`, not `PagedGui`**: `TreueshopGui` (Stage 3 main
+  interface) is the first screen with a fixed layout — specific reward buttons at specific grid
+  positions, not a variable-length list. `Gui.builder()` (returns `Gui.Builder<?>`) shares the same
+  `setStructure`/`addIngredient`/`build()` surface as `PagedGui.itemsBuilder()` (both implement
+  `IngredientMapper`), just without page navigation — reach for it whenever a screen's content is
+  fixed rather than paginated.
+- **Building a `Structure` from position data, not hand-typed strings**: when a screen's content
+  comes from a data list with explicit column/row positions (like `TreueshopRewardCatalog`'s 12
+  rewards) rather than a hand-laid-out grid, build the `Structure`'s row strings programmatically —
+  fill a `char[rows][columns]` grid with a filler character, assign each data item a unique
+  ingredient key at its `(column, row)` position, then join each row into a `String`. Cheaper and
+  less error-prone than hand-counting a 9-character literal per row and re-deriving it whenever a
+  reward's position changes.
 - **Close button doubles as previous-page on page 2+**: confirmed against the in-game reference
   builds (invoice interfaces at -414 -12 -3393 / -412 -12 -3392, and — per user confirmation, since
   its reference capture shows an unlabeled "-" placeholder rather than literal "Schließen" text —
