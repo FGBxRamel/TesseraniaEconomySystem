@@ -10,3 +10,16 @@ shops:
   proximity-blocks: 10
   # Wie lange eine Shop-Erstellung/-Bearbeitung im Chat auf Eingaben wartet, bevor sie verfällt.
   session-timeout-seconds: 120
+
+treueshop:
+  # Treuepunkte-Kosten der Belohnungen im Treuepunkteshop (§3.2.1.1), abgeglichen mit dem
+  # Referenzaufbau in der Kreativwelt. Belohnungen ohne eigene Kosten (öffnen nur ein Untermenü)
+  # sind hier nicht aufgeführt.
+  rewards:
+    prozessverstaerker: { cost: 25 }
+    segen-der-zwerge: { cost: 100 }
+    handelsbonus: { cost: 150 }
+    erntewelt: { cost: 160 }
+    glutzone: { cost: 160 }
+    kraftelixier: { cost: 175 }
+    spawner: { cost: 1000 }

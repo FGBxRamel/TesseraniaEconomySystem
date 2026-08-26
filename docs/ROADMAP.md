@@ -4,6 +4,8 @@ Development proceeds in stages. Each stage adds one or more significant features
 
 **How to use this doc**: this is the source of truth for what stage development is currently on, across sessions. When a stage's feature(s) ship (PR(s) merged to `main`), tick its checkbox and add a one-line note (date + release version if one was cut). Don't rewrite history here — append notes, don't delete completed stage descriptions.
 
+**Spec version**: `docs/Tesserania-Economy-System.pdf` is currently **v1.3** (25.08.2026). It gets revised in place — when it changes, diff it against the previous committed version (`git show HEAD:docs/Tesserania-Economy-System.pdf > old.pdf` + `pdftotext -layout` on both + `diff`) rather than re-reading all 32 pages from scratch, and bump this line. Past revisions, for context: v1.0 (initial) → v1.2 (23.08.2026: added the 2304-Taler invoice cap, invoice retraction, invoice-interface reference coordinates) → v1.3 (25.08.2026: dropped the `/tes` root prefix and the `<world>` argument from every command example throughout the document — both already matched our independent implementation choices by the time the spec caught up; added an explicit pause-sanction rule, see Stage 1/2 notes below; typo fixes only otherwise).
+
 ## External dependencies / integration notes
 
 - **Permissions**: [LuckPerms](https://luckperms.net/) is a hard requirement on the target server. TES does not implement its own permission system — it only needs to define and check sufficient permission nodes (e.g. `tes.admin`, `tes.shop.create`, `tes.rechnung.erstellen`, ...). Granting/assigning nodes to players/groups is server-side LuckPerms configuration, out of scope for this plugin.
@@ -40,7 +42,7 @@ Status: `[x]` shipped (2026-08-22, release `v0.2.0`)
 Implements: §3.1.1.1
 
 - Shop container conversion (chest, double chest, redstone chest/double, barrel, shulker + colors) with required attributes (ID, name, owner(s), position, item, price/slot) and optional teleport point.
-- `/shop erstellen|bearbeiten|schließen|liste [id]`, chat-driven UX modeled on the BlueMap Marker plugin flow, including the >10-shops pagination behavior in `liste`. Deviates from the spec's literal `<world>` argument: shop ids are enforced globally unique, so `erstellen` uses the player's current world and `bearbeiten`/`schließen`/`tp` resolve by id alone.
+- `/shop erstellen|bearbeiten|schließen|liste [id]`, chat-driven UX modeled on the BlueMap Marker plugin flow, including the >10-shops pagination behavior in `liste`. No `<world>` argument: shop ids are enforced globally unique, so `erstellen` uses the player's current world and `bearbeiten`/`schließen`/`tp` resolve by id alone. This was originally a deliberate deviation from the spec's literal `<world> [id]` syntax (v1.0/v1.2) — spec v1.3 dropped the `<world>` argument from every command example too, so the implementation and spec now agree; the global-uniqueness *model* behind it remains our own implementation choice, not something the spec mandates either way.
 - Purchase flow (UC4): slot click → diamond deduction/item exchange, 60s cancellable window with cooldown-overlay UX (ender-pearl-style), owner-only withdraw (post-cooldown) and restock.
 - Orphaned-shop-object cleanup + one-time player notification (UC5).
 - Transaction-completion event wired to TP/EP accrual using Stage 0's configured ratios.
@@ -70,6 +72,16 @@ Implements: §3.1.1.3, §1.3 (Belohnungsinventar)
 - Deliverable: full invoice/flea-market flow works; reward inventory exists and is reusable by later stages.
   In-game testing pass completed and approved.
 
+**Spec v1.3 note (retroactive, no code change needed)**: v1.3 added an explicit §1.4 rule spelling
+out what "paused" blocks — a paused player can't buy in item shops, can't sell through their own
+shop once every owner is paused, can't withdraw shop earnings, can't create or cash out invoices —
+but settling an invoice they owe and retracting one they sent must always stay possible regardless
+of pause state. Stage 1/2's `ShopTradeListener`/`RechnungCommand`/`InvoiceGui` gating already
+implements this exactly (see the "Gating on pause" section in `docs/shop-system.md` and the
+"Gating" table in `docs/invoice-system.md`) — the spec caught up to the implementation here, not
+the other way around. Apply the same registered/paused distinction when building Stage 3+ gating
+(e.g. loyalty-shop redemptions).
+
 ### Stage 3 — Treuepunktesystem / Loyalty Shop
 Status: `[ ]` not started
 Implements: §3.2
@@ -80,6 +92,7 @@ First GUI-heavy stage — decide hand-rolled vs. third-party GUI library here be
 - All ~12 top-level rewards and sub-interfaces (XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, spawner) per the reward table.
 - Effect implementations: Prozessverstärker (furnace/beehive boost), Segen der Zwerge (haste), Kraftelixier (potion bundle), Handelsbonus (2-player-max, staatskasse-funded, cooldown-replacement custom-model diamond), Erntewelt/Glutzone reward items (grant the teleport item now; full farm-world mechanics land in Stage 5 — known temporary gap).
 - Deliverable: loyalty shop fully spendable except for the farm-world destination itself.
+- **Known spec gap**: §2's requirements overview lists a `/(treue)punkte übertragen` command ("Treuepunkte übertragen" — transferring loyalty points between players) alongside `/punkte`, but no other section in the 32-page v1.3 spec details its syntax, cost, or constraints (no cooldown, no fee, no target-registration requirement specified anywhere). Ask for clarification before implementing; don't invent the semantics. Not required for "loyalty shop fully spendable" — safe to exclude from Stage 3 scope until specified.
 
 ### Stage 4 — Levelsystem + Backpack
 Status: `[ ]` not started
@@ -111,6 +124,7 @@ Explicitly lowest-priority transaction type per the spec, saved for last among c
 - Redstone-Kasse pairing with a shop's container attributes (owner(s), item, price/slot, name, ID — no position/teleport per spec).
 - `/transaktion abgeschlossen <@p|player> <location> <price>` command-block-driven completion signal.
 - No refund right (unlike Stage 1 shops).
+- **Known spec gap**: §1.4 explicitly defers the pause-sanction rule for redstone shops ("Regelung für Redstoneshops folgt") — still unspecified as of v1.3. Decide/confirm before shipping whether a paused player's redstone shop should stop accepting `/transaktion abgeschlossen`, mirroring Stage 1's "all owners paused" rule.
 - Deliverable: all three transaction types from §3.1 now implemented; plugin is feature-complete against the spec → good point to cut `1.0.0`.
 
 ### Stage 7 — Polish / Quality-of-Life

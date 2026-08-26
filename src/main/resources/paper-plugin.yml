@@ -67,3 +67,9 @@ permissions:
   tes.admin.debug.dump:
     description: Erlaubt das Auslesen eines Containers oder Schilds als Text-Dump zu Debugzwecken
     default: op
+  tes.punkte:
+    description: Erlaubt das Öffnen des Treuepunkteshops über /punkte oder /treuepunkte
+    default: true
+  tes.treuepunkte.uebertragen:
+    description: Erlaubt das Übertragen eigener Treuepunkte an einen anderen Spieler
+    default: true

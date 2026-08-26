@@ -71,4 +71,14 @@ public final class TesConfig {
     public int shopSessionTimeoutSeconds() {
         return plugin.getConfig().getInt(SHOP_SESSION_TIMEOUT_SECONDS_PATH, DEFAULT_SHOP_SESSION_TIMEOUT_SECONDS);
     }
+
+    /**
+     * The Treuepunkte cost of a Treueshop reward (spec §3.2.1.1), identified by its config id
+     * (e.g. {@code "prozessverstaerker"}), reading {@code treueshop.rewards.<id>.cost}. One
+     * generic accessor rather than a getter per reward keeps the ~16-entry reward table in a
+     * single readable config block instead of scattered Java constants.
+     */
+    public int treueshopRewardCost(String rewardId, int fallback) {
+        return plugin.getConfig().getInt("treueshop.rewards." + rewardId + ".cost", fallback);
+    }
 }

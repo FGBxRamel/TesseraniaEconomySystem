@@ -1,0 +1,56 @@
+Welt: kreativ | Pos: -410 -12 -3390 | Titel: "CHEST" | Größe: 9x6
+1|1 — 1x FURNACE "<!italic><bold><white>Prozessverstärker" [Lore: <!italic><yellow>Kosten: 25 TP /  / <italic><gray>Item zum Boosten von Funktionsblöcken / <italic><gray>Effekt stapelbar bei mehrfacher Nutzung /  / <italic><gray>Boostbare Blöcke: / <italic><gray>Ofen → 2x Geschwindigkeit (15 min) / <italic><gray>Bienenstock → erhöhte Produktion]
+2|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+3|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+4|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+5|1 — 1x CHICKEN_SPAWN_EGG "<!italic><bold><white>Freundliche Mobs I" [Lore: <italic><gray>Öffnet das Tier-Submenü (T1). / <italic><gray>Grundlegende freundliche Kreaturen. /  / <italic><gray>„Alles beginnt mit etwas Fedrigem.“]
+6|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+7|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+8|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+9|1 — 1x TRIAL_SPAWNER "<!italic><bold><white>Spawner" [Lore: <!italic><yellow>Kosten: 1000 TP /  / <italic><gray>Du erhältst einen Spawner. / <italic><gray>Kann mit Spawneiern bestückt werden. / <italic><gray>Erzeugt kontrollierte Monsterwellen. /  / <italic><gray>„Kontrolliertes Chaos in Blöcken.“]
+1|2 — 1x EXPERIENCE_BOTTLE "<!italic><bold><white>XP-Terminal" [Lore: <italic><gray>Öffnet das XP-Reward System / <italic><gray>zur Verwaltung von Minecraft XP. /  / <italic><gray>Wähle aus verschiedenen XP-Boosts / <italic><gray>und Erfahrungs-Upgrades.]
+2|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+3|2 — 1x GOLDEN_PICKAXE "<!italic><bold><white>Segen der Zwerge" [Lore: <!italic><yellow>Kosten: 100 TP /  / <italic><gray>„Die Erde gehört denen, die / <italic><gray>schneller graben als sie denkt.“ /  / <italic><gray>Gewährt Eile II für 30 Minuten. / <italic><gray>Perfekt für tiefere Höhlenzüge.]
+4|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+5|2 — 1x PARROT_SPAWN_EGG "<!italic><bold><white>Freundliche Mobs II" [Lore: <italic><gray>Öffnet das Tier-Submenü (T2). / <italic><gray>Erweiterte freundliche Kreaturen. /  / <italic><gray>„Mehr Leben. Mehr Chaos. Mehr Farbe.“]
+6|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+7|2 — 1x GRASS_BLOCK "<!italic><bold><green>Erntewelt" [Lore: <!italic><yellow>Kosten: 160 TP /  / <italic><gray>3 Stunden Zugang zu einer / <italic><gray>speziellen Ressourcenwelt. / <italic><gray>Mit großen Biomen und / <italic><gray>erhöhten Ressourcen-Spawnraten. /  / <italic><gray>Der Timer läuft nur aktiv / <italic><gray>während deines Aufenthalts. /  / <italic><gray>Reset alle 48 Stunden. / <italic><gray>Neue Welt wird generiert.]
+8|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+9|2 — 1x DIAMOND "<!italic><bold><white>Handelsbonus" [Lore: <!italic><yellow>Kosten: 150 TP /  / <italic><gray>Money, Money, Money! /  / <italic><gray>Ermöglicht einen 5-Diamanten Rabatt / <italic><gray>auf alle Einkäufe bis zum Aufbrauch. /  / <italic><gray>Max. 2 aktive Spieler gleichzeitig. / <italic><gray>Rabatt wird pro Kauf automatisch / <italic><gray>verrechnet und reduziert. / <italic><gray>Nicht verbrauchte Werte bleiben erhalten. /  / <italic><gray>Finanzierung erfolgt über die Staatskasse. /  / <italic><gray>Beispiel: / <italic><gray>Kauf 40 → zahlt 35, Rest 0. / <italic><gray>Kauf 1 → zahlt 0, Rest 4.]
+1|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+2|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+3|3 — 1x GOLDEN_APPLE "<!italic><bold><white>Kraftelixier" [Lore: <!italic><yellow>Kosten: 175 TP /  / <italic><gray>Ultimativer Boost für dein / <italic><gray>Immunsystem! /  / <italic><gray>„Schmeckt nach Sieg und Magie.“ /  / <italic><gray>Effekte für 30 Minuten: / <italic><gray>Regeneration II / <italic><gray>Resistenz II / <italic><gray>Stärke / <italic><gray>Held des Dorfes]
+4|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+5|3 — 1x CREEPER_SPAWN_EGG "<!italic><bold><white>Feindliche Mobs I" [Lore: <italic><gray>Öffnet das Kampf-Submenü (T1). / <italic><gray>Einfache gefährliche Kreaturen. /  / <italic><gray>„Explosiv. Direkt. Ehrlich.“]
+6|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+7|3 — 1x NETHERRACK "<!italic><bold><gold>Glutzone" [Lore: <!italic><yellow>Kosten: 160 TP /  / <italic><gray>3 Stunden Zugang zu einer / <italic><gray>speziellen Nether-Ressourcenwelt. / <italic><gray>Gefüllt mit angepassten / <italic><gray>Ressourcen-Boosts und Gefahren. /  / <italic><gray>Der Timer läuft nur aktiv / <italic><gray>während deines Aufenthalts. /  / <italic><gray>Reset alle 48 Stunden. / <italic><gray>Neue Welt wird generiert.]
+8|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+9|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+1|4 — 1x SUNFLOWER "<!italic><bold><yellow>Treuepunkte (TP)" [Lore: <!italic><!bold><white>69 Punkte /  / <italic><gray>'Treuepunkte können passiv beim Einkauf / <italic><gray>in anderen Spieler-Shops generiert werden.']
+2|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+3|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+4|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+5|4 — 1x WARDEN_SPAWN_EGG "<!italic><bold><white>Feindliche Mobs II" [Lore: <italic><gray>Öffnet das Kampf-Submenü (T2). / <italic><gray>Elite & Bossartige Kreaturen. /  / <italic><gray>„Du hörst es, bevor du es bereust.“]
+6|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+7|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+8|4 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
+9|4 — 1x PLAYER_HEAD "<!italic><bold><white>Levelinterface"
+1|5 — 1x RED_STAINED_GLASS_PANE " "
+2|5 — 1x RED_STAINED_GLASS_PANE " "
+3|5 — 1x RED_STAINED_GLASS_PANE " "
+4|5 — 1x RED_STAINED_GLASS_PANE " "
+5|5 — 1x RED_STAINED_GLASS_PANE " "
+6|5 — 1x RED_STAINED_GLASS_PANE " "
+7|5 — 1x RED_STAINED_GLASS_PANE " "
+8|5 — 1x RED_STAINED_GLASS_PANE " "
+9|5 — 1x RED_STAINED_GLASS_PANE " "
+1|6 — 1x RED_STAINED_GLASS_PANE " "
+2|6 — 1x RED_STAINED_GLASS_PANE " "
+3|6 — 1x RED_STAINED_GLASS_PANE " "
+4|6 — 1x RED_STAINED_GLASS_PANE " "
+5|6 — 1x RED_STAINED_GLASS_PANE " "
+6|6 — 1x RED_STAINED_GLASS_PANE " "
+7|6 — 1x RED_STAINED_GLASS_PANE " "
+8|6 — 1x RED_STAINED_GLASS_PANE " "
+9|6 — 1x RED_STAINED_GLASS_PANE " "
+
