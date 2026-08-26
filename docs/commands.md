@@ -74,10 +74,29 @@ Ohne weitere Argumente öffnet `/punkte` (oder gleichbedeutend `/treuepunkte`) d
 |---|---|
 | `tes.punkte` | Du musst im Belohnungssystem registriert (`/spieler add`) und nicht pausiert sein. |
 
-Aktuell einlösbar sind **Segen der Zwerge** (Eile II für 30 Minuten) und **Kraftelixier**
-(Regeneration II, Resistenz II, Stärke und Held des Dorfes für 30 Minuten) – ein Linksklick zieht
-die angezeigten Treuepunkte ab und wendet den Effekt sofort an. Die übrigen Belohnungen sind
-bereits sichtbar (Name, Kosten, Beschreibung), aber noch nicht einlösbar; das folgt in weiteren
+Direkt im Hauptinterface einlösbar sind:
+
+- **Segen der Zwerge** (Eile II für 30 Minuten)
+- **Kraftelixier** (Regeneration II, Resistenz II, Stärke und Held des Dorfes für 30 Minuten)
+- **Spawner** (ein normaler Monsterspawner, den du mit Spawneiern bestücken kannst)
+- **Erntewelt** / **Glutzone** (schaltet die jeweilige Farmwelt frei – landet als Chorusfrucht in
+  deinem Belohnungsinventar; das Essen der Frucht funktioniert erst, sobald die Farmwelten selbst
+  fertig sind)
+
+Ein Linksklick zieht die angezeigten Treuepunkte ab und wendet den Effekt sofort an bzw. legt das
+Item in dein Belohnungsinventar (`/belohnung`).
+
+Vier weitere Felder öffnen ein Untermenü statt direkt etwas zu verkaufen:
+
+- **XP-Terminal** – vier XP-Boosts (6.000/12.500/30.000/50.000 Erfahrungspunkte für 50/75/100/125
+  TP), die dir sofort echte Vanilla-Minecraft-XP gutschreiben.
+- **Freundliche Mobs I/II** und **Feindliche Mobs I/II** – je ein Sammelkauf, der dir auf einmal
+  alle Spawneier dieser Stufe ins Belohnungsinventar legt (z. B. Freundliche Mobs I: je 1x
+  Hilfsgeist/Gürteltier/Ozelot/Panda/Eisbär/Katze/Wolf/Fuchs/Dromedar/Biene plus je 2x
+  Kuh/Esel/Huhn/Schwein/Pferd/Kaninchen).
+
+Ein Pfeil ("⮜ Zurück") führt aus jedem Untermenü zurück zum Hauptinterface. Nur
+**Prozessverstärker** und **Handelsbonus** sind noch nicht einlösbar; das folgt in weiteren
 Ausbaustufen von Stage 3.
 
 ### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>`

@@ -23,6 +23,14 @@ treueshop:
     glutzone: { cost: 160 }
     kraftelixier: { cost: 175 }
     spawner: { cost: 1000 }
+    xp-boost-1: { cost: 50 }
+    xp-boost-2: { cost: 75 }
+    xp-boost-3: { cost: 100 }
+    xp-boost-4: { cost: 125 }
+    freundliche-mobs-1: { cost: 200 }
+    freundliche-mobs-2: { cost: 200 }
+    feindliche-mobs-1: { cost: 250 }
+    feindliche-mobs-2: { cost: 275 }
   segen-der-zwerge:
     # Dauer des Eile-II-Effekts nach Kauf.
     haste-minutes: 30

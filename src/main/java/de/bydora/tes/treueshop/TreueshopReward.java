@@ -11,9 +11,18 @@ import java.util.List;
  * icon, display title, and flavor lore. Rewards with no {@link #costConfigId()} (e.g. the ones
  * that just open a sub-interface) have no Treuepunkte cost of their own.
  *
- * @param costConfigId the {@code treueshop.rewards.<id>.cost} config key, or {@code null} if this
- *                      reward has no direct cost
- * @param defaultCost   the shipped default cost, used as the config fallback
+ * <p>The same record is reused for a sub-interface's own leaf rewards (e.g. the four XP-Terminal
+ * boosts) — {@link #column()}/{@link #row()} then address that sub-interface's own grid, not the
+ * main interface's.
+ *
+ * @param costConfigId    the {@code treueshop.rewards.<id>.cost} config key, or {@code null} if
+ *                         this reward has no direct cost
+ * @param defaultCost      the shipped default cost, used as the config fallback
+ * @param subInterfaceId   which sub-interface this reward opens (e.g. {@code "xp-terminal"},
+ *                          {@code "mo1"}), or {@code null} if it doesn't open one. Independent of
+ *                          {@link #hasCost()}: every current sub-interface opener happens to be
+ *                          costless (the cost lives on what the sub-interface sells instead), but
+ *                          nothing requires that.
  */
 public record TreueshopReward(
         String costConfigId,
@@ -22,10 +31,20 @@ public record TreueshopReward(
         int row,
         Material icon,
         Component title,
-        List<Component> flavorLore
+        List<Component> flavorLore,
+        String subInterfaceId
 ) {
+
+    public TreueshopReward(String costConfigId, int defaultCost, int column, int row, Material icon,
+            Component title, List<Component> flavorLore) {
+        this(costConfigId, defaultCost, column, row, icon, title, flavorLore, null);
+    }
 
     public boolean hasCost() {
         return costConfigId != null;
+    }
+
+    public boolean opensSubInterface() {
+        return subInterfaceId != null;
     }
 }

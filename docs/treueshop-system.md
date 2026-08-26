@@ -29,6 +29,26 @@ resolved with the user rather than assumed — treat them as final, not open TOD
 - **The per-reward description signs (-411 -7 -3453..-3442) were redundant** — the main-interface
   items' own lore (captured via `/debug dump`) already has the full text. Not part of the capture
   checklist going forward.
+- **XP-Terminal boosts grant real vanilla Minecraft experience, not TES's own Erfahrungspunkte
+  counter** — despite the PDF's dev-facing text saying "Der Spieler erhält 6000 Erfahrungspunkte
+  (points)", which reuses the same German term as TES's level-system currency. Two signals settle
+  it: the "(points)" qualifier only makes sense to disambiguate vanilla XP *points* from vanilla XP
+  *levels* (TES's own EP has no such distinction), and the PDF's own "(~ 50/69/100/120 Level)"
+  subtitles line up closely with the real vanilla XP-to-level curve, not with the level system's
+  `f(x) = 30·sqrt(x/30000)` (which reaches level 30 at just 30,000 total EP — a single 50,000-EP
+  "boost" would instantly blow past max level, which the fixed-30-level design clearly doesn't
+  intend). Implemented via `Player#giveExp`, corrected from this doc's earlier (pre-implementation)
+  speculation that it would be a level-system repository call.
+- **The XP-Terminal sub-interface uses plain `EXPERIENCE_BOTTLE` icons**, not the PDF's "Kopf mit
+  1/2/3/4" custom-textured heads — the reference build's own Subinterface-(XP) dump already shows
+  `EXPERIENCE_BOTTLE`, so no new `CustomHeads` texture capture was needed (reference-build-wins,
+  same rule as everywhere else in this doc).
+- **The Spawner reward's granted item is a plain `SPAWNER`, not `TRIAL_SPAWNER`** — the earlier
+  `TRIAL_SPAWNER` reconciliation was specifically about the shop button's *icon* ("not a real
+  conflict, just an icon choice"), not the item handed to the player. A `TRIAL_SPAWNER` can't
+  actually be filled with spawn eggs (it's the Trial Chambers structure block, with its own
+  built-in mob pool), which would contradict the PDF's "kann mit Spawneiern bestückt werden" —
+  so the granted item stays a regular `SPAWNER` while the button keeps its `TRIAL_SPAWNER` icon.
 
 ## Package layout
 
@@ -36,10 +56,27 @@ resolved with the user rather than assumed — treat them as final, not open TOD
 
 - `TreueshopReward` / `TreueshopRewardCatalog` — static reward metadata (grid position, icon,
   title, flavor lore), transcribed verbatim from the `/debug dump` captures in `GUI_References/`
-  rather than re-derived from the PDF (see reconciliation notes above).
+  rather than re-derived from the PDF (see reconciliation notes above). Also holds the XP-Terminal
+  sub-interface's four leaf rewards (`xpTerminalRewards()`) — same record shape, since a
+  sub-interface's own grid position works the same way.
+- `TreueshopMobBundle` / `TreueshopMobBundleCatalog` — the four bundled mob-egg rewards (a
+  `TreueshopReward`-like descriptor plus its `EggGrant` list), kept as a separate record rather than
+  folded into `TreueshopReward` since nothing else needs an egg list.
+- `TreueshopComponents` — UI pieces shared by the main interface and every sub-interface: the
+  balance sunflower, the "⮜ Zurück" button, filler panes, and the reward-icon-with-cost-lore
+  builder (overloaded for both `TreueshopReward` and `TreueshopMobBundle`).
 - `TreueshopGui` — the main interface (`Gui.builder()`, not `PagedGui` — see `docs/gui-library.md`).
+  Dispatches each reward to either a sub-interface opener or a purchase handler.
+- `TreueshopXpTerminalGui` — the XP-Terminal sub-interface (4 XP-Boost buttons).
+- `TreueshopMobBundleGui` — one generic sub-interface (single purchase button) reused for all four
+  Mo1-Mo4 tiers, parameterized by `TreueshopMobBundle`.
 - `TreueshopRewardService` — purchase orchestration.
-- `TreueshopEffects` — direct potion-effect appliers.
+- `TreueshopEffects` — direct effects applied straight to the buying player (potion effects, and
+  now `applyXpBoost`'s `Player#giveExp`) — nothing persisted, matching how these don't survive a
+  server restart anyway.
+- `TreueshopItemGrants` — item-grant rewards (Spawner, the Erntewelt/Glutzone stub Chorus Fruits,
+  mob-egg bundles), all routed through `RewardInventoryService#grant`, never a live inventory
+  placement.
 
 ## Purchase flow
 
@@ -51,15 +88,23 @@ effect)`: an atomic `PlayerRepository.spendTreuepunkte` check-and-deduct, then t
 balance display, the same "rebuild and reopen" tradeoff `RewardInventoryGui` already accepted
 (resets to the same fixed screen rather than an in-place refresh).
 
-Two reward "shapes" so far:
+Three reward "shapes" now exist:
 
-- **Direct-effect** (Segen der Zwerge, Kraftelixier): a vanilla `PotionEffect` applied immediately
-  to the buyer, no persistence — matches how potion effects don't survive a server restart anyway,
-  so there's nothing to durably track.
-- **Item-grant** (not wired up yet — XP-Terminal's EP grants are a third shape, a direct
-  repository call rather than an item or a potion effect): will route through
+- **Direct-effect** (Segen der Zwerge, Kraftelixier, and now the XP-Terminal boosts): applied
+  immediately to the buyer — a `PotionEffect`, or `Player#giveExp` for XP — with nothing
+  persisted, matching how none of these survive a server restart anyway.
+- **Item-grant** (Spawner, Erntewelt, Glutzone, the four mob-egg bundles): routes through
   `RewardInventoryService.grant`, never a direct inventory placement, per that service's own
-  contract.
+  contract. Lives in `TreueshopItemGrants`, separate from `TreueshopEffects`, since the two shapes
+  take different dependencies (a `RewardInventoryService` vs. nothing beyond the `Player`).
+- Sub-interface openers (XP-Terminal, Freundliche/Feindliche Mobs I/II): no cost or effect of their
+  own — `TreueshopGui` dispatches on `TreueshopReward#subInterfaceId` to open the corresponding
+  screen instead of calling `TreueshopRewardService.purchase`.
+
+`TreueshopGui.purchase` takes an explicit `onSuccess` callback rather than always reopening the
+main interface, so `TreueshopXpTerminalGui` and `TreueshopMobBundleGui` can reopen themselves
+(refreshing their own balance display) instead of bouncing the player back to the main screen
+after every purchase.
 
 ## Cost configuration
 
@@ -68,7 +113,23 @@ Two reward "shapes" so far:
 the ~16-entry reward table in one readable YAML block instead of scattered getters. Reward id
 strings (e.g. `"segen-der-zwerge"`) live wherever they're used (`TreueshopRewardCatalog`, the
 click-dispatch in `TreueshopGui`), not centralized as constants — `TesConfig` itself doesn't know
-what rewards exist, only how to look one up.
+what rewards exist, only how to look one up. The same accessor now also serves the four XP-Boost
+ids (`xp-boost-1`-`4`) and the four mob-bundle ids (`freundliche-mobs-1`/`2`,
+`feindliche-mobs-1`/`2`) — no `TesConfig` changes were needed for this branch at all. The XP boost
+amounts (6000/12500/30000/50000) and each bundle's egg list, by contrast, are **not** configurable
+— they're baked into lore text taken verbatim from the reference build/PDF, and would go stale if
+changed independently via config (same tradeoff the existing haste/Kraftelixier duration lore
+already accepts: config governs the actual effect, but the lore shows the shipped default as a
+static string).
+
+## Erntewelt / Glutzone item stub
+
+Both grant a custom-named, custom-lored `CHORUS_FRUIT` (`TreueshopItemGrants.grantErntewelt` /
+`grantGlutzone`) with no functional right-click/eat behavior yet — the actual teleport-into-a-
+farm-world mechanic depends on the farm worlds themselves, which are Stage 5 (§3.2.1.3). Documented
+gap, matching the same "grants item only, teleport wired up later" pattern already planned for
+Level reward type 2. The lore says as much in-game so it isn't a silent no-op from the player's
+perspective.
 
 ## `/treuepunkte übertragen`
 
