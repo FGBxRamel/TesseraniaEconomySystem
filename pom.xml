@@ -4,7 +4,7 @@
 
     <groupId>de.bydora</groupId>
     <artifactId>TesseraniaEconomySystem</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
 
     <name>TES</name>
