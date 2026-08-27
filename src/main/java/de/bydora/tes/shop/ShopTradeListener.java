@@ -40,6 +40,11 @@ import java.util.function.Predicate;
  * <p>A purchase is also blocked if the buyer is paused, or if every one of the shop's owners is
  * paused (a shop with at least one active owner keeps selling normally). A paused owner may not
  * withdraw their own earned diamonds, even from a shop that keeps selling via a co-owner.
+ *
+ * <p>A buyer holding an active Handelsbonus (spec §3.2.1.1, Belohnung 4) pays less than the
+ * shop's listed price — see {@link #withdrawHandelsbonusDiscount} — funded from the configured
+ * Staatskasse chest ({@link Staatskasse}) rather than the shop owner, who still earns the full
+ * price regardless.
  */
 public final class ShopTradeListener implements Listener {
 

@@ -98,6 +98,15 @@ any InvUI class is touched, which works out of the box once InvUI is shaded into
   once for all three current paginated screens (`InvoiceGui`, `SentInvoiceGui`,
   `RewardInventoryGui`); apply it to any future paginated GUI with a close button too.
 
+- **A button whose icon depends on server-side state, not just the viewer**: `TreueshopHandelsbonus`
+  (Stage 3) swaps the Handelsbonus button between its normal icon and an "ausgegrauter Diamant"
+  depending on how many players currently hold one — state that's the same for every viewer, just
+  possibly stale between GUI opens. This doesn't need InvUI's per-viewer
+  `Item.builder().setItemProvider(Function<Player, ItemProvider>)` form (that's for state that
+  varies *by who's looking*, like the balance sunflower) — a plain `ItemProvider` computed once,
+  synchronously, while `TreueshopGui.rewardItem` builds the screen is enough, since the whole
+  screen already gets rebuilt fresh on every `open()` call anyway.
+
 ## Custom head icons
 
 The reference builds use custom-textured `PLAYER_HEAD`s (not vanilla player skulls) for two
