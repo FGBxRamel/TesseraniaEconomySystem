@@ -119,7 +119,7 @@ public final class InvoiceGui {
                                 Component.text("Linksklick zum Bezahlen", NamedTextColor.GRAY, TextDecoration.ITALIC)))
                 .addClickHandler((item, click) -> {
                     InvoiceEconomy.SettleResult result = InvoiceEconomy.settle(
-                            plugin.invoiceRepository(), plugin.playerRepository(), click.player(), record.id());
+                            plugin.invoiceRepository(), plugin.playerRepository(), plugin.tesConfig(), click.player(), record.id());
                     switch (result) {
                         case SETTLED -> {
                             click.player().sendMessage(Messages.invoiceSettled(creatorName, record.price()));
