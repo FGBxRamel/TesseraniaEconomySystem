@@ -94,6 +94,8 @@ reference build.
 
 - [x] `/punkte` / `/treuepunkte` main interface (9x4, sunflower balance, level-switch button) at the exact grid/costs confirmed against the reference build (`GUI_References/`) — merged (PR #13).
 - [x] `/treuepunkte übertragen <Spieler> <Anzahl>` (see resolved spec gap below) — merged (PR #13).
+- [x] `/treuepunkte abfragen [Spieler]` (self balance query; `<Spieler>` variant admin-only) —
+      shared with `/punkte abfragen` via the same subtree, per spec §3.2.
 - [x] Segen der Zwerge (haste) and Kraftelixier (potion bundle) — merged (PR #15).
 - [x] XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, Erntewelt/Glutzone item stubs, Spawner.
 - [x] Prozessverstärker (furnace/beehive boost).

@@ -129,6 +129,16 @@ verbleibende Zeit.
 als du besitzt, und nicht an dich selbst. Es fällt keine Gebühr an und es gibt keine Wartezeit.
 Ist das Ziel online, erhält es sofort eine Chat-Benachrichtigung.
 
+### Treuepunktestand abfragen – `/treuepunkte abfragen [Spieler]` (gleichbedeutend: `/punkte abfragen [Spieler]`)
+
+| Befehl | Berechtigung | Wirkung |
+|---|---|---|
+| `/treuepunkte abfragen` | `tes.treuepunkte.abfragen` | Zeigt dir deinen eigenen aktuellen Treuepunktestand im Chat an. |
+| `/treuepunkte abfragen <Spieler>` | `tes.admin.treuepunkte.abfragen` | (Admin) Zeigt den Treuepunktestand von `<Spieler>` an, statt deines eigenen. |
+
+Die Selbstabfrage funktioniert unabhängig vom Pausiert-Status – auch pausierte Spieler können
+ihren eigenen Stand jederzeit einsehen.
+
 ## `/shop` (Spieler)
 
 Verwaltet eigene Item-Shops: umgewandelte Truhen, Doppeltruhen, Redstone-Truhen, Fässer und

@@ -459,6 +459,14 @@ public final class Messages {
         return Component.text(senderName + " hat dir " + amount + " Treuepunkte übertragen.", NamedTextColor.YELLOW);
     }
 
+    public static Component treueshopBalance(int treuepunkte) {
+        return Component.text("Du hast aktuell " + treuepunkte + " Treuepunkte.", NamedTextColor.YELLOW);
+    }
+
+    public static Component treueshopBalanceOf(String name, int treuepunkte) {
+        return Component.text(name + " hat aktuell " + treuepunkte + " Treuepunkte.", NamedTextColor.YELLOW);
+    }
+
     public static Component prozessverstaerkerApplied(long remainingMinutes) {
         return Component.text("Boost aktiv! Verbleibende Zeit: " + remainingMinutes + " Minuten.", NamedTextColor.GREEN);
     }

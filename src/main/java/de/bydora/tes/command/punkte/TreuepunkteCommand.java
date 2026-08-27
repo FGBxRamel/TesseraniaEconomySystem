@@ -28,7 +28,10 @@ import java.util.Optional;
  * "…gibt der Spieler / treuepunkte übertragen <Attribute> ein, erfolgt selbiges"), so
  * {@link #uebertragen()} is shared with {@link PunkteAliasCommand}, which attaches the same
  * subtree under the {@code punkte} root — {@code /treuepunkte} stays canonical for the admin
- * actions, which {@code /punkte} intentionally doesn't carry.
+ * actions, which {@code /punkte} intentionally doesn't carry. {@link #abfragen()} is shared the
+ * same way, for {@code /treuepunkte abfragen [Spieler]} (spec §3.2: a bare invocation prints the
+ * caller's own TP balance; the optional {@code <Spieler>} argument is admin-only and queries
+ * another player's balance instead).
  */
 public final class TreuepunkteCommand {
 
@@ -39,7 +42,8 @@ public final class TreuepunkteCommand {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("treuepunkte")
                 .requires(source -> source.getSender().hasPermission("tes.punkte"))
                 .executes(TreuepunkteCommand::open)
-                .then(uebertragen());
+                .then(uebertragen())
+                .then(abfragen());
         return PunkteCommandFactory.attachAdminActions(root, "tes.admin.treuepunkte", "Treuepunkte",
                 new PunkteCommandFactory.Counter(
                         (repository, uuid, amount) -> repository.addTreuepunkte(uuid, amount),
@@ -108,6 +112,42 @@ public final class TreuepunkteCommand {
         if (targetPlayer != null) {
             targetPlayer.sendMessage(Messages.treueshopTransferReceived(player.getName(), amount));
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static LiteralArgumentBuilder<CommandSourceStack> abfragen() {
+        return Commands.literal("abfragen")
+                .requires(source -> source.getSender().hasPermission("tes.treuepunkte.abfragen"))
+                .executes(TreuepunkteCommand::abfragenSelf)
+                .then(Commands.argument("name", StringArgumentType.word())
+                        .requires(source -> source.getSender().hasPermission("tes.admin.treuepunkte.abfragen"))
+                        .suggests(PlayerLookup::suggestOnlinePlayerNames)
+                        .executes(TreuepunkteCommand::abfragenAnderer));
+    }
+
+    private static int abfragenSelf(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Messages.usage("/treuepunkte abfragen ist nur für Spieler verfügbar."));
+            return Command.SINGLE_SUCCESS;
+        }
+        Optional<PlayerRecord> record = PunkteCommandFactory.repository().findByUuid(player.getUniqueId());
+        if (record.isEmpty()) {
+            player.sendMessage(Messages.notRegistered(player.getName()));
+            return Command.SINGLE_SUCCESS;
+        }
+        player.sendMessage(Messages.treueshopBalance(record.get().treuepunkte()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int abfragenAnderer(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        String name = StringArgumentType.getString(ctx, "name");
+        Optional<PlayerRecord> record = PlayerLookup.requireRegistered(sender, PunkteCommandFactory.repository(), name);
+        if (record.isEmpty()) {
+            return Command.SINGLE_SUCCESS;
+        }
+        sender.sendMessage(Messages.treueshopBalanceOf(name, record.get().treuepunkte()));
         return Command.SINGLE_SUCCESS;
     }
 }

@@ -34,6 +34,9 @@ permissions:
   tes.admin.treuepunkte.set:
     description: Erlaubt das Festsetzen des Treuepunktestands eines Spielers
     default: op
+  tes.admin.treuepunkte.abfragen:
+    description: Erlaubt das Abfragen des Treuepunktestands eines anderen Spielers
+    default: op
   tes.admin.erfahrungspunkte.add:
     description: Erlaubt das Hinzufügen von Erfahrungspunkten bei einem Spieler
     default: op
@@ -72,4 +75,7 @@ permissions:
     default: true
   tes.treuepunkte.uebertragen:
     description: Erlaubt das Übertragen eigener Treuepunkte an einen anderen Spieler
+    default: true
+  tes.treuepunkte.abfragen:
+    description: Erlaubt das Abfragen des eigenen Treuepunktestands
     default: true
