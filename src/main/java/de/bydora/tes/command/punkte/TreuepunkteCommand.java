@@ -23,7 +23,12 @@ import java.util.Optional;
  * Implements {@code /treuepunkte} (spec §3.2: a bare invocation opens the Treuepunkteshop),
  * {@code /treuepunkte add|remove|set <Name> <Anzahl>} (spec §1.4, admin), and
  * {@code /treuepunkte übertragen <Zielspieler> <Anzahl>} (spec §2, player-facing TP transfer,
- * capped at the sender's own balance — no fee or cooldown, per spec).
+ * capped at the sender's own balance — no fee or cooldown, per spec). The spec explicitly requires
+ * {@code /punkte übertragen} to behave identically to {@code /treuepunkte übertragen} (§3.2's
+ * "…gibt der Spieler / treuepunkte übertragen <Attribute> ein, erfolgt selbiges"), so
+ * {@link #uebertragen()} is shared with {@link PunkteAliasCommand}, which attaches the same
+ * subtree under the {@code punkte} root — {@code /treuepunkte} stays canonical for the admin
+ * actions, which {@code /punkte} intentionally doesn't carry.
  */
 public final class TreuepunkteCommand {
 
@@ -58,7 +63,7 @@ public final class TreuepunkteCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> uebertragen() {
+    static LiteralArgumentBuilder<CommandSourceStack> uebertragen() {
         return Commands.literal("übertragen")
                 .requires(source -> source.getSender().hasPermission("tes.treuepunkte.uebertragen"))
                 .then(Commands.argument("name", StringArgumentType.word())

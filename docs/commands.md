@@ -119,7 +119,7 @@ so schnell, der Bienenstock produziert doppelt so viel Honig. Das Item wird dabe
 Boostest du denselben Block erneut, während der Boost noch läuft, addiert sich die Dauer auf die
 verbleibende Zeit.
 
-### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>`
+### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>` (gleichbedeutend: `/punkte übertragen <Spieler> <Anzahl>`)
 
 | Berechtigung | Voraussetzung |
 |---|---|

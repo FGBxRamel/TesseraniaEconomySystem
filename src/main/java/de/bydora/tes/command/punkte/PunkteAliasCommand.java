@@ -5,9 +5,10 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
 /**
- * Implements the bare {@code /punkte} alias for opening the Treuepunkteshop (spec §3.2) — a thin
- * top-level command with no admin subtree. {@link TreuepunkteCommand} is the canonical command
- * carrying the {@code add|remove|set} admin actions and TP transfer.
+ * Implements the {@code /punkte} alias for the Treuepunkteshop (spec §3.2): a bare invocation
+ * opens the GUI, and {@code übertragen} shares {@link TreuepunkteCommand}'s subtree so
+ * {@code /punkte übertragen} behaves identically to {@code /treuepunkte übertragen}, per spec.
+ * No admin subtree — {@link TreuepunkteCommand} stays canonical for {@code add|remove|set}.
  */
 public final class PunkteAliasCommand {
 
@@ -17,6 +18,7 @@ public final class PunkteAliasCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("punkte")
                 .requires(source -> source.getSender().hasPermission("tes.punkte"))
-                .executes(TreuepunkteCommand::open);
+                .executes(TreuepunkteCommand::open)
+                .then(TreuepunkteCommand.uebertragen());
     }
 }
