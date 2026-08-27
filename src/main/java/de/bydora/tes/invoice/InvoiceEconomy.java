@@ -1,5 +1,7 @@
 package de.bydora.tes.invoice;
 
+import de.bydora.tes.config.TesConfig;
+import de.bydora.tes.data.PlayerRecord;
 import de.bydora.tes.data.PlayerRepository;
 import de.bydora.tes.reward.RewardInventoryService;
 import de.bydora.tes.util.DiamondEconomy;
@@ -8,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Settle/cash-out logic for invoices (spec §3.1.1.3), mirroring {@link de.bydora.tes.shop.ShopEconomy}'s
@@ -29,13 +32,15 @@ public final class InvoiceEconomy {
     /**
      * Settles {@code invoiceId} on behalf of {@code clicker}: removes the invoice's price in
      * diamonds from the clicker's real inventory and credits it to the invoice creator's
-     * {@code invoice_balance}, then marks the invoice settled. Re-fetches the invoice by id
+     * {@code invoice_balance}, then marks the invoice settled and awards the payer TP/EP for the
+     * completed transaction (spec §3.2, §1.2 ratios), mirroring
+     * {@link de.bydora.tes.shop.ShopMaintenanceTask#creditBuyer}. Re-fetches the invoice by id
      * first and no-ops with {@link SettleResult#ALREADY_SETTLED} if it's no longer
      * {@link InvoiceState#OPEN} — cheap insurance against a stale GUI render, not a real race
      * condition fix (InvUI click handlers, like {@code InventoryClickEvent}, always run on the
      * single main server thread).
      */
-    public static SettleResult settle(InvoiceRepository invoiceRepository, PlayerRepository playerRepository, Player clicker, long invoiceId) {
+    public static SettleResult settle(InvoiceRepository invoiceRepository, PlayerRepository playerRepository, TesConfig config, Player clicker, long invoiceId) {
         Optional<InvoiceRecord> maybeInvoice = invoiceRepository.findById(invoiceId);
         if (maybeInvoice.isEmpty() || maybeInvoice.get().state() != InvoiceState.OPEN) {
             return SettleResult.ALREADY_SETTLED;
@@ -47,7 +52,17 @@ public final class InvoiceEconomy {
         DiamondEconomy.removeDiamonds(clicker, invoice.price());
         playerRepository.addInvoiceBalance(invoice.creatorUuid(), invoice.price());
         invoiceRepository.markSettled(invoice.id(), System.currentTimeMillis());
+        creditPayer(playerRepository, config, clicker.getUniqueId(), invoice.price());
         return SettleResult.SETTLED;
+    }
+
+    private static void creditPayer(PlayerRepository playerRepository, TesConfig config, UUID payerUuid, int price) {
+        Optional<PlayerRecord> payer = playerRepository.findByUuid(payerUuid);
+        if (payer.isEmpty() || payer.get().paused()) {
+            return;
+        }
+        playerRepository.addTreuepunkte(payerUuid, price * config.talerToTpRatio());
+        playerRepository.addErfahrungspunkte(payerUuid, price * config.talerToEpRatio());
     }
 
     public enum RetractResult {
