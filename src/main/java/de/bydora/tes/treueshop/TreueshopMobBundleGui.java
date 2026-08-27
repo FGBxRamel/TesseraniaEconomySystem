@@ -9,60 +9,90 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.window.Window;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * A bundled mob-egg sub-interface (spec §3.2.1.2, "Subinterface Mo1-Mo4"): a single purchase
- * button for the given {@link TreueshopMobBundle}, plus the shared balance display and
- * "⮜ Zurück" button. One 9x4 layout serves all four tiers — the reference build's per-egg chests
- * (à-la-carte, 9x5/9x6) don't apply once the reward is a single bundled purchase (see
- * {@code docs/treueshop-system.md}).
+ * A mob-egg tier sub-interface (spec §3.2.1.2, "Subinterface Mo1-Mo4"): a grid of individually
+ * purchasable {@link TreueshopMobBundle.MobEggOption}s, plus the shared balance display and
+ * "⮜ Zurück" button. One layout serves all four tiers, packing each tier's options left-to-right,
+ * top-to-bottom across up to two content rows (Freundliche Mobs I's 16 options is the largest
+ * tier, fitting 9+7 across both).
  */
 public final class TreueshopMobBundleGui {
 
-    private static final String[] STRUCTURE = {
-            "ggggggggg",
-            "gggg#gggg",
-            "ggggggggg",
-            "bpppppppz"
-    };
+    private static final int COLUMNS = 9;
+    private static final int OPTION_ROWS = 2;
+    private static final char FILLER = 'g';
+    private static final char PADDING = 'p';
+    private static final char BALANCE = 'b';
+    private static final char BACK = 'z';
 
     private TreueshopMobBundleGui() {
     }
 
     public static void open(TesseraniaEconomySystem plugin, Player player, TreueshopMobBundle bundle) {
-        Gui gui = Gui.builder()
-                .setStructure(STRUCTURE)
-                .addIngredient('g', TreueshopComponents.filler(Material.GRAY_STAINED_GLASS_PANE))
-                .addIngredient('p', TreueshopComponents.filler(Material.PURPLE_STAINED_GLASS_PANE))
-                .addIngredient('b', TreueshopComponents.balanceItem(plugin))
-                .addIngredient('z', TreueshopComponents.backButton(plugin))
-                .addIngredient('#', bundleItem(plugin, bundle))
-                .build();
+        char[][] grid = new char[OPTION_ROWS + 2][COLUMNS];
+        for (char[] row : grid) {
+            Arrays.fill(row, FILLER);
+        }
+
+        List<TreueshopMobBundle.MobEggOption> options = bundle.options();
+        Map<Character, TreueshopMobBundle.MobEggOption> optionsByKey = new LinkedHashMap<>();
+        char nextKey = 'A';
+        for (int i = 0; i < options.size(); i++) {
+            char key = nextKey++;
+            grid[i / COLUMNS][i % COLUMNS] = key;
+            optionsByKey.put(key, options.get(i));
+        }
+
+        char[] footer = grid[OPTION_ROWS + 1];
+        Arrays.fill(footer, PADDING);
+        footer[0] = BALANCE;
+        footer[COLUMNS - 1] = BACK;
+
+        String[] structure = new String[grid.length];
+        for (int r = 0; r < grid.length; r++) {
+            structure[r] = new String(grid[r]);
+        }
+
+        Gui.Builder<?, ?> builder = Gui.builder()
+                .setStructure(structure)
+                .addIngredient(FILLER, TreueshopComponents.filler(Material.GRAY_STAINED_GLASS_PANE))
+                .addIngredient(PADDING, TreueshopComponents.filler(Material.PURPLE_STAINED_GLASS_PANE))
+                .addIngredient(BALANCE, TreueshopComponents.balanceItem(plugin))
+                .addIngredient(BACK, TreueshopComponents.backButton(plugin));
+        for (Map.Entry<Character, TreueshopMobBundle.MobEggOption> entry : optionsByKey.entrySet()) {
+            builder.addIngredient(entry.getKey(), optionItem(plugin, bundle, entry.getValue()));
+        }
 
         Window.builder()
                 .setViewer(player)
                 .setTitle(PlainTextComponentSerializer.plainText().serialize(bundle.title()))
-                .setUpperGui(gui)
+                .setUpperGui(builder.build())
                 .build()
                 .open();
     }
 
-    private static Item bundleItem(TesseraniaEconomySystem plugin, TreueshopMobBundle bundle) {
+    private static Item optionItem(TesseraniaEconomySystem plugin, TreueshopMobBundle bundle, TreueshopMobBundle.MobEggOption option) {
         return Item.builder()
-                .setItemProvider(TreueshopComponents.rewardIcon(plugin, bundle))
-                .addClickHandler((item, click) -> purchase(plugin, click.player(), bundle))
+                .setItemProvider(TreueshopComponents.rewardIcon(plugin, bundle, option))
+                .addClickHandler((item, click) -> purchase(plugin, click.player(), bundle, option))
                 .build();
     }
 
-    private static void purchase(TesseraniaEconomySystem plugin, Player player, TreueshopMobBundle bundle) {
+    private static void purchase(TesseraniaEconomySystem plugin, Player player, TreueshopMobBundle bundle, TreueshopMobBundle.MobEggOption option) {
         int cost = plugin.tesConfig().treueshopRewardCost(bundle.costConfigId(), bundle.defaultCost());
         TreueshopRewardService.PurchaseResult result = TreueshopRewardService.purchase(
-                plugin, player, cost, () -> TreueshopItemGrants.grantMobBundle(plugin, player, bundle));
+                plugin, player, cost, () -> TreueshopItemGrants.grantMobEgg(plugin, player, option));
         if (result == TreueshopRewardService.PurchaseResult.INSUFFICIENT_TP) {
             player.sendMessage(Messages.treueshopInsufficientTp());
             return;
         }
-        String bundleName = PlainTextComponentSerializer.plainText().serialize(bundle.title());
-        player.sendMessage(Messages.treueshopRewardPurchased(bundleName));
+        String optionName = PlainTextComponentSerializer.plainText().serialize(option.title());
+        player.sendMessage(Messages.treueshopRewardPurchased(optionName));
         open(plugin, player, bundle);
     }
 }

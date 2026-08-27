@@ -91,10 +91,11 @@ Vier weitere Felder öffnen ein Untermenü statt direkt etwas zu verkaufen:
 
 - **XP-Terminal** – vier XP-Boosts (6.000/12.500/30.000/50.000 Erfahrungspunkte für 50/75/100/125
   TP), die dir sofort echte Vanilla-Minecraft-XP gutschreiben.
-- **Freundliche Mobs I/II** und **Feindliche Mobs I/II** – je ein Sammelkauf, der dir auf einmal
-  alle Spawneier dieser Stufe ins Belohnungsinventar legt (z. B. Freundliche Mobs I: je 1x
-  Hilfsgeist/Gürteltier/Ozelot/Panda/Eisbär/Katze/Wolf/Fuchs/Dromedar/Biene plus je 2x
-  Kuh/Esel/Huhn/Schwein/Pferd/Kaninchen).
+- **Freundliche Mobs I/II** und **Feindliche Mobs I/II** – zeigt dir ein Untermenü mit allen
+  Spawnei-Arten dieser Stufe. Jede Art ist ein eigener Kauf zum gleichen Preis (z. B. jede
+  Freundliche-Mobs-I-Art für 200 TP); du bekommst nur das ausgewählte Ei ins Belohnungsinventar,
+  nicht alle Arten auf einmal. Bei Kuh/Esel/Huhn/Schwein/Pferd/Kaninchen erhältst du dabei direkt
+  2 Eier statt 1.
 
 Ein Pfeil ("⮜ Zurück") führt aus jedem Untermenü zurück zum Hauptinterface. Alle 12 Belohnungen
 sind einlösbar – Stage 3 ist damit vollständig.

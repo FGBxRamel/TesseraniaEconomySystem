@@ -9,7 +9,7 @@ Welt: kreativ | Pos: -412 -9 -3389 | Titel: "CHEST" | Größe: 9x6
 8|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
 9|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
 1|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
-2|2 — 1x GUARDIAN_SPAWN_EGG "<!italic><bold><white>Guardian-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>Schützt dein Haus, aber greift / <italic><gray>dich manchmal aus Prinzip an.]
+2|2 — 1x WARDEN_SPAWN_EGG "<!italic><bold><white>Warden-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>„Du hörst es, bevor du es bereust.“]
 3|2 — 1x CREAKING_SPAWN_EGG "<!italic><bold><white>Knarz-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>Es knackt im Wald. Nein, es ist / <italic><gray>kein Baum, es ist dein Problem.]
 4|2 — 1x PHANTOM_SPAWN_EGG "<!italic><bold><white>Phantom-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>Kommt nur wenn du schlafen willst / <italic><gray>und hasst deine Lebensentscheidungen.]
 5|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "

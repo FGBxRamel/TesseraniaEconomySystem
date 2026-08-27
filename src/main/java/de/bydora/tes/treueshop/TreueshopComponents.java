@@ -75,18 +75,20 @@ final class TreueshopComponents {
     }
 
     /**
-     * Same as {@link #rewardIcon(TesseraniaEconomySystem, TreueshopReward)}, for a bundled
-     * mob-egg reward — always has a cost, unlike the generic {@link TreueshopReward}.
+     * Same as {@link #rewardIcon(TesseraniaEconomySystem, TreueshopReward)}, for one selectable
+     * egg within a {@link TreueshopMobBundle} sub-interface — always has a cost (the bundle's
+     * shared cost, since every option in a tier is priced the same), unlike the generic
+     * {@link TreueshopReward}.
      */
-    static ItemBuilder rewardIcon(TesseraniaEconomySystem plugin, TreueshopMobBundle bundle) {
+    static ItemBuilder rewardIcon(TesseraniaEconomySystem plugin, TreueshopMobBundle bundle, TreueshopMobBundle.MobEggOption option) {
         int cost = plugin.tesConfig().treueshopRewardCost(bundle.costConfigId(), bundle.defaultCost());
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Kosten: " + cost + " TP", NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false));
         lore.add(Component.empty());
-        lore.addAll(bundle.flavorLore());
+        lore.addAll(option.flavorLore());
 
-        return new ItemBuilder(bundle.icon())
-                .setName(bundle.title())
+        return new ItemBuilder(option.eggMaterial())
+                .setName(option.title())
                 .addLoreLines(lore);
     }
 }
