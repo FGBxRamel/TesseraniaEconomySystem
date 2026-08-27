@@ -32,8 +32,10 @@ public final class ShopEconomy {
     /**
      * Force-refunds every still-{@code PENDING} transaction for a shop that is being closed or
      * was found orphaned: returns the original item to the shop's slot (if the block is still
-     * resolvable) and the paid diamonds to the buyer (if online), then marks the transaction
-     * {@code REFUNDED}. A shop shouldn't vanish while a buyer's refund right is still open.
+     * resolvable) and the buyer's own {@link ShopTransactionRecord#buyerPaid() paid} diamonds to
+     * the buyer (if online) — not the shop's full nominal price, if a Handelsbonus discount
+     * applied — then marks the transaction {@code REFUNDED}. A shop shouldn't vanish while a
+     * buyer's refund right is still open.
      */
     public static void forceRefundPending(ShopTransactionRepository transactionRepository, ShopRecord shop, World world) {
         List<ShopTransactionRecord> pending = transactionRepository.findPendingForShop(shop.world(), shop.id());

@@ -77,6 +77,8 @@ resolved with the user rather than assumed — treat them as final, not open TOD
 - `TreueshopItemGrants` — item-grant rewards (Spawner, the Erntewelt/Glutzone stub Chorus Fruits,
   mob-egg bundles, Prozessverstärker), all routed through `RewardInventoryService#grant`, never a
   live inventory placement.
+- `TreueshopHandelsbonus` (package-private) — the Handelsbonus button's purchase gating and its
+  two icon states; see the dedicated "Handelsbonus" section below for why it's special-cased.
 
 ## Purchase flow
 
@@ -88,18 +90,25 @@ effect)`: an atomic `PlayerRepository.spendTreuepunkte` check-and-deduct, then t
 balance display, the same "rebuild and reopen" tradeoff `RewardInventoryGui` already accepted
 (resets to the same fixed screen rather than an in-place refresh).
 
-Three reward "shapes" now exist:
+Four reward "shapes" now exist:
 
-- **Direct-effect** (Segen der Zwerge, Kraftelixier, and now the XP-Terminal boosts): applied
-  immediately to the buyer — a `PotionEffect`, or `Player#giveExp` for XP — with nothing
-  persisted, matching how none of these survive a server restart anyway.
-- **Item-grant** (Spawner, Erntewelt, Glutzone, the four mob-egg bundles): routes through
-  `RewardInventoryService.grant`, never a direct inventory placement, per that service's own
-  contract. Lives in `TreueshopItemGrants`, separate from `TreueshopEffects`, since the two shapes
-  take different dependencies (a `RewardInventoryService` vs. nothing beyond the `Player`).
-- Sub-interface openers (XP-Terminal, Freundliche/Feindliche Mobs I/II): no cost or effect of their
-  own — `TreueshopGui` dispatches on `TreueshopReward#subInterfaceId` to open the corresponding
-  screen instead of calling `TreueshopRewardService.purchase`.
+- **Direct-effect** (Segen der Zwerge, Kraftelixier, the XP-Terminal boosts): applied immediately
+  to the buyer — a `PotionEffect`, or `Player#giveExp` for XP — with nothing persisted, matching
+  how none of these survive a server restart anyway.
+- **Item-grant** (Spawner, Erntewelt, Glutzone, the four mob-egg bundles, Prozessverstärker):
+  routes through `RewardInventoryService.grant`, never a direct inventory placement, per that
+  service's own contract. Lives in `TreueshopItemGrants`, separate from `TreueshopEffects`, since
+  the two shapes take different dependencies (a `RewardInventoryService` vs. nothing beyond the
+  `Player`) — both are still dispatched through the same `directEffect` switch in `TreueshopGui`
+  and the same `TreueshopRewardService.purchase` call, since from that call's point of view both
+  are just "spend TP, then run an effect".
+- **Sub-interface openers** (XP-Terminal, Freundliche/Feindliche Mobs I/II): no cost or effect of
+  their own — `TreueshopGui` dispatches on `TreueshopReward#subInterfaceId` to open the
+  corresponding screen instead of calling `TreueshopRewardService.purchase`.
+- **Custom-gated** (Handelsbonus only): the only reward whose purchase can be *blocked* by
+  something other than insufficient TP (the 2-slot cap, or already holding one) — special-cased
+  entirely outside the `directEffect`/`subInterfaceId` dispatch, in `TreueshopHandelsbonus`. See
+  the "Handelsbonus" section below.
 
 `TreueshopGui.purchase` takes an explicit `onSuccess` callback rather than always reopening the
 main interface, so `TreueshopXpTerminalGui` and `TreueshopMobBundleGui` can reopen themselves
