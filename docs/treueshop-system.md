@@ -72,7 +72,10 @@ resolved with the user rather than assumed — treat them as final, not open TOD
 - `TreueshopXpTerminalGui` — the XP-Terminal sub-interface (4 XP-Boost buttons).
 - `TreueshopMobBundleGui` — one generic sub-interface reused for all four Mo1-Mo4 tiers,
   parameterized by `TreueshopMobBundle`: a grid of its `MobEggOption`s, each independently
-  purchasable (buying one doesn't grant the others).
+  purchasable (buying one doesn't grant the others). Each option carries its own row/column,
+  transcribed from the reference build's `Mobs_V1-V4` chest dumps (including that chest's
+  recurring column-5 gap splitting each row into two groups) — not auto-packed left-to-right,
+  since the reference layout is what a returning player already expects to see.
 - `TreueshopRewardService` — purchase orchestration.
 - `TreueshopEffects` — direct effects applied straight to the buying player (potion effects, and
   now `applyXpBoost`'s `Player#giveExp`) — nothing persisted, matching how these don't survive a

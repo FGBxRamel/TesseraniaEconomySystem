@@ -9,7 +9,7 @@ Welt: kreativ | Pos: -412 -9 -3389 | Titel: "CHEST" | Größe: 9x6
 8|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
 9|1 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
 1|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
-2|2 — 1x WARDEN_SPAWN_EGG "<!italic><bold><white>Warden-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>„Du hörst es, bevor du es bereust.“]
+2|2 — 1x WARDEN_SPAWN_EGG "<!italic><bold><white>Warden-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>Pass auf! / <italic><gray>Er hört wer da hämmert!]
 3|2 — 1x CREAKING_SPAWN_EGG "<!italic><bold><white>Knarz-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>Es knackt im Wald. Nein, es ist / <italic><gray>kein Baum, es ist dein Problem.]
 4|2 — 1x PHANTOM_SPAWN_EGG "<!italic><bold><white>Phantom-Spawnei" [Lore: <!italic><yellow>Kosten: 275 TP /  / <italic><gray>Kommt nur wenn du schlafen willst / <italic><gray>und hasst deine Lebensentscheidungen.]
 5|2 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
@@ -26,7 +26,7 @@ Welt: kreativ | Pos: -412 -9 -3389 | Titel: "CHEST" | Größe: 9x6
 7|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
 8|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
 9|3 — 1x GRAY_STAINED_GLASS_PANE "<!italic> "
-1|4 — 1x SUNFLOWER "<!italic><bold><yellow>Treuepunkte (TP)" [Lore: <!italic><!bold><white>69 Punkte /  / <italic><gray>'Treuepunkte können passiv beim Einkauf / <italic><gray>in anderen Spieler-Shops generiert werden.']
+1|4 — 1x SUNFLOWER "<!italic><bold><yellow>Treuepunkte (TP)" [Lore: <!italic><!bold><white>69 Punkte /  / <italic><gray>Treuepunkte können passiv beim Einkauf / <italic><gray>in anderen Spieler-Shops generiert werden.]
 2|4 — 1x PURPLE_STAINED_GLASS_PANE " "
 3|4 — 1x PURPLE_STAINED_GLASS_PANE " "
 4|4 — 1x PURPLE_STAINED_GLASS_PANE " "

@@ -11,20 +11,19 @@ import xyz.xenondevs.invui.window.Window;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * A mob-egg tier sub-interface (spec §3.2.1.2, "Subinterface Mo1-Mo4"): a grid of individually
- * purchasable {@link TreueshopMobBundle.MobEggOption}s, plus the shared balance display and
- * "⮜ Zurück" button. One layout serves all four tiers, packing each tier's options left-to-right,
- * top-to-bottom across up to two content rows (Freundliche Mobs I's 16 options is the largest
- * tier, fitting 9+7 across both).
+ * purchasable {@link TreueshopMobBundle.MobEggOption}s, laid out at the row/column each option
+ * declares (transcribed from the reference build's {@code Mobs_V1-V4} chest dumps — see
+ * {@link TreueshopMobBundle.MobEggOption}'s javadoc), plus the shared balance display and
+ * "⮜ Zurück" button on row 4.
  */
 public final class TreueshopMobBundleGui {
 
     private static final int COLUMNS = 9;
-    private static final int OPTION_ROWS = 2;
+    private static final int ROWS = 4;
     private static final char FILLER = 'g';
     private static final char PADDING = 'p';
     private static final char BALANCE = 'b';
@@ -34,27 +33,26 @@ public final class TreueshopMobBundleGui {
     }
 
     public static void open(TesseraniaEconomySystem plugin, Player player, TreueshopMobBundle bundle) {
-        char[][] grid = new char[OPTION_ROWS + 2][COLUMNS];
+        char[][] grid = new char[ROWS][COLUMNS];
         for (char[] row : grid) {
             Arrays.fill(row, FILLER);
         }
 
-        List<TreueshopMobBundle.MobEggOption> options = bundle.options();
         Map<Character, TreueshopMobBundle.MobEggOption> optionsByKey = new LinkedHashMap<>();
         char nextKey = 'A';
-        for (int i = 0; i < options.size(); i++) {
+        for (TreueshopMobBundle.MobEggOption option : bundle.options()) {
             char key = nextKey++;
-            grid[i / COLUMNS][i % COLUMNS] = key;
-            optionsByKey.put(key, options.get(i));
+            grid[option.row() - 1][option.column() - 1] = key;
+            optionsByKey.put(key, option);
         }
 
-        char[] footer = grid[OPTION_ROWS + 1];
+        char[] footer = grid[ROWS - 1];
         Arrays.fill(footer, PADDING);
         footer[0] = BALANCE;
         footer[COLUMNS - 1] = BACK;
 
-        String[] structure = new String[grid.length];
-        for (int r = 0; r < grid.length; r++) {
+        String[] structure = new String[ROWS];
+        for (int r = 0; r < ROWS; r++) {
             structure[r] = new String(grid[r]);
         }
 
