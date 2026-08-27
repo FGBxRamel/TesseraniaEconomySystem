@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0](https://github.com/FGBxRamel/TesseraniaEconomySystem/compare/v0.3.0...v0.4.0) (2026-08-27)
+
+
+### Features
+
+* **punkte:** make Handelsbonus purchasable, closing out Stage 3 ([cef5980](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/cef598011729190e5301fbdefc204277a4175e2d))
+* **punkte:** make Handelsbonus purchasable, closing out Stage 3 ([268144f](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/268144f473d7244af90aa03ce078ca874a474911))
+* **punkte:** make Prozessverstärker purchasable (furnace/beehive boost) ([eafcd9d](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/eafcd9d0a976a7caa9f58a340c8116defe984065))
+* **punkte:** make Prozessverstärker purchasable (furnace/beehive boost) ([a83fc11](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/a83fc11f8c9e408749bb0abb773cfe5bda69ab1d))
+* **punkte:** make Segen der Zwerge and Kraftelixier purchasable ([4dec424](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/4dec424c296b364c017a5b2f5026b8407550dd2e))
+* **punkte:** make Segen der Zwerge and Kraftelixier purchasable ([2ba8804](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/2ba88044b162023bf9b4a45539fe1cf9c06a4843))
+* **punkte:** open the Treuepunkteshop main interface, add TP transfer ([b80baf3](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/b80baf3432c147658fc09549d097343ef6774ecd))
+* **punkte:** Treuepunkteshop main interface + TP transfer ([e1a2b67](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/e1a2b6760c259daa8e1924da9b801c3ecac5dac8))
+* **punkte:** wire up XP-Terminal, mob-egg bundles, Spawner and Erntewelt/Glutzone ([36b9e42](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/36b9e4254f18bfe0a243701caf871647768a9786))
+* **punkte:** wire up XP-Terminal, mob-egg bundles, Spawner and Erntewelt/Glutzone ([9688654](https://github.com/FGBxRamel/TesseraniaEconomySystem/commit/9688654f2167fa6506de45d6e82acefe45e447c8))
+
 ## [0.3.0](https://github.com/FGBxRamel/TesseraniaEconomySystem/compare/v0.2.0...v0.3.0) (2026-08-26)
 
 
