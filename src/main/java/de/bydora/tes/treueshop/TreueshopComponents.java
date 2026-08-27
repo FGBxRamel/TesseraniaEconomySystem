@@ -29,8 +29,8 @@ final class TreueshopComponents {
                         .addLoreLines(
                                 Component.text(currentTreuepunkte(plugin, viewer) + " Punkte", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false),
                                 Component.empty(),
-                                Component.text("'Treuepunkte können passiv beim Einkauf", NamedTextColor.GRAY, TextDecoration.ITALIC),
-                                Component.text("in anderen Spieler-Shops generiert werden.'", NamedTextColor.GRAY, TextDecoration.ITALIC)))
+                                Component.text("Treuepunkte können passiv beim Einkauf", NamedTextColor.GRAY, TextDecoration.ITALIC),
+                                Component.text("in anderen Spieler-Shops generiert werden.", NamedTextColor.GRAY, TextDecoration.ITALIC)))
                 .build();
     }
 
