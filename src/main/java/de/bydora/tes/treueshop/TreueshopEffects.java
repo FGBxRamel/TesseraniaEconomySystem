@@ -15,23 +15,36 @@ public final class TreueshopEffects {
     }
 
     /**
-     * Belohnung 3, "Segen der Zwerge": Haste II for the configured duration.
+     * Belohnung 3, "Segen der Zwerge": Haste II for the configured duration. Stacks with any
+     * remaining duration from a still-active effect rather than resetting it.
      */
     public static void applySegenDerZwerge(TesseraniaEconomySystem plugin, Player player) {
         int durationTicks = plugin.tesConfig().treueshopHasteMinutes() * 60 * 20;
-        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, durationTicks, 1));
+        applyOrExtend(player, PotionEffectType.HASTE, durationTicks, 1);
     }
 
     /**
      * Belohnung 7, "Kraftelixier": Regeneration II, Resistenz II, Stärke (I) and Held des Dorfes
-     * (I), all for the configured duration.
+     * (I), all for the configured duration. Stacks with any remaining duration from a
+     * still-active effect rather than resetting it.
      */
     public static void applyKraftelixier(TesseraniaEconomySystem plugin, Player player) {
         int durationTicks = plugin.tesConfig().treueshopKraftelixierMinutes() * 60 * 20;
-        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, durationTicks, 1));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, durationTicks, 1));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, durationTicks, 0));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, durationTicks, 0));
+        applyOrExtend(player, PotionEffectType.REGENERATION, durationTicks, 1);
+        applyOrExtend(player, PotionEffectType.RESISTANCE, durationTicks, 1);
+        applyOrExtend(player, PotionEffectType.STRENGTH, durationTicks, 0);
+        applyOrExtend(player, PotionEffectType.HERO_OF_THE_VILLAGE, durationTicks, 0);
+    }
+
+    /**
+     * Applies {@code type} for {@code durationTicks}, adding on top of any remaining duration
+     * from an already-active effect of the same type instead of overwriting it (Bukkit's
+     * {@link Player#addPotionEffect(PotionEffect)} otherwise resets the timer on reuse).
+     */
+    private static void applyOrExtend(Player player, PotionEffectType type, int durationTicks, int amplifier) {
+        PotionEffect existing = player.getPotionEffect(type);
+        int remainingTicks = existing != null ? existing.getDuration() : 0;
+        player.addPotionEffect(new PotionEffect(type, remainingTicks + durationTicks, amplifier));
     }
 
     /**
