@@ -80,6 +80,18 @@ public final class SqliteHandelsbonusRepository implements HandelsbonusRepositor
         });
     }
 
+    @Override
+    public boolean resetCooldown(UUID uuid, long now) {
+        return database.execute(() -> {
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "UPDATE handelsbonus_holders SET cooldown_until = 0 WHERE uuid = ? AND cooldown_until > ?")) {
+                statement.setString(1, uuid.toString());
+                statement.setLong(2, now);
+                return statement.executeUpdate() > 0;
+            }
+        });
+    }
+
     private int currentDiscount(UUID uuid) throws java.sql.SQLException {
         try (PreparedStatement statement = database.connection().prepareStatement(
                 "SELECT discount_remaining FROM handelsbonus_holders WHERE uuid = ?")) {

@@ -17,48 +17,48 @@ import java.util.List;
 public final class TreueshopRewardCatalog {
 
     private static final List<TreueshopReward> MAIN_INTERFACE_REWARDS = List.of(
-            new TreueshopReward("prozessverstaerker", 25, 1, 1, Material.FURNACE, title("Prozessverstärker"), List.of(
+            new TreueshopReward("prozessverstaerker", 25, 1, 1, Material.FURNACE, title("Prozessverstärker"), plugin -> List.of(
                     flavor("Item zum Boosten von Funktionsblöcken"),
                     flavor("Effekt stapelbar bei mehrfacher Nutzung"),
                     blank(),
                     flavor("Boostbare Blöcke:"),
-                    flavor("Ofen → 2x Geschwindigkeit (15 min)"),
+                    flavor("Ofen → 2x Geschwindigkeit (" + plugin.tesConfig().treueshopProzessverstaerkerBoostMinutes() + " min)"),
                     flavor("Bienenstock → erhöhte Produktion")
             )),
-            new TreueshopReward(null, 0, 5, 1, Material.CHICKEN_SPAWN_EGG, title("Freundliche Mobs I"), List.of(
+            new TreueshopReward(null, 0, 5, 1, Material.CHICKEN_SPAWN_EGG, title("Freundliche Mobs I"), plugin -> List.of(
                     flavor("Öffnet das Tier-Submenü (T1)."),
                     flavor("Grundlegende freundliche Kreaturen."),
                     blank(),
                     flavor("„Alles beginnt mit etwas Fedrigem.“")
             ), "mo1"),
-            new TreueshopReward("spawner", 1000, 9, 1, Material.TRIAL_SPAWNER, title("Spawner"), List.of(
+            new TreueshopReward("spawner", 1000, 9, 1, Material.TRIAL_SPAWNER, title("Spawner"), plugin -> List.of(
                     flavor("Du erhältst einen Spawner."),
                     flavor("Kann mit Spawneiern bestückt werden."),
                     flavor("Erzeugt kontrollierte Monsterwellen."),
                     blank(),
                     flavor("„Kontrolliertes Chaos in Blöcken.“")
             )),
-            new TreueshopReward(null, 0, 1, 2, Material.EXPERIENCE_BOTTLE, title("XP-Terminal"), List.of(
+            new TreueshopReward(null, 0, 1, 2, Material.EXPERIENCE_BOTTLE, title("XP-Terminal"), plugin -> List.of(
                     flavor("Öffnet das XP-Reward System"),
                     flavor("zur Verwaltung von Minecraft XP."),
                     blank(),
                     flavor("Wähle aus verschiedenen XP-Boosts"),
                     flavor("und Erfahrungs-Upgrades.")
             ), "xp-terminal"),
-            new TreueshopReward("segen-der-zwerge", 100, 3, 2, Material.GOLDEN_PICKAXE, title("Segen der Zwerge"), List.of(
+            new TreueshopReward("segen-der-zwerge", 100, 3, 2, Material.GOLDEN_PICKAXE, title("Segen der Zwerge"), plugin -> List.of(
                     flavor("„Die Erde gehört denen, die"),
                     flavor("schneller graben als sie denkt.“"),
                     blank(),
-                    flavor("Gewährt Eile II für 30 Minuten."),
+                    flavor("Gewährt Eile II für " + plugin.tesConfig().treueshopHasteMinutes() + " Minuten."),
                     flavor("Perfekt für tiefere Höhlenzüge.")
             )),
-            new TreueshopReward(null, 0, 5, 2, Material.PARROT_SPAWN_EGG, title("Freundliche Mobs II"), List.of(
+            new TreueshopReward(null, 0, 5, 2, Material.PARROT_SPAWN_EGG, title("Freundliche Mobs II"), plugin -> List.of(
                     flavor("Öffnet das Tier-Submenü (T2)."),
                     flavor("Erweiterte freundliche Kreaturen."),
                     blank(),
                     flavor("„Mehr Leben. Mehr Chaos. Mehr Farbe.“")
             ), "mo2"),
-            new TreueshopReward("erntewelt", 160, 7, 2, Material.GRASS_BLOCK, title("Erntewelt", NamedTextColor.GREEN), List.of(
+            new TreueshopReward("erntewelt", 160, 7, 2, Material.GRASS_BLOCK, title("Erntewelt", NamedTextColor.GREEN), plugin -> List.of(
                     flavor("3 Stunden Zugang zu einer"),
                     flavor("speziellen Ressourcenwelt."),
                     flavor("Mit großen Biomen und"),
@@ -70,42 +70,47 @@ public final class TreueshopRewardCatalog {
                     flavor("Reset alle 48 Stunden."),
                     flavor("Neue Welt wird generiert.")
             )),
-            new TreueshopReward("handelsbonus", 150, 9, 2, Material.DIAMOND, title("Handelsbonus"), List.of(
-                    flavor("Money, Money, Money!"),
-                    blank(),
-                    flavor("Ermöglicht einen 5-Diamanten Rabatt"),
-                    flavor("auf alle Einkäufe bis zum Aufbrauch."),
-                    blank(),
-                    flavor("Max. 2 aktive Spieler gleichzeitig."),
-                    flavor("Rabatt wird pro Kauf automatisch"),
-                    flavor("verrechnet und reduziert."),
-                    flavor("Nicht verbrauchte Werte bleiben erhalten."),
-                    blank(),
-                    flavor("Finanzierung erfolgt über die Staatskasse."),
-                    blank(),
-                    flavor("Beispiel:"),
-                    flavor("Kauf 40 → zahlt 35, Rest 0."),
-                    flavor("Kauf 1 → zahlt 0, Rest 4.")
-            )),
-            new TreueshopReward("kraftelixier", 175, 3, 3, Material.GOLDEN_APPLE, title("Kraftelixier"), List.of(
+            new TreueshopReward("handelsbonus", 150, 9, 2, Material.DIAMOND, title("Handelsbonus"), plugin -> {
+                int discount = plugin.tesConfig().treueshopHandelsbonusDiscountDiamonds();
+                int examplePrice = discount + 35;
+                int exampleRemainder = Math.max(0, discount - 1);
+                return List.of(
+                        flavor("Money, Money, Money!"),
+                        blank(),
+                        flavor("Ermöglicht einen " + discount + "-Diamanten Rabatt"),
+                        flavor("auf alle Einkäufe bis zum Aufbrauch."),
+                        blank(),
+                        flavor("Max. 2 aktive Spieler gleichzeitig."),
+                        flavor("Rabatt wird pro Kauf automatisch"),
+                        flavor("verrechnet und reduziert."),
+                        flavor("Nicht verbrauchte Werte bleiben erhalten."),
+                        blank(),
+                        flavor("Finanzierung erfolgt über die Staatskasse."),
+                        blank(),
+                        flavor("Beispiel:"),
+                        flavor("Kauf " + examplePrice + " → zahlt " + (examplePrice - discount) + ", Rest 0."),
+                        flavor("Kauf 1 → zahlt 0, Rest " + exampleRemainder + ".")
+                );
+            }),
+            new TreueshopReward("kraftelixier", 175, 3, 3, Material.GOLDEN_APPLE, title("Kraftelixier"), plugin -> List.of(
                     flavor("Ultimativer Boost für dein"),
                     flavor("Immunsystem!"),
                     blank(),
                     flavor("„Schmeckt nach Sieg und Magie.“"),
                     blank(),
-                    flavor("Effekte für 30 Minuten:"),
+                    flavor("Effekte für " + plugin.tesConfig().treueshopKraftelixierMinutes() + " Minuten:"),
                     flavor("Regeneration II"),
                     flavor("Resistenz II"),
                     flavor("Stärke"),
                     flavor("Held des Dorfes")
             )),
-            new TreueshopReward(null, 0, 5, 3, Material.CREEPER_SPAWN_EGG, title("Feindliche Mobs I"), List.of(
+            new TreueshopReward(null, 0, 5, 3, Material.CREEPER_SPAWN_EGG, title("Feindliche Mobs I"), plugin -> List.of(
                     flavor("Öffnet das Kampf-Submenü (T1)."),
                     flavor("Einfache gefährliche Kreaturen."),
                     blank(),
                     flavor("„Explosiv. Direkt. Ehrlich.“")
             ), "mo3"),
-            new TreueshopReward("glutzone", 160, 7, 3, Material.NETHERRACK, title("Glutzone", NamedTextColor.GOLD), List.of(
+            new TreueshopReward("glutzone", 160, 7, 3, Material.NETHERRACK, title("Glutzone", NamedTextColor.GOLD), plugin -> List.of(
                     flavor("3 Stunden Zugang zu einer"),
                     flavor("speziellen Nether-Ressourcenwelt."),
                     flavor("Gefüllt mit angepassten"),
@@ -117,7 +122,7 @@ public final class TreueshopRewardCatalog {
                     flavor("Reset alle 48 Stunden."),
                     flavor("Neue Welt wird generiert.")
             )),
-            new TreueshopReward(null, 0, 5, 4, Material.WARDEN_SPAWN_EGG, title("Feindliche Mobs II"), List.of(
+            new TreueshopReward(null, 0, 5, 4, Material.WARDEN_SPAWN_EGG, title("Feindliche Mobs II"), plugin -> List.of(
                     flavor("Öffnet das Kampf-Submenü (T2)."),
                     flavor("Elite & Bossartige Kreaturen."),
                     blank(),
@@ -137,19 +142,19 @@ public final class TreueshopRewardCatalog {
      * the vanilla currency.
      */
     private static final List<TreueshopReward> XP_TERMINAL_REWARDS = List.of(
-            new TreueshopReward("xp-boost-1", 50, 2, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe I)"), List.of(
+            new TreueshopReward("xp-boost-1", 50, 2, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe I)"), plugin -> List.of(
                     flavor("Du erhältst 6.000 XP"),
                     flavor("Dies entspricht etwa 50 Leveln")
             )),
-            new TreueshopReward("xp-boost-2", 75, 4, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe II)"), List.of(
+            new TreueshopReward("xp-boost-2", 75, 4, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe II)"), plugin -> List.of(
                     flavor("Du erhältst 12.500 XP"),
                     flavor("Dies entspricht etwa 69 Leveln")
             )),
-            new TreueshopReward("xp-boost-3", 100, 6, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe III)"), List.of(
+            new TreueshopReward("xp-boost-3", 100, 6, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe III)"), plugin -> List.of(
                     flavor("Du erhältst 30.000 XP"),
                     flavor("Dies entspricht etwa 100 Leveln")
             )),
-            new TreueshopReward("xp-boost-4", 125, 8, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe IV)"), List.of(
+            new TreueshopReward("xp-boost-4", 125, 8, 2, Material.EXPERIENCE_BOTTLE, title("XP-Boost (Stufe IV)"), plugin -> List.of(
                     flavor("Du erhältst 50.000 XP"),
                     flavor("Dies entspricht etwa 120 Leveln")
             ))

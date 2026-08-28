@@ -237,6 +237,14 @@ to its coordinates, then keep it stocked with diamonds. Nothing in-game points a
 requirement yet; it's config-only, matching the spec's own "Koordinaten... in der Configdatei...
 angegeben werden müssen".
 
+### Admin cooldown reset
+
+`/handelsbonus reset <Name>` (`tes.admin.handelsbonus.reset`, `HandelsbonusCommand`) clears a
+player's `cooldown_until` back to 0 via `HandelsbonusRepository#resetCooldown`, without touching
+`discount_remaining` — an admin-only escape hatch with no spec counterpart, for cases like a
+misconfigured Staatskasse or an accidental activation. Reports back whether the player actually had
+an active cooldown to clear.
+
 ### Package layout
 
 `de.bydora.tes.handelsbonus`: `HandelsbonusHolderRecord`/`HandelsbonusRepository`/

@@ -28,4 +28,12 @@ public interface HandelsbonusRepository {
      * Handelsbonus at all).
      */
     int consumeDiscount(UUID uuid, int amount);
+
+    /**
+     * Admin override (no counterpart in the spec): clears {@code uuid}'s post-trigger cooldown so
+     * they can immediately trigger Handelsbonus again, without touching any unused discount
+     * balance they still hold. Returns whether an active cooldown actually existed to clear
+     * (false if {@code uuid} never triggered Handelsbonus, or their cooldown had already expired).
+     */
+    boolean resetCooldown(UUID uuid, long now);
 }

@@ -64,6 +64,22 @@ registriert sein (siehe `/spieler add`).
 > (`/treuepunkte add/remove/set <Anzahl>`). Da das nur für den ausführenden Admin selbst
 > Sinn ergäbe, wurde – analog zu `/spieler` und Vanilla `/xp` – ein Namensargument ergänzt.
 
+## `/handelsbonus reset` (Admin)
+
+Setzt den Cooldown eines Spielers für den Handelsbonus (siehe unten) zurück, sodass er ihn sofort
+erneut kaufen kann – ohne dass ein noch nicht aufgebrauchter Rabatt verloren geht.
+
+| Befehl | Berechtigung | Wirkung |
+|---|---|---|
+| `/handelsbonus reset <Name>` | `tes.admin.handelsbonus.reset` | Setzt den Handelsbonus-Cooldown des Spielers zurück. |
+
+Hat der Spieler aktuell keinen laufenden Cooldown (z. B. weil er den Handelsbonus noch nie gekauft
+hat), meldet der Befehl das statt etwas zu ändern. War der Spieler online, wird er zusätzlich
+benachrichtigt, dass sein Cooldown zurückgesetzt wurde.
+
+> Kein Bestandteil der Spezifikation – reine Admin-Abhilfe für Sonderfälle (z. B. ein
+> fehlkonfigurierter Rabatt oder eine versehentlich ausgelöste Aktivierung).
+
 ## `/punkte` bzw. `/treuepunkte` (Spieler)
 
 Ohne weitere Argumente öffnet `/punkte` (oder gleichbedeutend `/treuepunkte`) den

@@ -1,9 +1,11 @@
 package de.bydora.tes.treueshop;
 
+import de.bydora.tes.TesseraniaEconomySystem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Metadata for one of the Treueshop main interface's top-level rewards (spec §3.2.1.1): grid
@@ -14,6 +16,11 @@ import java.util.List;
  * <p>The same record is reused for a sub-interface's own leaf rewards (e.g. the four XP-Terminal
  * boosts) — {@link #column()}/{@link #row()} then address that sub-interface's own grid, not the
  * main interface's.
+ *
+ * <p>{@link #flavorLore()} is a function rather than a fixed {@code List<Component>} so that lore
+ * mentioning a config-driven value (e.g. Prozessverstärker's boost duration, Handelsbonus' discount
+ * and worked example) reads the current config on every render instead of baking in the shipped
+ * default at class-init time. Most rewards ignore the argument and just return a constant list.
  *
  * @param costConfigId    the {@code treueshop.rewards.<id>.cost} config key, or {@code null} if
  *                         this reward has no direct cost
@@ -31,12 +38,12 @@ public record TreueshopReward(
         int row,
         Material icon,
         Component title,
-        List<Component> flavorLore,
+        Function<TesseraniaEconomySystem, List<Component>> flavorLore,
         String subInterfaceId
 ) {
 
     public TreueshopReward(String costConfigId, int defaultCost, int column, int row, Material icon,
-            Component title, List<Component> flavorLore) {
+            Component title, Function<TesseraniaEconomySystem, List<Component>> flavorLore) {
         this(costConfigId, defaultCost, column, row, icon, title, flavorLore, null);
     }
 

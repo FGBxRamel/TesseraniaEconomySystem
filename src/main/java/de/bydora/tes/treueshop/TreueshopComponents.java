@@ -67,7 +67,7 @@ final class TreueshopComponents {
             lore.add(Component.text("Kosten: " + cost + " TP", NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false));
             lore.add(Component.empty());
         }
-        lore.addAll(reward.flavorLore());
+        lore.addAll(reward.flavorLore().apply(plugin));
 
         return new ItemBuilder(reward.icon())
                 .setName(reward.title())

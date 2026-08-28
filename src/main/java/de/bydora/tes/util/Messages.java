@@ -442,8 +442,13 @@ public final class Messages {
         return Component.text("Du hast nicht genügend Treuepunkte für diese Aktion.", NamedTextColor.RED);
     }
 
-    public static Component treueshopRewardPurchased(String rewardName) {
-        return Component.text("Du hast \"" + rewardName + "\" erworben.", NamedTextColor.GREEN);
+    public static Component treueshopRewardPurchased(String rewardName, boolean viaRewardInventory) {
+        Component message = Component.text("Du hast \"" + rewardName + "\" erworben.", NamedTextColor.GREEN);
+        if (viaRewardInventory) {
+            message = message.append(Component.newline())
+                    .append(Component.text("Hole es dir mit /belohnung ab.", NamedTextColor.GRAY));
+        }
+        return message;
     }
 
     public static Component treueshopTransferSelfTarget() {
@@ -489,6 +494,19 @@ public final class Messages {
     public static Component handelsbonusSlotsFull() {
         return Component.text("Der Handelsbonus wird aktuell von 2 Spielern genutzt. Schau später "
                 + "wieder vorbei.", NamedTextColor.RED);
+    }
+
+    public static Component handelsbonusCooldownReset(String name) {
+        return Component.text("Der Handelsbonus-Cooldown von " + name + " wurde zurückgesetzt.", NamedTextColor.GREEN);
+    }
+
+    public static Component handelsbonusNoCooldownToReset(String name) {
+        return Component.text(name + " hat aktuell keinen laufenden Handelsbonus-Cooldown.", NamedTextColor.RED);
+    }
+
+    public static Component handelsbonusCooldownResetNotice() {
+        return Component.text("Dein Handelsbonus-Cooldown wurde von einem Admin zurückgesetzt. "
+                + "Du kannst ihn wieder erwerben.", NamedTextColor.GREEN);
     }
 
     // ---- Debug (/debug dump, siehe docs/gui-reference-capture.md) ----

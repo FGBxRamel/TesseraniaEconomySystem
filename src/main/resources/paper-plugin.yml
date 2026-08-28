@@ -79,3 +79,6 @@ permissions:
   tes.treuepunkte.abfragen:
     description: Erlaubt das Abfragen des eigenen Treuepunktestands
     default: true
+  tes.admin.handelsbonus.reset:
+    description: Erlaubt das Zurücksetzen des Handelsbonus-Cooldowns eines Spielers
+    default: op

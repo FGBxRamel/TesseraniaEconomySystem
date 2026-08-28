@@ -90,7 +90,7 @@ public final class TreueshopMobBundleGui {
             return;
         }
         String optionName = PlainTextComponentSerializer.plainText().serialize(option.title());
-        player.sendMessage(Messages.treueshopRewardPurchased(optionName));
+        player.sendMessage(Messages.treueshopRewardPurchased(optionName, true));
         open(plugin, player, bundle);
     }
 }
