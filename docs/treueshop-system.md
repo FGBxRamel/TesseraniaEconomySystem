@@ -180,9 +180,10 @@ item has been granted.
 ## Handelsbonus (`de.bydora.tes.handelsbonus`)
 
 Belohnung 4 is the last Stage 3 reward and the one that reaches back into already-shipped Stage 1
-purchase code (`ShopTradeListener`, `ShopEconomy`, `ShopMaintenanceTask`) rather than staying
-self-contained — the discount has to apply to every future shop purchase the holder makes, not to
-anything granted at Treueshop-purchase time.
+and Stage 2 purchase code (`ShopTradeListener`/`ShopEconomy`/`ShopMaintenanceTask` for shops,
+`InvoiceEconomy` for invoice settlement) rather than staying self-contained — the reward's own lore
+("Rabatt auf alle Einkäufe") means the discount has to apply to every future purchase the holder
+makes, not to anything granted at Treueshop-purchase time.
 
 ### Model
 
@@ -228,6 +229,20 @@ given sale was state-funded:
   change from needing to thread `HandelsbonusRepository`/`TesConfig` through both
   `forceRefundPending` call sites (`ShopCommand`, `ShopMaintenanceTask`) on top of the purchase
   path that already needed it.
+
+### Wiring into `InvoiceEconomy`
+
+`InvoiceEconomy.settle` mirrors `ShopTradeListener.handleBuyerClick`'s discount handling exactly:
+it withdraws the payer's Handelsbonus discount from the Staatskasse before checking affordability
+(so the payer only needs `price - discount` diamonds on hand), but always credits the invoice
+creator's `invoice_balance` with the full nominal price — the creator, like a shop owner, is never
+aware a discount happened. TP/EP accrual for the payer (`creditPayer`) uses the discounted
+`amountToPay`, not the full price, for the same "Für die 5 Dias gibt es keine EP / TP!" reason as
+`ShopMaintenanceTask.creditBuyer`. `settle` now returns a `SettleOutcome(SettleResult,
+discountApplied)` record instead of a bare `SettleResult` so `InvoiceGui` can show the same
+"Handelsbonus aktiv" message shop purchases already show. As with shops, a `NOT_ENOUGH_DIAMONDS`
+outcome doesn't unwind an already-withdrawn Staatskasse contribution or consumed discount balance —
+same pre-existing sunk-cost tradeoff as the shop path, not something this change revisits.
 
 ### Admin setup
 

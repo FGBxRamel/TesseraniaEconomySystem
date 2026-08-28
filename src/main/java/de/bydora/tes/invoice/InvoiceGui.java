@@ -2,6 +2,7 @@ package de.bydora.tes.invoice;
 
 import de.bydora.tes.TesseraniaEconomySystem;
 import de.bydora.tes.data.PlayerRecord;
+import de.bydora.tes.handelsbonus.HandelsbonusHolderRecord;
 import de.bydora.tes.gui.CustomHeads;
 import de.bydora.tes.gui.GuiBackgrounds;
 import de.bydora.tes.gui.PaginationControls;
@@ -118,21 +119,32 @@ public final class InvoiceGui {
                                 Component.text(" "),
                                 Component.text("Linksklick zum Bezahlen", NamedTextColor.GRAY, TextDecoration.ITALIC)))
                 .addClickHandler((item, click) -> {
-                    InvoiceEconomy.SettleResult result = InvoiceEconomy.settle(
-                            plugin.invoiceRepository(), plugin.playerRepository(), plugin.tesConfig(), click.player(), record.id());
-                    switch (result) {
+                    InvoiceEconomy.SettleOutcome outcome = InvoiceEconomy.settle(plugin.invoiceRepository(), plugin.playerRepository(),
+                            plugin.handelsbonusRepository(), plugin.tesConfig(), click.player(), record.id());
+                    switch (outcome.result()) {
                         case SETTLED -> {
                             click.player().sendMessage(Messages.invoiceSettled(creatorName, record.price()));
+                            if (outcome.discountApplied() > 0) {
+                                notifyHandelsbonusUsed(plugin, click.player(), outcome.discountApplied());
+                            }
                             notifyCreatorOfSettlement(plugin, record.creatorUuid(), click.player().getName(), record.price());
                         }
                         case NOT_ENOUGH_DIAMONDS -> click.player().sendMessage(Messages.notEnoughTaler());
                         case ALREADY_SETTLED -> click.player().sendMessage(Messages.invoiceAlreadySettled());
                     }
-                    if (result != InvoiceEconomy.SettleResult.NOT_ENOUGH_DIAMONDS) {
+                    if (outcome.result() != InvoiceEconomy.SettleResult.NOT_ENOUGH_DIAMONDS) {
                         open(plugin, click.player());
                     }
                 })
                 .build();
+    }
+
+    private static void notifyHandelsbonusUsed(TesseraniaEconomySystem plugin, Player payer, int discount) {
+        int remaining = plugin.handelsbonusRepository().find(payer.getUniqueId())
+                .map(HandelsbonusHolderRecord::discountRemaining).orElse(0);
+        payer.sendMessage(remaining > 0
+                ? Messages.handelsbonusDiscountApplied(discount, remaining)
+                : Messages.handelsbonusDiscountExhausted(discount));
     }
 
     private static void notifyCreatorOfSettlement(TesseraniaEconomySystem plugin, UUID creatorUuid, String payerName, int price) {

@@ -119,8 +119,9 @@ sind einlösbar – Stage 3 ist damit vollständig.
 ### Handelsbonus
 
 Der Handelsbonus (150 TP) gewährt dir 5 Diamanten Rabatt auf deine nächsten Einkäufe in
-Item-Shops – automatisch verrechnet, ein Kauf über 40 Diamanten kostet dich z. B. nur noch 35,
-der Rest wird über die Staatskasse finanziert. Nicht verbrauchter Rabatt bleibt erhalten, bis er
+Item-Shops sowie beim Bezahlen von Rechnungen (`/rechnung`) – automatisch verrechnet, ein Kauf
+oder eine Rechnung über 40 Diamanten kostet dich z. B. nur noch 35, der Rest wird über die
+Staatskasse finanziert. Nicht verbrauchter Rabatt bleibt erhalten, bis er
 aufgebraucht ist. Höchstens 2 Spieler können den Handelsbonus gleichzeitig aktiv haben; ist er
 bei dir schon aktiv oder sind beide Plätze belegt, zeigt der Button einen ausgegrauten Diamanten
 und du kannst ihn erst nach Ablauf einer zufälligen Cooldown-Zeit von 3-4 Wochen erneut kaufen.
