@@ -1,5 +1,6 @@
 package de.bydora.tes.handelsbonus;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,13 @@ public interface HandelsbonusRepository {
      * "maximal durch 2 Spieler gleichzeitig auslösen" cap on new activations.
      */
     int countOnCooldown(long now);
+
+    /**
+     * The UUIDs of players currently within their post-trigger cooldown — i.e. currently holding
+     * the Handelsbonus, the same set {@link #countOnCooldown} counts. Used to tab-complete
+     * {@code /handelsbonus reset <Name>} to only players the command can actually act on.
+     */
+    List<UUID> onCooldown(long now);
 
     /**
      * Starts (or restarts) {@code uuid}'s Handelsbonus: a fresh {@code discountRemaining} and a
