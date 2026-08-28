@@ -64,6 +64,22 @@ registriert sein (siehe `/spieler add`).
 > (`/treuepunkte add/remove/set <Anzahl>`). Da das nur für den ausführenden Admin selbst
 > Sinn ergäbe, wurde – analog zu `/spieler` und Vanilla `/xp` – ein Namensargument ergänzt.
 
+## `/handelsbonus reset` (Admin)
+
+Setzt den Cooldown eines Spielers für den Handelsbonus (siehe unten) zurück, sodass er ihn sofort
+erneut kaufen kann – ohne dass ein noch nicht aufgebrauchter Rabatt verloren geht.
+
+| Befehl | Berechtigung | Wirkung |
+|---|---|---|
+| `/handelsbonus reset <Name>` | `tes.admin.handelsbonus.reset` | Setzt den Handelsbonus-Cooldown des Spielers zurück. |
+
+Hat der Spieler aktuell keinen laufenden Cooldown (z. B. weil er den Handelsbonus noch nie gekauft
+hat), meldet der Befehl das statt etwas zu ändern. War der Spieler online, wird er zusätzlich
+benachrichtigt, dass sein Cooldown zurückgesetzt wurde.
+
+> Kein Bestandteil der Spezifikation – reine Admin-Abhilfe für Sonderfälle (z. B. ein
+> fehlkonfigurierter Rabatt oder eine versehentlich ausgelöste Aktivierung).
+
 ## `/punkte` bzw. `/treuepunkte` (Spieler)
 
 Ohne weitere Argumente öffnet `/punkte` (oder gleichbedeutend `/treuepunkte`) den
@@ -91,10 +107,11 @@ Vier weitere Felder öffnen ein Untermenü statt direkt etwas zu verkaufen:
 
 - **XP-Terminal** – vier XP-Boosts (6.000/12.500/30.000/50.000 Erfahrungspunkte für 50/75/100/125
   TP), die dir sofort echte Vanilla-Minecraft-XP gutschreiben.
-- **Freundliche Mobs I/II** und **Feindliche Mobs I/II** – je ein Sammelkauf, der dir auf einmal
-  alle Spawneier dieser Stufe ins Belohnungsinventar legt (z. B. Freundliche Mobs I: je 1x
-  Hilfsgeist/Gürteltier/Ozelot/Panda/Eisbär/Katze/Wolf/Fuchs/Dromedar/Biene plus je 2x
-  Kuh/Esel/Huhn/Schwein/Pferd/Kaninchen).
+- **Freundliche Mobs I/II** und **Feindliche Mobs I/II** – zeigt dir ein Untermenü mit allen
+  Spawnei-Arten dieser Stufe. Jede Art ist ein eigener Kauf zum gleichen Preis (z. B. jede
+  Freundliche-Mobs-I-Art für 200 TP); du bekommst nur das ausgewählte Ei ins Belohnungsinventar,
+  nicht alle Arten auf einmal. Bei Kuh/Esel/Huhn/Schwein/Pferd/Kaninchen erhältst du dabei direkt
+  2 Eier statt 1.
 
 Ein Pfeil ("⮜ Zurück") führt aus jedem Untermenü zurück zum Hauptinterface. Alle 12 Belohnungen
 sind einlösbar – Stage 3 ist damit vollständig.
@@ -102,8 +119,9 @@ sind einlösbar – Stage 3 ist damit vollständig.
 ### Handelsbonus
 
 Der Handelsbonus (150 TP) gewährt dir 5 Diamanten Rabatt auf deine nächsten Einkäufe in
-Item-Shops – automatisch verrechnet, ein Kauf über 40 Diamanten kostet dich z. B. nur noch 35,
-der Rest wird über die Staatskasse finanziert. Nicht verbrauchter Rabatt bleibt erhalten, bis er
+Item-Shops sowie beim Bezahlen von Rechnungen (`/rechnung`) – automatisch verrechnet, ein Kauf
+oder eine Rechnung über 40 Diamanten kostet dich z. B. nur noch 35, der Rest wird über die
+Staatskasse finanziert. Nicht verbrauchter Rabatt bleibt erhalten, bis er
 aufgebraucht ist. Höchstens 2 Spieler können den Handelsbonus gleichzeitig aktiv haben; ist er
 bei dir schon aktiv oder sind beide Plätze belegt, zeigt der Button einen ausgegrauten Diamanten
 und du kannst ihn erst nach Ablauf einer zufälligen Cooldown-Zeit von 3-4 Wochen erneut kaufen.
@@ -118,7 +136,7 @@ so schnell, der Bienenstock produziert doppelt so viel Honig. Das Item wird dabe
 Boostest du denselben Block erneut, während der Boost noch läuft, addiert sich die Dauer auf die
 verbleibende Zeit.
 
-### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>`
+### Treuepunkte übertragen – `/treuepunkte übertragen <Spieler> <Anzahl>` (gleichbedeutend: `/punkte übertragen <Spieler> <Anzahl>`)
 
 | Berechtigung | Voraussetzung |
 |---|---|
@@ -127,6 +145,16 @@ verbleibende Zeit.
 Überträgt `<Anzahl>` deiner eigenen Treuepunkte an `<Spieler>` – du kannst nicht mehr übertragen,
 als du besitzt, und nicht an dich selbst. Es fällt keine Gebühr an und es gibt keine Wartezeit.
 Ist das Ziel online, erhält es sofort eine Chat-Benachrichtigung.
+
+### Treuepunktestand abfragen – `/treuepunkte abfragen [Spieler]` (gleichbedeutend: `/punkte abfragen [Spieler]`)
+
+| Befehl | Berechtigung | Wirkung |
+|---|---|---|
+| `/treuepunkte abfragen` | `tes.treuepunkte.abfragen` | Zeigt dir deinen eigenen aktuellen Treuepunktestand im Chat an. |
+| `/treuepunkte abfragen <Spieler>` | `tes.admin.treuepunkte.abfragen` | (Admin) Zeigt den Treuepunktestand von `<Spieler>` an, statt deines eigenen. |
+
+Die Selbstabfrage funktioniert unabhängig vom Pausiert-Status – auch pausierte Spieler können
+ihren eigenen Stand jederzeit einsehen.
 
 ## `/shop` (Spieler)
 

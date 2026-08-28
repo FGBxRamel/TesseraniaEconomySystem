@@ -12,14 +12,16 @@ reference (captured in `GUI_References/`, workflow in `docs/gui-reference-captur
 doc's own rule ("where they disagree, ask rather than guessing which one wins"), these were
 resolved with the user rather than assumed — treat them as final, not open TODOs:
 
-- **Mob-tier rewards (Belohnung 8.1/9.1/10.1/11.1) are bundled purchases**, per the PDF's model —
-  the reference build's chests (`Mobs_V1.txt`–`V4.txt`) actually show à-la-carte per-egg pricing
-  (16/6/4/6 individually-priced eggs), but a generically-designed reward catalog makes either
-  shape a data change either way, so the tie-break (asked of the user) defaulted to the PDF.
-- **Feindliche Mobs II grants a Guardian, not a Warden** — the reference build's `Mobs_V4` chest
-  has no Warden slot at all (Guardian instead, not mentioned in the PDF anywhere). Confirmed by
-  the user, flagged as possibly changing again — keep this tier's egg list as one easily-edited
-  data table when it's built, not scattered across code.
+- **Mob-tier rewards (Belohnung 8.1/9.1/10.1/11.1) are à-la-carte purchases, one egg species per
+  purchase** — matching the reference build's chests (`Mobs_V1.txt`–`V4.txt`, 16/6/4/6
+  individually-priced eggs) and spec v1.3's revised wording ("Der Spieler kann auswählen, ob er
+  ... erwirbt"). An earlier revision of this doc recorded a "bundled, grants every egg at once"
+  reconciliation per the pre-v1.3 PDF text — that's been superseded; each species is now its own
+  `TreueshopMobBundle.MobEggOption`, purchased and granted independently.
+- **Feindliche Mobs II grants a Warden, not a Guardian** — the reference build's `Mobs_V4` chest
+  originally had no Warden slot (Guardian instead), but was updated in-world alongside the v1.3
+  (27.08.2026) spec revision to swap it for a Warden egg. The earlier Guardian reconciliation
+  recorded here no longer applies.
 - **Spawner's icon is `TRIAL_SPAWNER`**, matching the reference build (the PDF just says
   "Mobspawner" generically — not a real conflict, just an icon choice).
 - **The Handelsbonus "on cooldown" icon is a plain re-lored `DIAMOND`**, not a custom-model-data
@@ -59,17 +61,21 @@ resolved with the user rather than assumed — treat them as final, not open TOD
   rather than re-derived from the PDF (see reconciliation notes above). Also holds the XP-Terminal
   sub-interface's four leaf rewards (`xpTerminalRewards()`) — same record shape, since a
   sub-interface's own grid position works the same way.
-- `TreueshopMobBundle` / `TreueshopMobBundleCatalog` — the four bundled mob-egg rewards (a
-  `TreueshopReward`-like descriptor plus its `EggGrant` list), kept as a separate record rather than
-  folded into `TreueshopReward` since nothing else needs an egg list.
+- `TreueshopMobBundle` / `TreueshopMobBundleCatalog` — the four mob-egg tier sub-interfaces (a
+  shared cost plus a `MobEggOption` list, each option independently purchasable), kept as a
+  separate record rather than folded into `TreueshopReward` since nothing else needs an egg list.
 - `TreueshopComponents` — UI pieces shared by the main interface and every sub-interface: the
   balance sunflower, the "⮜ Zurück" button, filler panes, and the reward-icon-with-cost-lore
-  builder (overloaded for both `TreueshopReward` and `TreueshopMobBundle`).
+  builder (overloaded for both `TreueshopReward` and a `TreueshopMobBundle`/`MobEggOption` pair).
 - `TreueshopGui` — the main interface (`Gui.builder()`, not `PagedGui` — see `docs/gui-library.md`).
   Dispatches each reward to either a sub-interface opener or a purchase handler.
 - `TreueshopXpTerminalGui` — the XP-Terminal sub-interface (4 XP-Boost buttons).
-- `TreueshopMobBundleGui` — one generic sub-interface (single purchase button) reused for all four
-  Mo1-Mo4 tiers, parameterized by `TreueshopMobBundle`.
+- `TreueshopMobBundleGui` — one generic sub-interface reused for all four Mo1-Mo4 tiers,
+  parameterized by `TreueshopMobBundle`: a grid of its `MobEggOption`s, each independently
+  purchasable (buying one doesn't grant the others). Each option carries its own row/column,
+  transcribed from the reference build's `Mobs_V1-V4` chest dumps (including that chest's
+  recurring column-5 gap splitting each row into two groups) — not auto-packed left-to-right,
+  since the reference layout is what a returning player already expects to see.
 - `TreueshopRewardService` — purchase orchestration.
 - `TreueshopEffects` — direct effects applied straight to the buying player (potion effects, and
   now `applyXpBoost`'s `Player#giveExp`) — nothing persisted, matching how these don't survive a
@@ -95,13 +101,15 @@ Four reward "shapes" now exist:
 - **Direct-effect** (Segen der Zwerge, Kraftelixier, the XP-Terminal boosts): applied immediately
   to the buyer — a `PotionEffect`, or `Player#giveExp` for XP — with nothing persisted, matching
   how none of these survive a server restart anyway.
-- **Item-grant** (Spawner, Erntewelt, Glutzone, the four mob-egg bundles, Prozessverstärker):
-  routes through `RewardInventoryService.grant`, never a direct inventory placement, per that
-  service's own contract. Lives in `TreueshopItemGrants`, separate from `TreueshopEffects`, since
-  the two shapes take different dependencies (a `RewardInventoryService` vs. nothing beyond the
-  `Player`) — both are still dispatched through the same `directEffect` switch in `TreueshopGui`
-  and the same `TreueshopRewardService.purchase` call, since from that call's point of view both
-  are just "spend TP, then run an effect".
+- **Item-grant** (Spawner, Erntewelt, Glutzone, one selected mob egg, Prozessverstärker): routes
+  through `RewardInventoryService.grant`, never a direct inventory placement, per that service's
+  own contract. Lives in `TreueshopItemGrants`, separate from `TreueshopEffects`, since the two
+  shapes take different dependencies (a `RewardInventoryService` vs. nothing beyond the `Player`)
+  — both are still dispatched through the same `directEffect` switch in `TreueshopGui` and the same
+  `TreueshopRewardService.purchase` call, since from that call's point of view both are just "spend
+  TP, then run an effect". `TreueshopMobBundleGui` calls `TreueshopRewardService.purchase` directly
+  per option rather than going through `TreueshopGui`'s `directEffect` switch, since each option
+  needs its own click handler rather than one fixed effect per reward id.
 - **Sub-interface openers** (XP-Terminal, Freundliche/Feindliche Mobs I/II): no cost or effect of
   their own — `TreueshopGui` dispatches on `TreueshopReward#subInterfaceId` to open the
   corresponding screen instead of calling `TreueshopRewardService.purchase`.
@@ -172,9 +180,10 @@ item has been granted.
 ## Handelsbonus (`de.bydora.tes.handelsbonus`)
 
 Belohnung 4 is the last Stage 3 reward and the one that reaches back into already-shipped Stage 1
-purchase code (`ShopTradeListener`, `ShopEconomy`, `ShopMaintenanceTask`) rather than staying
-self-contained — the discount has to apply to every future shop purchase the holder makes, not to
-anything granted at Treueshop-purchase time.
+and Stage 2 purchase code (`ShopTradeListener`/`ShopEconomy`/`ShopMaintenanceTask` for shops,
+`InvoiceEconomy` for invoice settlement) rather than staying self-contained — the reward's own lore
+("Rabatt auf alle Einkäufe") means the discount has to apply to every future purchase the holder
+makes, not to anything granted at Treueshop-purchase time.
 
 ### Model
 
@@ -221,6 +230,20 @@ given sale was state-funded:
   `forceRefundPending` call sites (`ShopCommand`, `ShopMaintenanceTask`) on top of the purchase
   path that already needed it.
 
+### Wiring into `InvoiceEconomy`
+
+`InvoiceEconomy.settle` mirrors `ShopTradeListener.handleBuyerClick`'s discount handling exactly:
+it withdraws the payer's Handelsbonus discount from the Staatskasse before checking affordability
+(so the payer only needs `price - discount` diamonds on hand), but always credits the invoice
+creator's `invoice_balance` with the full nominal price — the creator, like a shop owner, is never
+aware a discount happened. TP/EP accrual for the payer (`creditPayer`) uses the discounted
+`amountToPay`, not the full price, for the same "Für die 5 Dias gibt es keine EP / TP!" reason as
+`ShopMaintenanceTask.creditBuyer`. `settle` now returns a `SettleOutcome(SettleResult,
+discountApplied)` record instead of a bare `SettleResult` so `InvoiceGui` can show the same
+"Handelsbonus aktiv" message shop purchases already show. As with shops, a `NOT_ENOUGH_DIAMONDS`
+outcome doesn't unwind an already-withdrawn Staatskasse contribution or consumed discount balance —
+same pre-existing sunk-cost tradeoff as the shop path, not something this change revisits.
+
 ### Admin setup
 
 The Staatskasse chest doesn't exist by default — an admin must place a real container (chest,
@@ -228,6 +251,14 @@ barrel, etc.) somewhere and set `treueshop.handelsbonus.staatskasse.world/x/y/z`
 to its coordinates, then keep it stocked with diamonds. Nothing in-game points an admin at this
 requirement yet; it's config-only, matching the spec's own "Koordinaten... in der Configdatei...
 angegeben werden müssen".
+
+### Admin cooldown reset
+
+`/handelsbonus reset <Name>` (`tes.admin.handelsbonus.reset`, `HandelsbonusCommand`) clears a
+player's `cooldown_until` back to 0 via `HandelsbonusRepository#resetCooldown`, without touching
+`discount_remaining` — an admin-only escape hatch with no spec counterpart, for cases like a
+misconfigured Staatskasse or an accidental activation. Reports back whether the player actually had
+an active cooldown to clear.
 
 ### Package layout
 

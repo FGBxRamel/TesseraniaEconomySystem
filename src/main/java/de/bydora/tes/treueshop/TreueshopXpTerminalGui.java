@@ -75,7 +75,7 @@ public final class TreueshopXpTerminalGui {
         int amount = xpAmount(reward.costConfigId());
         return Item.builder()
                 .setItemProvider(TreueshopComponents.rewardIcon(plugin, reward))
-                .addClickHandler((item, click) -> TreueshopGui.purchase(plugin, click.player(), reward,
+                .addClickHandler((item, click) -> TreueshopGui.purchase(plugin, click.player(), reward, false,
                         (p, player) -> TreueshopEffects.applyXpBoost(player, amount),
                         () -> open(plugin, click.player())))
                 .build();

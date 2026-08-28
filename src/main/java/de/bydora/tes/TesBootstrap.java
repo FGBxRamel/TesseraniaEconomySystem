@@ -2,6 +2,7 @@ package de.bydora.tes;
 
 import de.bydora.tes.command.belohnung.BelohnungCommand;
 import de.bydora.tes.command.debug.DebugCommand;
+import de.bydora.tes.command.handelsbonus.HandelsbonusCommand;
 import de.bydora.tes.command.punkte.ErfahrungspunkteCommand;
 import de.bydora.tes.command.punkte.PunkteAliasCommand;
 import de.bydora.tes.command.punkte.TreuepunkteCommand;
@@ -34,6 +35,7 @@ public final class TesBootstrap implements PluginBootstrap {
             commands.registrar().register(BelohnungCommand.build().build(), "Belohnungsinventar des Tesserania Economy Systems");
             commands.registrar().register(RechnungCommand.build().build(), "Rechnungsverwaltung des Tesserania Economy Systems");
             commands.registrar().register(DebugCommand.build().build(), "Admin-Debugwerkzeuge des Tesserania Economy Systems");
+            commands.registrar().register(HandelsbonusCommand.build().build(), "Handelsbonus-Verwaltung des Tesserania Economy Systems");
         });
     }
 

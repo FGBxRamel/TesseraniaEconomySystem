@@ -61,13 +61,12 @@ public final class TreueshopItemGrants {
     }
 
     /**
-     * Belohnungen 8.1/9.1/10.1/11.1, the bundled mob-egg rewards: one {@link ItemStack} per egg
-     * species in {@code bundle}, each stacked to its full grant amount.
+     * Belohnungen 8.1/9.1/10.1/11.1, the mob-egg tier sub-interfaces: grants only the single
+     * {@link TreueshopMobBundle.MobEggOption} the player selected and paid for, not every option
+     * in the tier (spec v1.3: each species is its own purchase).
      */
-    public static void grantMobBundle(TesseraniaEconomySystem plugin, Player player, TreueshopMobBundle bundle) {
-        for (TreueshopMobBundle.EggGrant egg : bundle.eggs()) {
-            plugin.rewardInventoryService().grant(player.getUniqueId(), new ItemStack(egg.eggMaterial(), egg.amount()));
-        }
+    public static void grantMobEgg(TesseraniaEconomySystem plugin, Player player, TreueshopMobBundle.MobEggOption option) {
+        plugin.rewardInventoryService().grant(player.getUniqueId(), new ItemStack(option.eggMaterial(), option.amount()));
     }
 
     private static ItemStack chorusFruit(String name, NamedTextColor color) {

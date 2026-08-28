@@ -66,7 +66,7 @@ final class TreueshopHandelsbonus {
             player.sendMessage(Messages.treueshopInsufficientTp());
             return;
         }
-        player.sendMessage(Messages.treueshopRewardPurchased("Handelsbonus"));
+        player.sendMessage(Messages.treueshopRewardPurchased("Handelsbonus", false));
         TreueshopGui.open(plugin, player);
     }
 

@@ -101,7 +101,8 @@ public final class TreueshopGui {
             builder.addClickHandler((item, click) -> openSubInterface(plugin, click.player(), reward.subInterfaceId()));
         } else {
             directEffect(reward).ifPresent(effect ->
-                    builder.addClickHandler((item, click) -> purchase(plugin, click.player(), reward, effect,
+                    builder.addClickHandler((item, click) -> purchase(plugin, click.player(), reward,
+                            grantsViaRewardInventory(reward.costConfigId()), effect,
                             () -> open(plugin, click.player()))));
         }
 
@@ -135,12 +136,24 @@ public final class TreueshopGui {
     }
 
     /**
+     * Whether {@code costConfigId}'s effect lands in the Belohnungsinventar ({@link TreueshopItemGrants})
+     * rather than applying immediately ({@link TreueshopEffects}) — determines whether the purchase
+     * confirmation should point the player at {@code /belohnung}.
+     */
+    private static boolean grantsViaRewardInventory(String costConfigId) {
+        return switch (costConfigId) {
+            case "spawner", "erntewelt", "glutzone", "prozessverstaerker" -> true;
+            default -> false;
+        };
+    }
+
+    /**
      * Spends {@code reward}'s cost and applies its effect, notifying the player either way.
      * {@code onSuccess} lets each Treueshop screen decide what to reopen (itself, or the main
      * interface) to refresh the balance display.
      */
     static void purchase(TesseraniaEconomySystem plugin, Player player, TreueshopReward reward,
-            BiConsumer<TesseraniaEconomySystem, Player> effect, Runnable onSuccess) {
+            boolean viaRewardInventory, BiConsumer<TesseraniaEconomySystem, Player> effect, Runnable onSuccess) {
         int cost = plugin.tesConfig().treueshopRewardCost(reward.costConfigId(), reward.defaultCost());
         TreueshopRewardService.PurchaseResult result = TreueshopRewardService.purchase(
                 plugin, player, cost, () -> effect.accept(plugin, player));
@@ -149,7 +162,7 @@ public final class TreueshopGui {
             return;
         }
         String rewardName = PlainTextComponentSerializer.plainText().serialize(reward.title());
-        player.sendMessage(Messages.treueshopRewardPurchased(rewardName));
+        player.sendMessage(Messages.treueshopRewardPurchased(rewardName, viaRewardInventory));
         onSuccess.run();
     }
 }

@@ -4,6 +4,8 @@ import de.bydora.tes.data.Database;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +50,23 @@ public final class SqliteHandelsbonusRepository implements HandelsbonusRepositor
     }
 
     @Override
+    public List<UUID> onCooldown(long now) {
+        return database.execute(() -> {
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "SELECT uuid FROM handelsbonus_holders WHERE cooldown_until > ?")) {
+                statement.setLong(1, now);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    List<UUID> uuids = new ArrayList<>();
+                    while (resultSet.next()) {
+                        uuids.add(UUID.fromString(resultSet.getString("uuid")));
+                    }
+                    return uuids;
+                }
+            }
+        });
+    }
+
+    @Override
     public void activate(UUID uuid, int discountRemaining, long cooldownUntil) {
         database.execute(() -> {
             try (PreparedStatement statement = database.connection().prepareStatement("""
@@ -77,6 +96,18 @@ public final class SqliteHandelsbonusRepository implements HandelsbonusRepositor
                 statement.executeUpdate();
             }
             return applied;
+        });
+    }
+
+    @Override
+    public boolean resetCooldown(UUID uuid, long now) {
+        return database.execute(() -> {
+            try (PreparedStatement statement = database.connection().prepareStatement(
+                    "UPDATE handelsbonus_holders SET cooldown_until = 0 WHERE uuid = ? AND cooldown_until > ?")) {
+                statement.setString(1, uuid.toString());
+                statement.setLong(2, now);
+                return statement.executeUpdate() > 0;
+            }
         });
     }
 

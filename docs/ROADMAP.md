@@ -4,7 +4,7 @@ Development proceeds in stages. Each stage adds one or more significant features
 
 **How to use this doc**: this is the source of truth for what stage development is currently on, across sessions. When a stage's feature(s) ship (PR(s) merged to `main`), tick its checkbox and add a one-line note (date + release version if one was cut). Don't rewrite history here — append notes, don't delete completed stage descriptions.
 
-**Spec version**: `docs/Tesserania-Economy-System.pdf` is currently **v1.3** (25.08.2026). It gets revised in place — when it changes, diff it against the previous committed version (`git show HEAD:docs/Tesserania-Economy-System.pdf > old.pdf` + `pdftotext -layout` on both + `diff`) rather than re-reading all 32 pages from scratch, and bump this line. Past revisions, for context: v1.0 (initial) → v1.2 (23.08.2026: added the 2304-Taler invoice cap, invoice retraction, invoice-interface reference coordinates) → v1.3 (25.08.2026: dropped the `/tes` root prefix and the `<world>` argument from every command example throughout the document — both already matched our independent implementation choices by the time the spec caught up; added an explicit pause-sanction rule, see Stage 1/2 notes below; typo fixes only otherwise).
+**Spec version**: `docs/Tesserania-Economy-System.pdf` is currently **v1.3** (27.08.2026). It gets revised in place — when it changes, diff it against the previous committed version (`git show HEAD:docs/Tesserania-Economy-System.pdf > old.pdf` + `pdftotext -layout` on both + `diff`) rather than re-reading all 32 pages from scratch, and bump this line. Past revisions, for context: v1.0 (initial) → v1.2 (23.08.2026: added the 2304-Taler invoice cap, invoice retraction, invoice-interface reference coordinates) → v1.3 (25.08.2026: dropped the `/tes` root prefix and the `<world>` argument from every command example throughout the document — both already matched our independent implementation choices by the time the spec caught up; added an explicit pause-sanction rule, see Stage 1/2 notes below; typo fixes only otherwise) → v1.3 (27.08.2026 revision, same version number: documented Segen der Zwerge's stacking behavior on reuse; reworded the mob-egg-tier rewards (Belohnung 8.1/9.1/10.1/11.1) from "grants every egg in the tier" to "player selects and buys one species at a time", matching the reference build's à-la-carte chests; added `/punkte übertragen`/`/punkte abfragen` command docs, already implemented).
 
 ## External dependencies / integration notes
 
@@ -94,6 +94,8 @@ reference build.
 
 - [x] `/punkte` / `/treuepunkte` main interface (9x4, sunflower balance, level-switch button) at the exact grid/costs confirmed against the reference build (`GUI_References/`) — merged (PR #13).
 - [x] `/treuepunkte übertragen <Spieler> <Anzahl>` (see resolved spec gap below) — merged (PR #13).
+- [x] `/treuepunkte abfragen [Spieler]` (self balance query; `<Spieler>` variant admin-only) —
+      shared with `/punkte abfragen` via the same subtree, per spec §3.2.
 - [x] Segen der Zwerge (haste) and Kraftelixier (potion bundle) — merged (PR #15).
 - [x] XP-Terminal + 4 XP boosts, Mo1–Mo4 mob-egg bundles, Erntewelt/Glutzone item stubs, Spawner.
 - [x] Prozessverstärker (furnace/beehive boost).
